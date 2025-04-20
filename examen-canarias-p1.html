@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Examen Gobierno de Canarias - Parte 1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Estilos base adaptados */
+    :root {
+      --primary-color: #003366; /* Azul oscuro original */
+      --accent-color: #FFCC00;  /* Amarillo original */
+      --text-color: #333;
+      --correct-bg: #d4edda;
+      --correct-border: #c3e6cb;
+      --correct-text: #155724;
+      --incorrect-bg: #f8d7da;
+      --incorrect-border: #f5c6cb;
+      --incorrect-text: #721c24;
+      --correct-highlight-border: #28a745; /* Verde fuerte para borde correcto */
+      --button-primary-bg: #003366;
+      --button-primary-hover: #002244;
+      --button-secondary-bg: #6c757d;
+      --button-secondary-hover: #5a6268;
+      --button-restart-bg: #28a745; /* Verde para reiniciar */
+      --button-restart-hover: #218838;
+      --button-review-bg: #ffc107; /* Amarillo/Naranja para revisar */
+      --button-review-hover: #e0a800;
+      --body-background: #eef2f7; /* Fondo azul-grisáceo muy claro */
+      --fixed-counter-height: 45px; /* Estimación altura contador */
+      --mobile-fixed-counter-height: 40px; /* Estimación altura móvil */
+    }
+    html, body {
+        height: 100%;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0; /* Padding inicial gestionado por JS */
+      background-color: var(--body-background); /* Aplicar nuevo color de fondo */
+      color: var(--text-color);
+      line-height: 1.6;
+      scroll-padding-top: 60px; /* Espacio para contador fijo al hacer scroll */
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* Centrar start screen */
+    }
+     /* Padding superior cuando el examen está activo */
+     body.exam-active {
+        padding-top: var(--fixed-counter-height); /* Espacio para contador fijo */
+        justify-content: flex-start;
+    }
+
+    /* --- Start Screen Styles --- */
+    #startScreen {
+        display: flex; /* Visible por defecto */
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+        text-align: center;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin: 20px auto;
+        max-width: 500px;
+        width: 90%;
+    }
+    #startScreen h2 {
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        font-size: 1.8em;
+    }
+    .question-options label {
+        display: block;
+        margin: 10px 0;
+        font-size: 1.1em;
+        cursor: pointer;
+        background-color: transparent;
+        padding: 5px;
+        border: none;
+        border-radius: 0;
+        position: static;
+        text-align: left;
+    }
+     .question-options label:hover {
+         background-color: transparent;
+         border-color: transparent;
+     }
+     .question-options input[type="radio"] {
+         margin-right: 8px;
+         vertical-align: middle;
+     }
+    .start-buttons button {
+        background: var(--button-primary-bg);
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-size: 1.1em;
+        transition: background-color 0.2s ease;
+        min-width: 200px;
+    }
+    .start-buttons button:hover {
+        background-color: var(--button-primary-hover);
+    }
+     .start-buttons button#resumeButton {
+         background-color: var(--button-secondary-bg);
+     }
+      .start-buttons button#resumeButton:hover {
+         background-color: var(--button-secondary-hover);
+     }
+     #resumePrompt {
+         margin-top: 15px;
+         padding: 10px;
+         background-color: #fff3cd;
+         border: 1px solid #ffeeba;
+         border-radius: 4px;
+         color: #856404;
+         font-size: 0.9em;
+         margin-bottom: 15px;
+     }
+
+
+    /* --- Exam View Styles --- */
+    header {
+      background: var(--primary-color);
+      color: #fff;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    header h1 { margin: 5px 0; font-size: 1.5em; }
+
+    /* Contador fijo */
+    #contador-fijo {
+        background-color: var(--accent-color);
+        color: var(--primary-color);
+        padding: 8px 15px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.05em;
+        position: fixed; /* Cambiado a fixed */
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 900;
+        border-bottom: 2px solid var(--primary-color);
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    #contador-fijo > div { margin: 0 5px; white-space: nowrap; }
+    .contador-aciertos { color: green; }
+    .contador-fallos { color: red; }
+    #pendingLink { cursor: pointer; text-decoration: none; color: var(--primary-color); }
+    #pendingLink:hover { text-decoration: underline; }
+    #pendingLink.disabled { cursor: default; opacity: 0.5; pointer-events: none; }
+
+
+    .quiz-container {
+      margin: 20px auto;
+      max-width: 700px;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .question {
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+      transition: outline 0.2s ease-in-out;
+      outline: 0px solid transparent;
+    }
+     .question:last-child { border-bottom: none; }
+    .question p { margin: 0 0 15px; font-size: 1.1em; font-weight: bold; color: var(--primary-color); }
+
+    /* Estilos específicos para labels dentro de las preguntas */
+    .question form label {
+      display: block;
+      margin-bottom: 8px;
+      cursor: pointer;
+      background-color: #f9f9f9;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      position: relative;
+      text-align: left;
+    }
+    .question form label:hover:not(.disabled) { background-color: #eef; border-color: #aab; }
+    .question form label.disabled { cursor: default; opacity: 0.7; }
+    .question form input[type="radio"] { margin-right: 10px; vertical-align: middle; }
+    .question form label.respuesta-correcta { background-color: var(--correct-bg); border-color: var(--correct-border); color: var(--correct-text); font-weight: bold; }
+    .question form label.respuesta-incorrecta { background-color: var(--incorrect-bg); border-color: var(--incorrect-border); color: var(--incorrect-text); }
+    .question form label.es-correcta-destacada { border: 2px solid var(--correct-highlight-border) !important; font-weight: bold; }
+
+    .feedback { margin-top: 10px; padding: 8px; border-radius: 4px; font-weight: bold; font-size: 0.95em; display: none; }
+    .feedback.correct { color: var(--correct-text); background-color: var(--correct-bg); border: 1px solid var(--correct-border); display: block; }
+    .feedback.incorrect { color: var(--incorrect-text); background-color: var(--incorrect-bg); border: 1px solid var(--incorrect-border); display: block; }
+
+    .comprobar-btn { display: none !important; }
+
+    /* Modal de Resultados */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+    .modal-content { background-color: #fff; margin: 10% auto; padding: 30px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 8px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .modal-content h2 { color: var(--primary-color); margin-top: 0; margin-bottom: 25px; }
+    .modal-content #results-text { font-size: 1.8em; margin: 25px 0; line-height: 1.4; }
+    .modal-content #results-text strong { display: inline-block; margin: 0 5px; }
+    .modal-content button { background-color: var(--button-primary-bg); color: white; padding: 12px 22px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; margin: 10px 5px 0 5px; transition: background-color 0.3s ease; min-width: 140px; }
+    .modal-content button:hover { background-color: var(--button-primary-hover); }
+    .modal-content button#reiniciar-btn { background-color: var(--button-restart-bg); }
+    .modal-content button#reiniciar-btn:hover { background-color: var(--button-restart-hover); }
+    .modal-content button#revisar-btn { background-color: var(--button-review-bg); color: #333; }
+    .modal-content button#revisar-btn:hover { background-color: var(--button-review-hover); }
+
+    /* Estilos modo revisión */
+    .modo-revision .feedback { display: none; }
+    .modo-revision .question form label.respuesta-seleccionada::before { content: '▶'; position: absolute; left: -15px; top: 50%; transform: translateY(-50%); color: var(--primary-color); font-size: 0.8em; }
+    .modo-revision .question form label.es-correcta-revision { font-weight: bold; border: 2px solid var(--button-restart-bg); }
+    .modo-revision .question form label.respuesta-correcta { background-color: var(--correct-bg); border-color: var(--correct-border); color: var(--correct-text); }
+    .modo-revision .question form label.respuesta-incorrecta { background-color: var(--incorrect-bg); border-color: var(--incorrect-border); color: var(--incorrect-text); }
+    .modo-revision .question form input[type="radio"] { display: none; }
+
+     /* Utility class to hide elements */
+    .hidden {
+        display: none !important;
+    }
+
+     @media (max-width: 600px) {
+       body.exam-active { padding-top: var(--mobile-fixed-counter-height); }
+       .header h1 { font-size: 1.3em; }
+       #contador-fijo { font-size: 0.9em; padding: 6px 10px; justify-content: space-around; }
+       #contador-fijo > div { margin: 3px 5px; }
+       #startScreen { padding: 20px; margin-top: 20px; margin-bottom: 20px; }
+       .question-options label { font-size: 1em; }
+       .start-buttons button { width: calc(100% - 10px); margin: 8px 5px; font-size: 1em; padding: 10px 20px;}
+       .quiz-container { margin: 10px auto; padding: 15px; /* margin-top ya no es necesario */}
+       .question { margin-bottom: 15px; padding: 10px; }
+       .question h3 { font-size: 1.05em; }
+       .options label { padding: 8px 12px; font-size: 0.95em;}
+       .modal-content { padding: 20px; }
+       .modal-content #results-text { font-size: 1.5em; }
+       .modal-content button { padding: 10px 18px; font-size: 0.9em; margin: 5px; display: block; width: calc(100% - 10px); }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="startScreen">
+      <h2>Examen Canarias - Parte 1</h2> <div id="resumePrompt" class="hidden">
+          <p>Se encontró progreso guardado.</p>
+      </div>
+      <div class="question-options">
+          <p><strong>Número de preguntas:</strong></p>
+          <label><input type="radio" name="numQuestions" value="30" checked> 30 Preguntas</label>
+          <label><input type="radio" name="numQuestions" value="50"> 50 Preguntas</label>
+          <label><input type="radio" name="numQuestions" value="70"> 70 Preguntas</label>
+          <label><input type="radio" name="numQuestions" value="all"> Todas (<span id="totalParsedCount">0</span>)</label>
+      </div>
+      <div class="start-buttons">
+          <button id="startButton">Empezar Nuevo Examen</button>
+          <button id="resumeButton" class="hidden">Continuar Examen Anterior</button>
+      </div>
+  </div>
+
+  <header class="header hidden"> <h1>Examen Gobierno de Canarias - Parte 1</h1>
+  </header>
+
+  <div id="contador-fijo" class="hidden">
+    <div>Aciertos: <span id="contador-aciertos" class="contador-aciertos">0</span></div>
+    <div>Fallos: <span id="contador-fallos" class="contador-fallos">0</span></div>
+    <div>Respondidas: <span id="contador-respondidas">0</span> / <span id="contador-total-activo">0</span></div>
+    <div id="pending-indicator">
+        <a href="#" id="pendingLink" title="Ir a la siguiente pregunta pendiente">Pendientes: <span id="contador-pendientes">0</span></a>
+    </div>
+  </div>
+
+  <div class="quiz-container hidden">
+    <div id="exam">
+      </div>
+  </div>
+
+  <div id="results-modal" class="modal">
+    <div class="modal-content">
+      <h2>Resultados del Test</h2>
+      <p id="results-text"></p>
+      <button id="reiniciar-btn">Empezar de nuevo</button>
+      <button id="revisar-btn">Revisar Test</button>
+    </div>
+  </div>
+
+
+  <script defer> // <-- Añadido 'defer' para mejorar carga inicial
+    // --- Constantes y Variables Globales ---
+    const examDiv = document.getElementById("exam");
+    const contadorAciertosSpan = document.getElementById("contador-aciertos");
+    const contadorFallosSpan = document.getElementById("contador-fallos");
+    const contadorRespondidasSpan = document.getElementById("contador-respondidas");
+    const contadorTotalActivoSpan = document.getElementById("contador-total-activo");
+    const contadorPendientesSpan = document.getElementById("contador-pendientes");
+    const pendingLink = document.getElementById('pendingLink');
+    const modal = document.getElementById('results-modal');
+    const resultsText = document.getElementById('results-text');
+    const reiniciarBtn = document.getElementById('reiniciar-btn');
+    const revisarBtn = document.getElementById('revisar-btn');
+    const startScreen = document.getElementById('startScreen');
+    const startButton = document.getElementById('startButton');
+    const resumeButton = document.getElementById('resumeButton');
+    const resumePrompt = document.getElementById('resumePrompt');
+    const examHeader = document.querySelector('.header'); // Usar clase .header
+    const contadorFijoDiv = document.getElementById('contador-fijo');
+    const quizContainer = document.querySelector('.quiz-container');
+    const totalParsedCountSpan = document.getElementById('totalParsedCount');
+
+    const progressKey = 'canariasExamProgressPart1_v2'; // Clave única actualizada
+
+    let correctCount = 0;
+    let incorrectCount = 0;
+    let answeredCount = 0;
+    let allParsedQuestions = []; // Todas las preguntas parseadas
+    let activeQuestions = [];    // Preguntas de la sesión actual
+    let totalActiveQuestions = 0; // Total de preguntas en la sesión actual
+    let userSelections = {}; // Para modo revisión
+
+    // Contenido del examen (extraído del archivo subido)
+    const fileContent = `
+
+
+           1.      Qué artículo de la Constitución reconoce expresamente el derecho de todos los ciudadanos a la protección de la salud:
+
+                  A)     El artículo 41.
+                  B)     El artículo 42.
+                  C)     El artículo 43.
+                  D)     El artículo 44.
+
+                  Respuesta Correcta: C
+
+          2.      Quiénes deberán de informar a los usuarios de los servicios del sistema sanitario público, o vinculados a él, de  sus derechos y deberes:
+
+                  A)     Las Leyes.
+                  B)     Los Poderes Públicos.
+                  C)     La Ley General de Sanidad.
+                  D)     El Sistema Nacional de Salud.
+
+                  Respuesta Correcta: B
+
+          3.      De las siguientes afirmaciones, señalar cuál de ellas es falsa:
+
+                  A)     Los poderes públicos mantendrán un régimen público de Seguridad Social para todos los ciudadanos.
+                  B)     El Estado tiene competencia exclusiva sobre la legislación básica y régimen económico de la Seguridad Social.
+                  C)     El Estado tiene competencia exclusiva sobre la legislación en Sanidad.
+                  D)     El respeto a la Ley y a los derechos de los demás son fundamentos del orden político y de la paz social.
+
+                  Respuesta Correcta: C
+
+          4.      El catálogo de prestaciones del Sistema Nacional de Salud tiene por objeto:
+
+                  A)     Garantizar las condiciones básicas y comunes para una atención integral, continuada y en el nivel adecuadode atención.
+                  B)     Garantizar la calidad de las prestaciones básicas y comunes para una atención integral, continuada y en el nivel adecuado de atención.
+                  C)     Garantizar las condiciones básicas y comunes para una atención basada en los principios de igualdad, equidad, notoriedad y relevancia en el nivel adecuado de atención.
+                  D)     Todas las respuestas son correctas.
+
+                  Respuesta Correcta: A
+
+          5.      Cuándo fue aprobada la Ley General de Sanidad:
+
+                  A)     Por la Ley 14/1986, de 25 de abril.
+                  B)     Por la Ley 14/1989, de 12 de mayo.
+                  C)     Por la Ley 14/1986, de 12 de mayo.
+                  D)     Por la Ley 14/1989, de 25 de abril.
+
+                  Respuesta Correcta: A
+
+          6.      El artículo 1.1 de la Constitución define la libertad, la justicia, la igualdad y el pluralismo político como:
+
+
+                  A)     Valores superiores del ordenamiento jurídico
+                  B)     Principios de los que emana la soberanía nacional
+                  C)     Principios superiores del ordenamiento jurídico
+                  D)     Principios generales del ordenamiento jurídico
+
+                  Respuesta Correcta: A
+
+          7.      El Título I de la Constitución, en su Capítulo II, contiene:
+
+                  A)     Dos Secciones, respectivamente tituladas "De los derechos fundamentales y de las libertades públicas" y   "De los derechos y deberes de los ciudadanos"
+                  B)     Dos Secciones, respectivamente tituladas "De los españoles y los extranjeros" y "De los derechos y deberes  de los ciudadanos"
+                  C)     Tres Secciones, respectivamente tituladas "De los españoles y los extranjeros", "De los derechos y libertades" y "De los deberes de los ciudadanos"
+                  D)     Un solo artículo, que proclama la igualdad de todos ante la ley
+
+                  Respuesta Correcta: A
+
+          8.      Entre los derechos fundamentales proclamados en la Sección 1ª Capítulo 2º Título 1º de la Constitución se incluyen:
+
+                  A)     El derecho a la igualdad, el derecho al trabajo y el derecho a la libertad
+                  B)     El derecho a contraer matrimonio con plena igualdad jurídica, el derecho a sindicarse libremente y el derecho a la educación
+                  C)     El derecho a la tutela judicial efectiva, el derecho a sindicarse libremente y el derecho de petición
+                  D)     El derecho a la educación, el derecho a sindicarse libremente y el derecho al trabajo
+
+                  Respuesta Correcta: C
+
+          9.     El derecho a la protección de la salud se encuadra:
+
+                  A)     En el Título I Capitulo II, sección 2ª "De los derechos y deberes de los ciudadanos"
+                  B)     En el Título I Capitulo II, sección 1ª "De los derechos fundamentales y de las libertades públicas"
+                  C)     En el Título I Capitulo III "De los principios rectores de la política social y económica"
+                  D)     En el Título I Capitulo VI "De los principios rectores de la política social y económica"
+
+
+                  Respuesta Correcta: C
+
+          10. El Estatuto de Autonomía de Canarias declara expresamente la inviolabilidad de:
+
+                  A)     Los miembros del Parlamento por los votos y opiniones que emitan en el ejercicio de su cargo
+                  B)     La Corona
+                  C)     Los miembros del Parlamento por los votos y opiniones que emitan en el ejercicio de su cargo y del Parlamento
+                  D)     Los miembros del Gobierno.
+
+                  Respuesta Correcta: C
+
+          11. De conformidad con el artículo 50 de la Ley Orgánica 1/2018, de 5 de noviembre, de reforma del Estatuto de  Autonomía de Canarias, corresponde al Gobierno de Canarias, (señale la afirmación falsa):
+
+
+                  A)     La dirección política de la Comunidad Autónoma de Canarias y de su Administración
+                  B)     Las funciones ejecutivas administrativas y legislativas, de conformidad con lo que establece el presente Estatuto y las leyes.
+                  C)     La planificación de la política económica de la Comunidad Autónoma de Canarias y su coordinación con las poíticas insulares, teniendo en cuenta las necesidades de cada isla y el interés general.
+                  D)     La interposición de recursos de inconstitucionalidad y cuantas facultades le atribuya la Ley Orgánica del Tribunal Constitucional.
+
+                  Respuesta Correcta: B
+
+          12. De acuerdo con la Ley Orgánica 1/2018, de 5 de noviembre, de reforma del Estatuto de Autonomía de Canarias, una ley del Parlamento de Canarias, a iniciativa de sus miembros regulará el régimen electoral, aprobada por la  mayoría de:
+
+                  A)     Tres quintos.
+                  B)     Dos tercios.
+                  C)     Absoluta
+                  D)     Simple
+
+                  Respuesta Correcta: A
+
+          13. Señale la proposición correcta:
+
+                  A)     Los Estatutos de Autonomía no pueden ser modificados sino con autorización del Senado
+                  B)     La reforma de los Estatutos de Autonomía requiere la aprobación del Gobierno Central del proyecto de reforma
+                  C)     La reforma de los Estatutos de Autonomía exige en todo caso su aprobación por las Cortes Generales  mediante Ley Orgánica
+                  D)     La reforma de los Estatutos de Autonomía está sujeta a los mismos procedimentos que la revisión  constitucional
+
+                  Respuesta Correcta: C
+
+          14. El Estatuto de Autónoma de Canarias dedica a los derechos, deberes y principios rectores:
+
+                  A)     El Título I
+                  B)     El Título V
+                  C)     El Título III
+                  D)     El Titulo IV
+
+                  Respuesta Correcta: A
+
+          15. El Estatuto de Autonomía de Canarias consta de:
+
+                  A)     202 artículos, 8 Títulos, 6 Disposiciones Adicionales, 2 Transitorias y 1 disposición final
+                  B)     202 artículos, 1 Preámbulo, 8 Títulos, 6 Disposiciones Adicionales, 2 Transitorias y 1 disposición final
+                  C)     200 artículos, 1 Preámbulo, 8 Títulos, 6 Disposiciones Adicionales, 2 Transitorias y 1 disposición final
+                  D)     202 artículos, 1 Preámbulo, 8 Títulos, 6 Disposiciones Adicionales, 2 Transitorias, 1 derogatoria y 1 disposición final
+
+                  Respuesta Correcta: D
+
+          16. El Estatuto de Autonomía de Canarias entró en vigor:
+
+                  A)     Al día siguiente de su publicación en el Boletín Oficial del Estado.
+                  B)     El mismo día de su publicación en el Boletín Oficial del Estado.
+                  C)     Al día siguiente de su publicación en el Boletín Oficial de Canarias.
+                  D)     El mismo día de su publicación en el Boletín Oficial de Canarias.
+
+                  Respuesta Correcta: B
+
+          17. Señale la proposición incorrecta
+
+                  A)     Los diputados estarán sujetos a mandato imperativo.
+                  B)     El número de diputados no será inferior a cincuenta ni superior a setenta y cinco
+                  C)     Los miembros del Parlamento serán inviolables por los votos y opiniones que emitan en el ejercicio de su  cargo
+                  D)     El Parlamento funcionará en pleno y en comisiones.
+
+                  Respuesta Correcta: A
+
+          18. ¿En qué artículo del Estatuto de Autonomía de Canarias se recogen los derechos en el ámbito de la salud?
+                  A)     Artículo 16.
+                  B)     Artículo 19.
+                  C)     Artículo 37.
+                  D)     Artículo 43.
+
+                  Respuesta Correcta: B
+
+          19. Conforme al artículo 9 de la Ley 3/2018, de 5 de diciembre, de protección de datos personales y garantía de los derechos digitales, no son categorías especiales de datos:
+
+                  A)     Datos de afiliación sindical.
+                  B)     Datos de la Seguridad Social.
+                  C)     Datos de orientación sexual.
+                  D)     Datos de origen racial.
+
+                  Respuesta Correcta: B
+
+          20. Con arreglo a la Ley 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales, se podrá considerar repetitivo el ejercicio del derecho de acceso a los datos personales en más de una ocasión, a menos que exista causa legítima para ello, durante el plazo de:
+
+                  A)     3 meses.
+                  B)     6 meses.
+                  C)     9 meses.
+                  D)     Un año.
+
+                  Respuesta Correcta: B
+
+          21. El derecho a la protección de datos personales deriva directamente del derecho fundamental a la intimidad), que  se recoge en el:
+
+                  A)     Artículo 18.4 de la Constitución Española
+                  B)     Artículo 18.2 de la Constitución Española
+                  C)     Artículo 17 de la Constitución Española
+                  D)     Artículo 16 de la Constitución Española
+
+                  Respuesta Correcta: A
+
+          22. El artículo 18.4 de la Constitución Española, establece que:
+
+                  A)     La ley limitará el uso de la informática para garantizar el honor y la intimidad personal y familiar de los  ciudadanos y el pleno ejercicio de sus deberes, derechos y obligaciones.
+                  B)     La ley limitará el uso de la informática para garantizar el honor y la intimidad familiar de los ciudadanos   españoles y el pleno ejercicio de sus derechos y obligaciones.
+                  C)     La ley limitará el uso de la informática para garantizar el honor y la intimidad personal y familiar de los  ciudadanos y el pleno ejercicio de sus derechos
+                  D)     La ley limitará el uso de la informática para garantizar el honor y la intimidad personal, familiar y social de los  ciudadanos y el pleno ejercicio de sus derechos y obligaciones
+
+                  Respuesta Correcta: C
+
+          23. Actualmente está vigente en España en relación a la protección de datos personales:
+
+                  A)     La Ley Orgánica 15/1999 de 13 de diciembre, de Protección de Datos de Carácter Personal
+                  B)     Ley orgánica 3/2018 de 5 de diciembre, de protección de datos personales y garantía de los derechos  digitales
+                  C)     Ley orgánica 13/2017 de 5 de diciembre, de protección de datos personales y garantía de los derechos y deberes digitales
+                  D)     Ninguna es correcta
+
+                  Respuesta Correcta: B
+
+          24. La Ley Orgánica 3/2018, de 5 de diciembre, de Protección de datos personales y garantía de los derechos digitales, entró en vigor:
+
+                  A)     Al día siguiente al de su publicación
+                  B)     A los dos días de su publicación
+                  C)     A los veinte días de su publicación
+                  D)     El mismo día de su publicación
+
+                  Respuesta Correcta: A
+
+          25. La Ley Orgánica 3/2018, de 5 de diciembre, de Protección de datos personales y garantía de los derechos digitales, entró en vigor:
+
+                  A)     EI 26 de diciembre de 2018
+                  B)     EI 6 de diciembre de 2018
+                  C)     EI 25 de diciembre de 2018
+                  D)     EI 7 de diciembre de 2018
+
+                  Respuesta Correcta: D
+
+          26. La ley Orgánica 3/2018, de 5 de diciembre, de Protección de datos personales y garantía de los derechos digitales consta de:
+
+                  A)     Un Preámbulo, 10 Títulos, 22 Disposiciones Adicionales, 6 Disposiciones Transitorias, una disposición  Derogatoria y 16 disposiciones Finales.
+                  B)     11 Títulos, 22 Disposiciones Adicionales, 6 Disposiciones Transitorias, una disposición Derogatoria y 16 disposiciones Finales.
+                  C)     Un Preámbulo, 9 Títulos, 22 Disposiciones Adicionales, 5 Disposiciones Transitorias, una disposición Derogatoria y 16 disposiciones Finales.
+                  D)     Un Preámbulo, 11 Títulos, 22 Disposiciones Adicionales, 5 Disposiciones Transitorias, una disposición Derogatoria y 16 disposiciones Finales.
+
+                  Respuesta Correcta: A
+
+          27. La ley Orgánica 3/2018, de 5 de diciembre, de Protección de datos personales y garantía de los derechos
+              digitales, consta de:
+
+                  A)     Noventa artículos
+                  B)     Noventa y cinco artículos
+                  C)     Noventa y siete artículos
+                  D)     Noventa y nueve artículos
+
+                  Respuesta Correcta: C
+
+
+          28. ¿Cuál es la Ley de Prevención de Riesgos Laborales?
+                  A)     Ley 31/1995, de 6 de noviembre.
+                  B)     Ley 13/1995, de 8 de noviembre.
+                  C)     Ley 31/1995, de 8 de noviembre.
+                  D)     Ley 31/1996, de 6 noviembre.
+
+                  Respuesta Correcta: C
+
+          29. ¿Qué artículo de la Constitución Española configura el soporte básico en que se asienta la Ley de Prevención de  Riesgos Laborales?
+                  A)     Artículo 40.2
+                  B)     Artículo 43.1
+                  C)     Artículo 42.1
+                  D)     Artículo 41.2
+
+                  Respuesta Correcta: A
+
+          30. En relación al artículo 40.2 de la Constitución Española, señala la afirmación correcta:
+
+                  A)     Encomienda a los poderes públicos velar por la seguridad e higiene en el trabajo.
+                  B)     Este mandato conlleva la necesidad de desarrollar una política de protección de la salud de los trabajadores.
+                  C)     Encuentra en la Ley de Prevención de Riesgos Laborales su pilar fundamental.
+                  D)     Todas las respuestas son correctas.
+
+                  Respuesta Correcta: D
+
+          31. Señala cuál es una de las principales novedades de la Ley 31/1995 de Prevención de Riesgos Laborales:
+
+
+                  A)     Solamente posee carácter de legislación laboral.
+                  B)     Se aplicará también en el ámbito de las Administraciones públicas.
+                  C)     No constituye norma básica del régimen estatutario de los funcionarios públicos.
+                  D)     Solamente se aplicará en el ámbito de las Administraciones privadas.
+
+                  Respuesta Correcta: B
+
+          32. Señala qué capítulo de la Ley 31/1995 de Prevención de Riesgos Laborales regula el conjunto de derechos y obligaciones:
+
+                  A)     Capítulo I.
+                  B)     Capítulo V.
+                  C)     Capítulo III.
+                  D)     Capítulo II.
+
+                  Respuesta Correcta: C
+
+          33. Señala qué capítulo de la Ley 31/1995 de Prevención de Riesgos Laborales regula los derechos de consulta y  participación de los trabajadores:
+
+                  A)     Capítulo V.
+                  B)     Capítulo I.
+                  C)     Capítulo II.
+                  D)     Capítulo IV.
+
+                  Respuesta Correcta: A
+
+          34. En relación a los derechos de consulta y participación de los trabajadores, según la Ley 31/1995 de Prevención de Riesgos Laborales, señala la respuesta INCORRECTA:
+
+                  A)     La Ley atribuye a los Delegados de Prevención el ejercicio de las funciones especializadas en materia de   prevención de riesgos en el trabajo.
+                  B)     Dichos derechos tienen que ver con las cuestiones que afectan a la seguridad y salud en el trabajo.
+                  C)     Junto a ello, el Comité de Seguridad y Salud, se configura como el órgano de encuentro entre representantes y empresario.
+                  D)     Todas son incorrectas.
+
+                  Respuesta Correcta: D
+
+          35. Señale qué artículos comprenden el Capítulo III de Derechos y Obligaciones de la Ley 31/1995 de Prevención de Riesgos Laborales:
+
+
+                  A)     Del artículo 14 al artículo 29.
+                  B)     Del artículo 13 al artículo 29.
+                  C)     Del artículo 14 al artículo 28.
+                  D)     Del artículo 31 al artículo 40.
+
+                  Respuesta Correcta: A
+
+          36. Dentro del ámbito ambulatorio qué actividad es fundamental en el Servicio de Admisión y Documentación Clínica:
+
+                  A)     Calendario y rango horario de la agenda.
+                  B)     Difusión de la actividad programada
+                  C)     Solicitud y desprogramación de la cita.
+                  D)     Catalogo de locales de consulta.
+
+                  Respuesta Correcta: C
+
+          37. Dentro del catálogo de prestaciones del Servicio de Admisión y Documentación Clínica no se incluye:
+
+                  A)     Hospitalización
+                  B)     Consultas Externas
+                  C)     Atención al cliente
+                  D)     Estancia preoperatorio
+
+                  Respuesta Correcta: D
+
+          38. Dentro del ámbito de hospitalización qué actividades son fundamentales en el Servicio de Admisión y  Documentación Clínica:
+
+                  A)     Registro de la solicitud de ingreso.
+                  B)     Programación de ingresos.
+                  C)     Movimiento del paciente (ingreso/traslado/alta)
+                  D)     Todas son correctas.
+
+                  Respuesta Correcta: D
+
+          39. Dentro del ámbito quirúrgico qué actividades son fundamentales en el Servicio de Admisión y Documentación  Clínica:
+
+                  A)     Registro de solicitud de asistencia en demanda quirúrgica
+                  B)     Paciente en programación quirúrgica
+                  C)     Registro de intervención realizada
+                  D)     Todas son correctas.
+
+                  Respuesta Correcta: D
+
+          40. Dentro de la actividad de documentación clínica qué servicios son fundamentales en el Servicio de Admisión y Documentación Clínica:
+
+                  A)     Apunte realizado en el fichero de localización de la historia clínica.
+                  B)     Solicitud recibida de información clínica a terceros.
+                  C)     Episodio de hospitalización codificado
+                  D)     Todas son correctas.
+
+                  Respuesta Correcta: D
+
+          41. Dentro del catálogo de productos del Servicio de Admisión y Documentación Clínica en el área de Coordinación con otros centros qué productos no se incluye:
+
+                  A)     Solicitudes de asistencias.
+                  B)     Traslado en transporte sanitario
+                  C)     Programación de ingresos
+                  D)     Todas son correctas
+
+                  Respuesta Correcta: C
+
+          42. ¿Cuál de las siguientes opciones no corresponde a una de las funciones fundamentales de los Servicios de Admisión y Documentación Clínica?
+                  A)     Desarrollar el sistema de información asistencial.
+                  B)     Generar información según las necesidades de los servicios para las tareas asistenciales, educativas,
+                         investigadoras y de gestión.
+                  C)     Seleccionar y asignar el sistema de información asistencial.
+                  D)     Traslado en transporte sanitario
+
+                  Respuesta Correcta: C
+
+          43. ¿Cuál de las siguientes actividades son fundamentales en el Servicio de Admisión y Documentación Clínica en hospitalización?
+                  A)     Preparación de la dieta del paciente.
+                  B)     Registro de la solicitud de ingreso.
+                  C)     Administración de medicamentos.
+                  D)     Planificación de cirugías.
+
+                  Respuesta Correcta: B
+
+          44. ¿Qué actividad se lleva a cabo en el Servicio de Admisión y Documentación Clínica en el ámbito de  hospitalización relacionada con el movimiento del paciente?
+                  A)     Organización de eventos sociales para los pacientes.
+                  B)     Programación de ingresos.
+                  C)     Control de existencias de suministros médicos.
+                  D)     Preparación de informes de investigación médica.
+
+                  Respuesta Correcta: B
+
+          45. ¿Cuál de los siguientes parámetros se considera un indicador de actividad de los servicios de admisión y documentación clínica?
+                  A)     Promedio de códigos diagnósticos registrados.
+                  B)     Tasa de disponibilidad de la historia médica.
+                  C)     Nivel de codificación de diagnósticos y procedimentos en lista de espera.
+                  D)     Porcentaje de episodios asistenciales codificados.
+
+                  Respuesta Correcta: A
+
+          46. El promedio diario de camas administradas por el servicio de admisión y documentación clínica se calcula como:
+
+                  A)     El número total de ingresos durante el período dividido por los días del período.
+                  B)     La suma de ingresos, traslados intrahospitalarios y altas durante el período dividido por los días del período.
+                  C)     La suma de ingresos y altas durante el período dividido por los días del período.
+                  D)     La suma de ingresos y traslados intrahospitalarios durante el período dividido por los días del período.
+
+                  Respuesta Correcta: B
+
+          47. ¿Cuál es el propósito de la documentación clínica?
+                  A)     Para la atención médica.
+                  B)     Para la enseñanza, investigación, calidad, planificación y administración.
+                  C)     Para la defensa de los intereses del paciente y/o del hospital.
+                  D)     Todas las anteriores son correctas.
+
+                  Respuesta Correcta: D
+
+          48. La legislación que regula la autonomía del paciente, así como sus derechos y obligaciones en relación con la información y documentación clínica, corresponde a:
+
+                  A)     Ley 14/1986, de 25 de abril.
+                  B)     Ley Orgánica 15/1999.
+                  C)     Ley 41/2002, de 14 de noviembre.
+                  D)     Ley 41/2001, de 14 de diciembre.
+
+                  Respuesta Correcta: C
+
+          49. ¿Cuál de las siguientes opciones no corresponde a una de las funciones fundamentales de los Servicios de Admisión y Documentación Clínica?
+                  A)     Desarrollar el sistema de información asistencial.
+                  B)     Generar información según las necesidades de los servicios para las tareas asistenciales, educativas, investigadoras y de gestión.
+                  C)     Seleccionar y asignar el sistema de información asistencial.
+                  D)     Realizar evaluaciones periódicas de calidad en el funcionamento de los flujos de información establecidos.
+
+                  Respuesta Correcta: C
+
+          50. Las funciones del Área de Documentación Clínica incluyen:
+
+                  A)     La gestión de la historia clínica, archivo y codificación.
+                  B)     La gestión de la historia clínica, archivo, codificación e información asistencial.
+                  C)     La gestión de la historia clínica y codificación.
+                  D)     La gestión de la historia clínica, codificación e información asistencial.
+
+                  Respuesta Correcta: A
+
+          51. En la definición de un processo específico en el servicio de Admisión y Documentación clínica, ¿en qué etapa se detallan las diferentes fases del processo?
+                  A)     Al establecer la misión del processo.
+                  B)     Al crear las instrucciones técnicas, procedimentos y otros documentos.
+                  C)     Al elaborar el diagrama de flujo.
+                  D)     En la definición de los requisitos de recursos.
+
+                  Respuesta Correcta: C
+
+          52. Entre las responsabilidades de los Servicios de Admisión y Documentación Clínica (SADC) se encuentra la recopilación de datos de identificación de los pacientes y la actualización de los registros en el "fichero maestro de pacientes" (FMP).
+              De las siguientes afirmaciones, cuál es incorrecta:
+
+                  A) La calidad de la recopilación de datos de identificación del paciente no afecta al Sistema de Información  Asistencial.
+                  B) Se eliminarán los registros duplicados del mismo paciente según los criterios establecidos para garantizar la identificación única de cada paciente para todas las atenciones que requiera.
+                  C)  Las nuevas incorporaciones al fichero maestro de pacientes se realizan siguiendo los criterios establecido  para prevenir errores y duplicados.
+                  D)  Llamamos Fichero Maestro de Pacientes al registro único y centralizado de los pacientes atendidos en un  centro hospitalario específico, que incluye todos los datos organizados de cada paciente para su identificación inequívoca.
+
+                  Respuesta Correcta: A
+
+          53. En relación con la identificación de la historia clínica, dentro de las funciones del Servicio de Admisión y  Documentación Clínica, indique la respuesta incorrecta
+
+                  A)     Establecer un sistema de identificación permanente, exclusivo y único, de las Historias Clínicas.
+                  B)     En el archivo, el índice de pacientes es el conjunto de registros que contienen los datos fundamentales de identificación de todos los pacientes.
+                  C)     Actualizar los datos del registro en cada interacción del paciente con el centro.
+                  D)     Firmar los informes de alta.
+
+                  Respuesta Correcta: D
+
+          54. ¿Cuál de los siguientes documentos no forma parte del contenido mínimo de la historia clínica?
+                  A)     El consentimiento de admisión.
+                  B)     La nota de consulta externa.
+                  C)     La planificación de cuidados de enfermería.
+                  D)     Las recomendaciones de traslado a otros centros.
+
+                  Respuesta Correcta: D
+
+          55. ¿Cuál es la definición legal de Historia Clínica?
+                  A)     La unidad asistencial documental con organización propia, dotada de los recursos para conocer el estado de
+                         salud y la evolución clínica de un paciente.
+                  B)     El soporte de cualquier tipo o clase que contiene un conjunto de datos e información de atención médica sobre un paciente.
+                  C)     El conjunto de documentos emitidos por un médico que recopila todos los datos, sin importar su formato,
+                         tipo o clase, para obtener o ampliar conocimientos sobre la salud y el estado físico de una persona, o cómo
+                        preservarla, cuidarla, mejorarla o recuperarla.
+                  D)     El conjunto de documentos que contiene datos, evaluaciones e información de cualquier tipo sobre la
+                         situación y evolución clínica de un paciente a lo largo de su atención asistencial.
+
+                  Respuesta Correcta: D
+
+          56. ¿Cuál es el papel desempeñado por las tecnologías emergentes en la interoperabilidad de los expedientes
+              clínicos electrónicos?
+                  A)     Facilitan la transferencia de información entre diferentes sistemas de atención médica.
+                  B)     Dificultan la comunicación entre los profesionales de la salud.
+                  C)     Restringen el acceso a la información solo a dispositivos específicos.
+                  D)     No tienen ningún impacto en la interoperabilidad de los expedientes clínicos electrónicos.
+
+                  Respuesta Correcta: A
+
+          57. Con respecto a la historia clínica en el control de calidad sanitaria, identifique la afirmación incorrecta:
+
+                  A)     La historia clínica se utiliza en los programas de certificación.
+                  B)     Historias clínicas de baja calidad están asociadas con una atención deficiente.
+                  C)     Se utiliza como fuente de datos en los programas de evaluación de calidad.
+                  D)     Una historia clínica de calidad garantiza automáticamente una atención de calidad.
+
+                  Respuesta Correcta: B
+
+          58. ¿Cuál es uno de los beneficios de la incorporación de nuevas tecnologías en la documentación médica de los
+              pacientes?
+                  A)     Mejora la accesibilidad y disponibilidad de los registros de salud.
+                  B)     Aumenta la complejidad y la dificultad de uso para el personal médico.
+                  C)     Incrementa la probabilidad de errores en la documentación médica.
+                  D)     Genera un mayor costo en el almacenamiento de la información.
+
+                  Respuesta Correcta: A
+
+          59. El criterio para archivar una historia clínica en inactividad (pasivizar) se basa en:
+
+                  A)     El período de tiempo en el que no ha habido actividad
+                  B)     La ocupación de las estanterías.
+                  C)     Consideraciones legales.
+                  D)     Todas las opciones son correctas.
+
+                  Respuesta Correcta: A
+
+          60. El servicio de admisión del hospital asigna a cada paciente un número de identificación único, que se conserva durante todas sus interacciones con el hospital, tanto en visitas ambulatorias como en ingresos.
+              Este número se conoce como:
+
+                  A)     Número de episodio.
+                  B)     Número CIAS.
+                  C)     Número de Seguridad Social.
+                  D)     Número de Historia Clínica.
+
+                  Respuesta Correcta: D
+
+          61. Según la normativa actual, el objetivo principal de la historia clínica es:
+
+                  A)     Registrar información esencial para comprender el estado de salud del paciente.
+                  B)     Facilitar la atención sanitaria.
+                  C)     Registrar todos los servicios prestados al paciente por profesionales de la salud.
+                  D)     Todas las respuestas son correctas.
+
+                  Respuesta Correcta: B
+
+          62. Según la Ley básica que regula la autonomía del paciente y sus derechos y obligaciones en materia de información y documentación clínica, todos los siguientes documentos forman parte de la historia médica, excepto uno:
+
+                  A)     La evolución clínica.
+                  B)     La documentación relacionada con la hoja Clínico Estadística.
+                  C)     La lista de acompañantes durante la hospitalización para rastrear posibles contactos en caso de infecciones nosocomiales.
+                  D)     El gráfico de constantes.
+
+                  Respuesta Correcta: C
+
+          63. Dentro de los solicitantes de la historia clínica, ¿cuál se considera de tercera prioridad?
+                  A)     Consultas externas.
+                  B)     Servicios de urgencias.
+                  C)     Pacientes ingresados.
+                  D)     Unidad de hospitalización diurna
+
+                  Respuesta Correcta: A
+
+          64. En el procedimento de préstamo de historias clínicas para ingresos programados, ¿cuál de las siguientes afirmaciones no es correcta?
+                  A)     El Archivo es informado sobre los ingresos programados.
+                  B)     El Archivo registra electrónicamente el préstamo y envía la historia clínica a la secretaría asistencial de la unidad donde el paciente será ingresado.
+                  C)     Si la historia clínica está prestada a otro servicio, el Archivo lo anotará en la hoja de información de ingreso para facilitar su localización por parte de la secretaría asistencial.
+                  D)     Durante el período en que la historia clínica permanezca fuera del archivo, los servicios asistenciales deben notificar los cambios de ubicación de forma semanal.
+
+                  Respuesta Correcta: D
+
+          65. En lo que respecta al registro y mantenimiento de la ubicación de las historias clínicas, el archivo lleva a cabo las siguientes tareas, EXCEPTO:
+
+                  A)     Establecer un método de comunicación eficiente con las unidades funcionales para mantenerse al tanto de  la nueva ubicación de las historias clínicas.
+                  B)     Realizar revisiones periódicas de las historias clínicas que no se han devuelto después de superar el   período máximo de préstamo.
+                  C)     Verificar regularmente la precisión del archivo de préstamos.
+                  D)     Garantizar la disponibilidad de la documentación clínica para el departamento de recursos humanos.
+
+                  Respuesta Correcta: D
+
+          66. ¿Cuáles son las situaciones en las que una Historia Clínica puede no encontrarse en el archivo?
+                  A)     Historia Clínica nueva que aún no ha llegado al archivo.
+                  B)     Historia Clínica en préstamo a un departamento asistencial.
+                  C)     Historia Clínica en préstamo para fines de investigación y otras razones no relacionadas con la atención médica.
+                  D)     Todas las opciones son correctas.
+
+                  Respuesta Correcta: D
+
+          67. ¿Cuál de los siguientes indicadores de calidad se considera fundamental en un archivo de Historias Clínicas?
+                  A)     Disponibilidad de las Historias Clínicas.
+                  B)     Proporción de historias clínicas prestadas.
+                  C)     Proporción de historias clínicas no devueltas
+                  D)     Ninguna de las respuestas es correcta.
+
+                  Respuesta Correcta: A
+
+          68. Según los estándares, ¿cuál debe ser al menos el índice de historias clínicas en el archivo?
+                  A)     50%
+                  B)     65%
+                  C)     70%
+                  D)     90%
+
+                  Respuesta Correcta: D
+
+          69. ¿Cuál de las siguientes afirmaciones es precisa en relación con el índice de historias clínicas fuera del archivo?
+                  A)     Se define como la relación entre el número de historias clínicas que están fuera del archivo y la media diaria  de salidas en los últimos 12 meses.
+                  B)     El estándar establecido es <15.
+                  C)     No deberían estar fuera un número de historias clínicas superior a 10 veces la cantidad de historias clínicas  que salen cada día.
+                  D)     Todas las afirmaciones son correctas.
+
+                  Respuesta Correcta: A
+
+          70. En cuanto al índice de Historias Clínicas reclamables, ¿cuál de las siguientes afirmaciones es verdadera?
+                  A)     Se define como la relación entre el número de historias clínicas reclamables y la media diaria de salidas del  archivo en los últimos 12 meses.
+                  B)     El plazo para presentar reclamaciones es determinado por el archivo.
+                  C)     El estándar fijado es <1.
+                  D)     Todas las afirmaciones son correctas
+
+                  Respuesta Correcta: D
+
+          71. Respecto al índice de errores de ubicación de historias clínicas, ¿cuál de las siguientes afirmaciones es correcta?
+                  A)     Se debe a errores en el processo de registro de entradas y salidas en el sistema informático.
+                  B)     Implica la proporción de historias clínicas archivadas de manera incorrecta.
+                  C)     Se refiere a la cantidad de historias clínicas extraviadas.
+                  D)     El estándar establecido debe ser inferior al 10%.
+
+                  Respuesta Correcta: A
+
+          72. ¿Qué función desempeñan los prefijos en términos médicos?
+                  A)     Cambian completamente el significado de la palabra.
+                  B)     Añaden información adicional a la raíz de la palabra.
+                  C)     Sirven para hacer las palabras más largas.
+                  D)     No tienen influencia en el significado de la palabra
+
+                  Respuesta Correcta: A
+
+          73. ¿Qué se coloca detrás de la raíz en los términos médicos?
+                  A)     Prefijos.
+                  B)     Sufijos.
+                  C)     Sílabas adicionales.
+                  D)     Adverbios.
+
+                  Respuesta Correcta: B
+
+          74. ¿Cuál es la función de la raíz en los términos médicos?
+                  A)     Es la parte principal o con más carga informativa.
+                  B)     Se coloca delante de la raíz.
+                  C)     No tiene importancia en la formación de las palabras.
+                  D)     Es la parte que cambia completamente el significado.
+
+                  Respuesta Correcta: A
+
+          75. En la palabra "cardiopatía", ¿qué significa el sufijo "-patía"?
+                  A)     Supresión de
+                  B)     Enfermedad
+                  C)     Sensibilidad
+                  D)     Corazón
+
+                  Respuesta Correcta: B
+
+          76. ¿Qué color se asocia con el término "ictericia"?
+
+                  A)     Azul.
+                  B)     Rojo.
+                  C)     Amarillo.
+                  D)     Verde.
+
+                  Respuesta Correcta: C
+
+          77. ¿Cuál es la diferencia clave entre siglas y acrónimos?
+                  A)     Las siglas son más largas que los acrónimos.
+                  B)     Las siglas son siempre más fáciles de leer que los acrónimos.
+                  C)     Los acrónimos incluyen sílabas de las palabras originales.
+                  D)     Las siglas se escriben en minúscula, mientras que los acrónimos en mayúscula.
+
+                  Respuesta Correcta: C
+
+          78. ¿Cómo se forman las siglas médicas?
+                  A)     Mediante la eliminación de fonemas finales.
+                  B)     Uniendo dos raíces.
+                  C)     Utilizando letras iniciales de palabras.
+                  D)     Suprimiendo fonemas en el interior de una palabra.
+
+                  Respuesta Correcta: C
+
+          79. ¿Cuál es el propósito principal de las siglas y acrónimos en medicina?
+                  A)     Facilitar la lectura de documentos médicos.
+                  B)     Hacer que los documentos sean más complejos.
+                  C)     Resumir información médica de manera eficiente.
+                  D)     Añadir puntuación a las palabras
+
+                  Respuesta Correcta: C
+
+          80. ¿Cuándo se aconseja utilizar siglas y acrónimos en la documentación médica?
+                  A)     Siempre, para simplificar la escritura.
+                  B)     Solo si las palabras son extremadamente largas.
+                  C)     Solo cuando se ha producido la lexicalización.
+                  D)     Nunca, ya que dificultan la lectura de los documentos
+
+                  Respuesta Correcta: C
+
+          81. En las políticas de normalización de terminología ¿cuál es uno de los principios básicos en los que se basan estas políticas en el SNS?
+                  A)     Evitar la colaboración entre los agentes del SNS.
+                  B)     Utilizar recursos de terminología exclusivamente en español.
+                  C)     Establecer una infraestructura de servicios compartida.
+                  D)     Eliminar la necesidad de servicios de provisión de modelos de información clínica.
+
+                  Respuesta Correcta: D
+
+          82. ¿Cuál es el nombre del hueso del antebrazo que se encuentra en el lado medial (interior)?
+                  A)     Radio
+                  B)     Cúbito
+                  C)     Húmero
+                  D)     Escápula
+
+                  Respuesta Correcta: B
+
+          83. ¿Cuáles son los tres tipos de músculos esqueléticos según su función?
+                  A)     Agonistas, antagonistas y sinérgicos
+                  B)     Flexores, extensores y rotadores
+                  C)     Voluntarios, involuntarios y cardíacos
+                  D)     Lisos, estriados y mixtos
+
+                  Respuesta Correcta: A
+
+          84. ¿Cuál es el nombre de la estructura fibrosa que conecta un músculo al hueso?
+                  A)     Ligamento
+                  B)     Tendón
+                  C)     Cartílago
+                  D)     Menisco
+
+                  Respuesta Correcta: B
+
+          85. ¿Cuál de los siguientes huesos no forma parte del tarso en el pie humano?
+                  A)     Astrágalo
+                  B)     Calcáneo
+                  C)     Escafoides
+                  D)     Cúbito
+
+                  Respuesta Correcta: D
+
+          86. ¿Qué nombre recibe la estructura que une las costillas verdaderas al esternón en el tórax humano?
+                  A)     Cartílago costal
+                  B)     Ligamento costal
+                  C)     Apófisis costal
+                  D)     Espacio intercostal
+
+                  Respuesta Correcta: A
+
+          87. ¿Cuál es el nombre de la afección en la que los huesos se vuelven frágiles y propensos a fracturas debido a la
+
+                  A)     Artritis reumatoide
+                  B)     Osteomielitis
+                  C)     Osteoporosis
+                  D)     Escoliosis
+
+                  Respuesta Correcta: C
+
+          88. ¿Qué órgano almacena y concentra la bilis antes de liberarla en el intestino delgado para la digestión de las grasas?
+                  A)     Estómago
+                  B)     Vesícula biliar
+                  C)     Hígado
+                  D)     Páncreas
+
+                  Respuesta Correcta: B
+
+          89. ¿Dónde ocurre principalmente la absorción de nutrientes en el sistema digestivo?
+                  A)     Estómago
+                  B)     Intestino grueso
+                  C)     Intestino delgado
+                  D)     Esófago
+
+                  Respuesta Correcta: C
+
+          90. ¿Cuál es el processo de contracción rítmica del músculo liso del tubo digestivo que impulsa los alimentos a lo largo del tracto digestivo?
+                  A)     Quimiotaxis
+                  B)     Peristalsis
+                  C)     Emulsificación
+                  D)     Quilomicrones
+
+                  Respuesta Correcta: B
+
+          91. ¿Qué hormona es liberada por el páncreas en respuesta a un aumento en los niveles de glucosa en sangre y
+              ayuda a regular el azúcar en la sangre?
+                  A)     Insulina
+                  B)     Glucagón
+                  C)     Adrenalina
+                  D)     Serotonina
+
+                  Respuesta Correcta: A
+
+          92. ¿Cuál es la función principal de las vellosidades intestinales en el intestino delgado?
+                  A)     Absorber agua
+                  B)     Secretar enzimas digestivas
+                  C)     Aumentar la superficie de absorción
+                  D)     Producción de bilis
+
+                  Respuesta Correcta: C
+
+          93. La clasificación internacional de enfermedades
+
+
+                  A)     está diseñada para clasificar datos sobre morbilidad y mortalidad
+                  B)     es una clasificación exclusivamente para hospitales públicos
+                  C)     solo se utiliza en el ámbito anglosajón
+                  D)     no se utiliza en los estadísticos de referencia estatal
+
+                  Respuesta Correcta: A
+
+          94. La clasificación internacional de enfermedades
+
+                  A)     consiste en una inversión de la categorización de enfermedades
+                  B)     facilita el almacenamiento y recuperación de datos clasificados de morbilidad y mortalidad
+                  C)     tiene un criterio de construcción que utiliza el alfabeto griego
+                  D)     no requiere un sistema de clasificación suficientemente generalizado y contrastado
+
+
+                  Respuesta Correcta: B
+
+          95. Medicare es
+
+                  A)     una asociación de enfermos renales
+                  B)     una técnica de acceso endoscópico
+                  C)     un seguro médico
+                  D)     lo que se conoce como APG
+
+                  Respuesta Correcta: C
+
+          96. ¿Qué tipo de diagnóstico se basa en la identificación de la enfermedad a través de los síntomas, aunque estos no proporcionen una indicación precisa?
+                  A)     Diagnóstico nosológico.
+                  B)     Diagnóstico patogénico.
+                  C)     Diagnóstico presuntivo.
+                  D)     Diagnóstico sintomático.
+
+                  Respuesta Correcta: D
+
+          97. ¿Cuál es el objetivo principal del diagnóstico precoz?
+                  A)     Detectar enfermedades genéricas.
+                  B)     Reducir la tasa de mortalidad asociada a enfermedades graves.
+                  C)     Realizar diagnósticos tardíos de enfermedades.
+                  D)     Etiquetar a los pacientes con diagnósticos de moda.
+
+                  Respuesta Correcta: B
+
+          98. ¿Qué tipo de diagnóstico se convierte en un diagnóstico de certeza una vez que se realizan pruebas diagnósticas complementarias?
+                  A)     Diagnóstico nosológico.
+                  B)     Diagnóstico patogénico.
+                  C)     Diagnóstico presuntivo.
+                  D)     Diagnóstico sindrómico y funcional.
+
+                  Respuesta Correcta: C
+
+          99. ¿Qué significa el término "sobrediagnóstico" según el texto?
+                  A)     Diagnosticar una enfermedad grave en su fase inicial.
+                  B)     Diagnosticar una enfermedad que no causará síntomas ni la muerte del paciente.
+                  C)     Diagnosticar una enfermedad de moda.
+                  D)     Diagnosticar una enfermedad tardía
+
+                  Respuesta Correcta: B
+
+          100. ¿Cuál es la diferencia principal entre la cirugía mayor y la cirugía menor
+
+                  A)     La cirugía mayor se realiza con anestesia general, mientras que la cirugía menor se realiza con anestesia  local.
+                  B)     La cirugía mayor no implica ningún riesgo para la vida del paciente, mientras que la cirugía menor puede ser riesgosa.
+                  C)     La cirugía mayor solo se lleva a cabo con ayuda respiratoria, mientras que la cirugía menor se realiza sin ayuda respiratoria.
+                  D)     La cirugía mayor tiene como objetivo eliminar lesiones, mientras que la cirugía menor busca mejorar el aspecto físico del paciente
+
+                  Respuesta Correcta: A
+
+          101. ¿Cuál es el propósito principal de la cirugía paliativa?
+                  A)     Curar por completo una enfermedad.
+                  B)     Eliminar una lesión existente en el organismo
+                  C)     Aliviar los síntomas de una enfermedad no curable.
+                  D)     Optimizar la apariencia corporal del paciente.
+
+                  Respuesta Correcta: C
+
+          102. ¿Qué tipo de análisis se realiza para determinar si una enfermedad se debe a una transmisión genética o no?
+                  A)     Análisis inmunológico.
+                  B)     Análisis microbiológico.
+                  C)     Análisis genético.
+                  D)     Análisis farmacológico.
+
+                  Respuesta Correcta: C
+
+          103. ¿Cuál de los siguientes análisis se lleva a cabo para buscar la presencia de virus o bacterias en muestras de  orina o sangre principalmente?
+                  A)     Análisis bioquímico.
+                  B)     Análisis hematológico.
+                  C)     Análisis microbiológico.
+                  D)     Análisis inmunológico.
+
+                  Respuesta Correcta: C
+
+          104. ¿Cuál de los siguientes recursos para el diagnóstico proporciona hallazgos objetivos que detecta el médico  observando al paciente?
+                  A)     Síntomas.
+                  B)     Signos.
+                  C)     Exploración física.
+                  D)     Anamnesis.
+
+                  Respuesta Correcta: B
+
+          105. ¿Cuál es el propósito de realizar una anamnesis en el processo de diagnóstico médico?
+                  A)     Obtener signos clínicos específicos.
+                  B)     Identificar las enfermedades que pueden estar ocasionando un síndrome.
+                  C)     Realizar maniobras de exploración física.
+                  D)     Recopilar datos esenciales sobre la enfermedad actual y los antecedentes del paciente
+
+                  Respuesta Correcta: D
+
+          106. Un código de ética profesional es un instrumento elaborado con el objeto de
+
+                  A)     dilucidar y resolver dudas y conflictos profesionales
+                  B)     no facilitar la resolución de dilemas
+                  C)     descartar opciones de acción
+                  D)     desentenderse de la eventuales infracciones a las propias normas
+
+                  Respuesta Correcta: A
+
+          107. ¿Qué diferencia la ética y la deontología ?
+                  A)     nada
+                  B)     la deontología es parte de la ética
+                  C)     la ética es parte de la deontología
+                  D)     no hay relación alguna entre ambas
+
+                  Respuesta Correcta: B
+
+          108. El secreto profesional
+
+                  A)     no tiene excepciones
+                  B)     sirve de encubrimiento en los casos de violaciones de los derechos humanos
+                  C)     se considera un derecho y un deber
+                  D)     su incumplimiento nunca será castigado con ningún tipo de pena (prisión, multa o inhabilitación )
+
+                  Respuesta Correcta: C
+
+          109. La responsabilidad civil profesional
+
+                  A)     es una figura legal que no se encuentra recogida la legislación española
+                  B)     no tiene relación con el trabajo que se desempeña
+                  C)     no es necesario establecerla el las profesiones de la rama sanitaria
+                  D)     incumbe al trabajador por los daños causados a un tercero en el desempeño de su trabajo
+
+                  Respuesta Correcta: D
+
+          110. El Real Decreto 768/2014 de 12 de septiembre recoge que la competencia de técnico superior en documentación y administración sanitaria abarca
+
+                  A)     la definición y organización de processos de tratamiento de la información y documentación clínica
+                  B)     el registro de datos económicos
+                  C)     la validación de la información
+                  D)     ninguna de las opciones anteriores es correcta
+
+                  Respuesta Correcta: A
+
+          111. El reconocimiento de la terminología clínica de los documentos sanitarios
+
+                  A)     es innecesaria en el desempeño de las funciones de un técnico en documentación
+                  B)     no tiene relación con las competencias que se atribuyen a un técnico superior en documentación
+                  C)     forma parte de las competencias de un técnico superior en documentación
+                  D)     forma parte del desempeño del personal subalterno del grupo D
+
+                  Respuesta Correcta: C
+
+          112. La titulación de Técnico Superior en Documentación y Administración Sanitaria se recoge en
+                  A)     Real Decreto 109/2015, de 4 de diciembre
+                  B)     Real Decreto 39/1997, de 17 de enero
+                  C)     Real Decreto Legislativo 5/2015, de 30 de octubre
+                  D)     Real Decreto 768/2014, de 12 de septiembre
+
+                  Respuesta Correcta: D
+
+          113. Entre los objetivos generales de la formación como técnico superior en documentación y administración sanitaria  se encuentra
+
+                  A)     la identificación de las características de la anatomofisiología y patología
+                  B)     la identificación de las necesidades materiales de la unidad técnica de la CIE
+                  C)     la creación de bases de datos
+                  D)     el manejo de aplicaciones informáticas para el control del gasto farmacéutico
+
+                  Respuesta Correcta: A
+
+          114. Entre los objetivos generales del ciclo formativo de técnico superior en documentación clínica y administración sanitaria se encuentra
+
+                  A)     la participación en técnicas quirúrgicas
+                  B)     la aplicación de estrategias y técnicas de comunicación
+                  C)     la formación como asistente en la atención al paciente en las consultas externas de atención especializada
+                  D)     el reconocimiento como gestor de aplicación de las normas de las visitas hospital
+
+                  Respuesta Correcta: B
+
+          115. La gestión del archivo de Historias Clínicas
+
+                  A)     explota y valida bases de datos para el sistema de información clínico asistencial
+                  B)     maneja sistemas de clasificación de enfermedades según normativa vigente en los processos de diagnósticos y procedimentos
+                  C)     atiende a criterios, processos y procedimentos establecidos
+                  D)     aplica técnicas de comunicación para la mejora de la calidad asistencial
+
+                  Respuesta Correcta: C
+
+          116. Un seguro de salud del gobierno estadounidense dirigido a personas de bajos ingresos en el pais es
+
+                  A)     Adeslas
+                  B)     Muface
+                  C)     Sanitas
+                  D)     Medicaid
+
+                  Respuesta Correcta: D
+
+          117. A los grupos relacionados por el diagnóstico se les conoce como
+
+                  A)     GRD
+                  B)     APG
+                  C)     CDM
+                  D)     HCFA
+
+                  Respuesta Correcta: A
+
+          118. La categorías diagnósticas mayores
+
+                  A)     se conocen como CDM
+                  B)     se dividen en quirúrgicas y no quirúrgicas
+                  C)     clasifican los GRDs
+                  D)     todas las anteriores son ciertas
+
+                  Respuesta Correcta: D
+
+          119. Al catálogo de diagnósticos de enfermedades y problemas de salud específicos de un determinado sistema sanitario se conoce como
+
+                  A)     GRD
+                  B)     APG
+                  C)     CDM
+                  D)     case mix
+
+                  Respuesta Correcta: D
+
+          120. El peso de los GRDs
+
+                  A)     permite conocer la casuística hospitalaria
+                  B)     representa sólo la frecuencia de aparición de una patología
+                  C)     ayuda a mejorar técnicas quirúrgicas
+                  D)     se calcula a través de los costos reales de cada episodio asistencial
+
+                  Respuesta Correcta: D
+
+          121. La clasificación internacional de enfermedades
+
+                  A)     pasó a cargo de la OMS en 1948
+                  B)     se constituyó, tal y como la conocemos actualmente, en 1896
+                  C)     se conoce como CIE 10 desde 1837
+                  D)     nunca ha tenido cambios cualitativos
+
+                  Respuesta Correcta: A
+
+          122. La clasificación internacional de enfermedades
+
+                  A)     está en desuso
+                  B)     pasó a ser una clasificación de mortalidad y morbilidad a mediados del siglo XX
+                  C)     en la actualidad solo se utiliza para clasificar las cusas de mortalidad
+                  D)     no está estructurada para clasificar la morbilidad
+
+                  Respuesta Correcta: B
+
+          123. La codificación sanitaria es
+
+                  A)     una escala de valores terapéuticos
+                  B)     una herramienta imprescindible para el sistema de información del SNS
+                  C)     un estudio elaborado de procedimentos quirúrgicos
+                  D)     un estudio sobre homeostasis
+
+                  Respuesta Correcta: B
+
+          124. Proporcionar datos homologables y fácilmente comparables sobre la salud, a nivel nacional e internacional, es una finalidad de
+
+                  A)     La codificación sanitaria
+                  B)     El archivo hospitalario
+                  C)     Los indicadores
+                  D)     La homeopatía
+
+                  Respuesta Correcta: A
+
+          125. Los codificadores
+
+                  A)     asignan códigos alfanuméricos a las entradas de suministros hospitalarios y de atención primaria
+                  B)     interpretan información médica compleja
+                  C)     son responsables de codificar el material fungible relacionado con la práctica quirúrgica
+                  D)     obtienen información precisa de los estudios de investigación a largo plazo
+
+                  Respuesta Correcta: B
+
+          126. El processo de codificación se encuentra incluido en
+
+                  A)     los manuales de uso de los sistemas informáticos
+                  B)     los cuestionarios de los servicios sanitarios de atención al usuario
+                  C)     el procesamiento integral de la información
+                  D)     la precisión del acto clinico ambulatorio
+
+                  Respuesta Correcta: C
+
+          127. El processo mediante el cual se asignan claves alfanuméricas a los diagnósticos y procedimentos recogidos en un documento clínico se conoce como
+
+                  A)     explotación de datos
+                  B)     precisión clínica
+                  C)     automatización
+                  D)     codificación
+
+                  Respuesta Correcta: D
+
+          128. Para mantener de forma continuada la mejora de la calidad en la codificación es importante
+
+                  A)     poder añadir más códigos alfabéticos
+                  B)     la asistencia a cursos de actualización de la codificación
+                  C)     la participación en tratamientos paliativos
+                  D)     la observación clínica del desarrollo de la enfermedad
+
+                  Respuesta Correcta: B
+
+          129. Para mejorar de forma continuada la calidad de la codificación es importante
+
+                  A)     la coordinación con los facultativos especialistas referente a qué información se requiere en los documentos
+                         a codificar para poder ser más precisos al hacerlo
+          B)     el análisis de la actividad quirúrgica
+                  C)     la gestión administrativa del paciente
+                  D)     la carga de datos urbanísticos
+
+                  Respuesta Correcta: A
+
+          130. Un elemento que proporciona calidad en la codificación clínica es
+
+                  A)     la aplicación informática utilizada para escribir el documento a codificar
+                  B)     la Unidad Técnica de la CIE
+                  C)     la caligrafía utilizada a la hora de rellenar los formularios
+                  D)     el número de letras que se utilicen para describir los términos técnicos de los procedimentos
+
+                  Respuesta Correcta: B
+
+          131. Un parámetro que informa de la calidad de la codificación clínica es
+
+                  A)     el número de intervenciones practicadas en el processo asistencial a codificar
+                  B)     el número de procedimentos diagnósticos y/o terapéuticos que se realizan en un mismo processo asistencial
+                  C)     el número de diagnósticos codificados por processo asistencial codificable
+                  D)     el número de veces que se repite un código en diferentes processos asistenciales codificables
+
+                  Respuesta Correcta: C
+
+          132. El sistema de organización, gestión e información de las listas de espera en el ámbito sanitario está regulado por
+
+
+                  A)     el Decreto Territorial 116/2006 de 1 de agosto
+                  B)     la Ley 11/1999 de 20 de julio
+                  C)     la orden de 15 de mayo de 2006
+                  D)     el dictámen 247/2016 de 19 de julio
+
+                  Respuesta Correcta: A
+
+          133. El Decreto Territorial 116/2006 de 1 de agosto tiene por objeto la regulación de la organización, la gestión y la
+               información de las siguientes listas de espera
+
+                  A)     lista de espera quirúrgica
+                  B)     lista de espera de consulta especializada
+                  C)     lista de espera de pruebas diagnósticas/terapéuticas
+                  D)     todas las anteriores son ciertas
+
+                  Respuesta Correcta: D
+
+          134. Las medidas reguladoras del Decreto Territorial 116/2006 tienen como finalidad
+
+                  A)     la organización de la hostelería hospitalaria
+                  B)     la reducción de las listas de espera
+                  C)     la jerarquización del grupo C
+                  D)     la regulación de la farmacia hospitalaria
+
+                  Respuesta Correcta: B
+
+          135. El ámbito de aplicación del Decreto Territorial 116/2006 de 1 de agosto es
+
+                  A)     el de todos los centros de gestión privada exclusivamente
+                  B)     el de todos los centros y servicio de atención Primaria
+                  C)     el de todos los centros y servicios de la red hospitalaria de utilización pública del SCS y el de los centros y
+                         servicios concertados
+                  D)     el de todos los centros y servicios concertados exclusivamente
+
+                  Respuesta Correcta: C
+
+          136. En el Decreto Territorial 116/2006 de 1 de agosto se recoge que quedan excluidas de las listas de espera las intervenciones quirúrgicas para trasplante de órganos y tejidos
+
+                  A)     verdadero
+                  B)     falso
+                  C)     solo es aplicable en aquellos caos donde el paciente se derive a un centro concertado
+                  D)     solo es aplicable cuando la indicación quirúrgica sea urgente
+
+                  Respuesta Correcta: A
+
+          137. Los pacientes afectados por la aplicación de Decreto Territorial 116/2006 de 1 de agosto son
+
+                  A)     los pacientes con derecho a la asistencia en mutuas privadas
+                  B)     los pacientes con derecho a la asistencia sanitaria pública
+                  C)     los pacientes que se intervengan exclusivamente en centros concertados con cobertura privada
+                  D)     los pacientes propuestos por la Dirección del centro concertado
+
+                  Respuesta Correcta: B
+
+          138. El artículo 15 del Decreto 116/2006 de 1 de agosto versa sobre
+
+                  A)     la oferta de centros y servicios y renuncia del paciente
+                  B)     la garantía de la calidad asistencial
+                  C)     el sistema de información sanitaria en materia de listas de espera
+                  D)     los procedimentos de derivación de pacientes desde el centro o servicios hospitalario de origen a otros
+                         centros o servicios hospitalarios
+
+                  Respuesta Correcta: C
+
+          139. La información general sobre listas de espera
+
+                  A)     será ofrecida por la Consejería competente en materia de sanidad
+                  B)     versará sobre la situación de las listas de espera estatales
+                  C)     recogerá los tiempos de demora medios en cada una de las lista de espera
+                  D)     tendrá que estar disponible en boletines oficiales publicadas en redes sociales, periódicos digitales
+
+                  Respuesta Correcta: A
+
+          140. En el Artículo 16 del decreto Territorial 116/2006 de 1 de agosto se trata la información sanitaria específica en
+               materia de listas de espera que irá dirigida a
+
+                  A)     proporcionar datos sobre los centros
+                  B)     proporcionar datos sobre los servicios y unidades asistenciales disponibles
+                  C)     proporcionar datos sobre la calidad de los centros y servicios disponibles
+                  D)     todas las anteriores son correctas
+
+                  Respuesta Correcta: D
+
+          141. El sistema de información sanitaria (SIS )
+
+                  A)     es un instrumento de conocimiento aplicado y de ayuda para la gestión
+                  B)     no requiere un desarrollo y mantenimiento
+                  C)     es sencillo de aplicar
+                  D)     no compensa el esfuerzo inversor necesario en dinero y en capital humano
+
+                  Respuesta Correcta: A
+
+          142. La información en un sistema de información sanitaria debe ser
+
+                  A)     fiable
+                  B)     verificable
+                  C)     suficientemente
+                  D)     todas las anteriores son ciertas
+
+                  Respuesta Correcta: D
+
+
+          143. El diseño de un sistema de información sanitaria debe responder a las necesidades de cada destinatario y
+
+                  A)     debe estar encriptado
+                  B)     su tamaño debe ser siempre extenso
+                  C)     su formato y tamaño deben ser apropiados a su uso
+                  D)     solo debe ser interpretado por una inteligencia artificial
+
+                  Respuesta Correcta: C
+
+          144. El desarrollo e implantación de un sistema de información sanitaria
+
+                  A)     no está dirigido hacia las actividades del processo
+                  B)     no requiere ayuda técnica alguna
+                  C)     no requiere una o unas fuentes
+                  D)     debe tener objetivos y planificación
+
+                  Respuesta Correcta: D
+
+          145. El fichero maestro de pacientes
+
+                  A)     no es necesario
+                  B)     hace referencia a una serie de datos inconexos entre sí
+                  C)     es fundamental y juega un papel crítico
+                  D)     no requiere un número de identificación
+
+                  Respuesta Correcta: C
+
+          146. El sistema de información hospitalaria es útil para
+
+                  A)     la gestión hospitalaria
+                  B)     estudios epidemiológicos
+                  C)     estudios científicos
+                  D)     todas las anteriores respuestas son ciertas
+
+                  Respuesta Correcta: D
+
+          147. Una de las aplicaciones del los sistemas de información sanitaria es
+
+                  A)     la medición de la actividad hospitalaria
+                  B)     la valoración de la filosofía sanitaria
+                  C)     la convergencia de la práctica clínica
+                  D)     la vinculación entre climas de conocimiento
+
+                  Respuesta Correcta: A
+
+          148. La estadística descriptiva
+
+                  A)     da una descripción numérica en la fase observación y análisis de los hechos de un experimento
+                  B)     ordena la información recogida en la fase de obtención de conclusiones
+                  C)     simplifica la información en la fase de interpretación de los hechos de un experimento
+                  D)     ninguna de las anteriores respuesta es correcta
+
+                  Respuesta Correcta: A
+
+          149. Una unidad estadística o individuo es
+
+                  A)     una persona
+                  B)     cada uno de los elementos que componen la población estadística
+                  C)     una variable estadística que toma infinitos valores en un intervalo
+                  D)     una modalidad cualitativa
+
+                  Respuesta Correcta: B
+
+          150. Se toma una muestra de una población estadística
+
+                  A)     cuando se realiza un censo y se observan todos los elementos de la población estadística
+                  B)     cuando es cuantificable
+                  C)     cuando es costosa la observación de todos los elementos de la población estadística
+                  D)     cuando a los valores numéricos de las distintas modalidades de les asigna una variable estadística
+
+                  Respuesta Correcta: C
+
+    `; // Fin de fileContent
+
+    // --- FUNCIONES ---
+
+    /** Función para barajar un arreglo (algoritmo Fisher–Yates) */
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    /** Guarda el estado actual del examen en localStorage */
+    function saveProgress() {
+        const state = {
+            correctCount,
+            incorrectCount,
+            answeredCount,
+            totalActiveQuestions,
+            // Guardar solo los datos necesarios de las preguntas activas
+            activeQuestions: activeQuestions.map(q => ({
+                id: q.id, // Necesario para mapear al reanudar
+                answered: q.answered,
+                selectedAnswer: q.userAnswer, // Guardar la respuesta del usuario
+                isCorrect: q.isCorrect
+            }))
+        };
+        try {
+            localStorage.setItem(progressKey, JSON.stringify(state));
+            console.log("Progreso guardado."); // Log para depuración
+        } catch (e) {
+            console.error("Error guardando progreso en localStorage:", e);
+        }
+    }
+
+    /** Carga el estado del examen desde localStorage */
+    function loadProgress() {
+        const savedState = localStorage.getItem(progressKey);
+        if (savedState) {
+            try {
+                console.log("Progreso encontrado."); // Log para depuración
+                return JSON.parse(savedState);
+            } catch (e) {
+                console.error("Error parseando progreso guardado:", e);
+                localStorage.removeItem(progressKey); // Limpiar datos corruptos
+                return null;
+            }
+        }
+        console.log("No se encontró progreso guardado."); // Log para depuración
+        return null;
+    }
+
+    /** Muestra la vista del examen y oculta la pantalla de inicio */
+    function showExamView() {
+        startScreen.classList.add('hidden');
+        examHeader.classList.remove('hidden');
+        contadorFijoDiv.classList.remove('hidden');
+        quizContainer.classList.remove('hidden');
+        document.body.style.justifyContent = 'flex-start'; // Alinear contenido arriba
+        // Reajustar padding del body si es necesario (aunque el contenedor ya tiene margen)
+        // document.body.style.paddingTop = '0'; // Opcional: quitar padding si se maneja con margen del contenedor
+    }
+
+    /** Muestra la pantalla de inicio y oculta la vista del examen */
+    function showStartScreen() {
+        startScreen.classList.remove('hidden');
+        examHeader.classList.add('hidden');
+        contadorFijoDiv.classList.add('hidden');
+        quizContainer.classList.add('hidden');
+        document.body.style.justifyContent = 'center'; // Centrar pantalla de inicio
+        document.body.style.paddingTop = '0'; // Quitar padding superior
+    }
+
+
+    /** Renderiza una única pregunta, restaurando su estado si se está reanudando */
+    function renderSingleQuestion(q, index, isResuming = false) {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.id = "q" + q.id; // Usar ID original
+
+        const p = document.createElement("p");
+        p.innerHTML = `<strong>${index + 1}. ${q.enunciado}</strong>`; // Numeración basada en índice actual
+        qDiv.appendChild(p);
+
+        const form = document.createElement("form");
+        q.options.forEach((optionText, optionIndex) => {
+            const letter = q.optionLetters[optionIndex];
+            const label = document.createElement("label");
+            const radioId = `q${q.id}_${letter}`;
+            label.htmlFor = radioId;
+
+            const radioInput = document.createElement("input");
+            radioInput.type = "radio";
+            radioInput.name = `q${q.id}`;
+            radioInput.value = letter;
+            radioInput.id = radioId;
+
+            // Restaurar estado si se está reanudando
+            const isDisabled = isResuming && q.answered;
+            const isChecked = isResuming && q.selectedAnswer === letter; // Usar selectedAnswer guardado
+
+            radioInput.disabled = isDisabled;
+            radioInput.checked = isChecked;
+
+            label.appendChild(radioInput);
+            label.appendChild(document.createTextNode(` ${letter}) ${optionText}`));
+
+            if (isDisabled) {
+                label.classList.add('disabled');
+                if (isChecked) {
+                    if (q.isCorrect) { // Usar isCorrect guardado
+                        label.classList.add('respuesta-correcta');
+                    } else {
+                        label.classList.add('respuesta-incorrecta');
+                    }
+                }
+                // Destacar la correcta si esta pregunta fue respondida incorrectamente
+                if (!q.isCorrect && letter === q.correctAnswer) {
+                    label.classList.add('es-correcta-destacada');
+                }
+            } else {
+                // Añadir listener solo si no está respondida
+                radioInput.addEventListener("change", () => handleAnswerSelection(q, letter, form));
+            }
+
+            form.appendChild(label);
+        });
+        qDiv.appendChild(form);
+
+        const feedbackDiv = document.createElement("div");
+        feedbackDiv.className = "feedback";
+        feedbackDiv.id = "feedback-" + q.id;
+        // Mostrar feedback si se está reanudando una pregunta respondida
+         if (isResuming && q.answered) {
+             if (q.isCorrect) {
+                // feedbackDiv.textContent = "¡Correcto!"; // Opcional
+                // feedbackDiv.classList.add("correct");
+            } else {
+                // feedbackDiv.textContent = `Incorrecto. La correcta es ${q.correctAnswer}`; // Opcional
+                // feedbackDiv.classList.add("incorrect");
+            }
+        }
+        qDiv.appendChild(feedbackDiv);
+
+        examDiv.appendChild(qDiv);
+    }
+
+     /** Renderiza las preguntas activas en el contenedor del examen */
+     function renderActiveQuestions(isResuming = false) {
+        examDiv.innerHTML = ''; // Limpiar preguntas anteriores
+        activeQuestions.forEach((q, index) => {
+            renderSingleQuestion(q, index, isResuming);
+        });
+     }
+
+
+    /** Actualiza los contadores en la barra fija */
+    function updateCounters() {
+        contadorAciertosSpan.textContent = correctCount;
+        contadorFallosSpan.textContent = incorrectCount;
+        contadorRespondidasSpan.textContent = answeredCount;
+        contadorTotalActivoSpan.textContent = totalActiveQuestions; // Mostrar total activo
+        const pending = totalActiveQuestions - answeredCount;
+        contadorPendientesSpan.textContent = pending;
+
+        if (pendingLink) {
+            if (pending === 0) {
+                pendingLink.classList.add('disabled');
+            } else {
+                pendingLink.classList.remove('disabled');
+            }
+        }
+    }
+
+    /** Maneja la selección de una respuesta */
+    function handleAnswerSelection(question, selectedLetter, form) {
+        if (question.answered) return;
+
+        question.answered = true;
+        question.userAnswer = selectedLetter; // Guardar respuesta seleccionada
+        answeredCount++;
+
+        const labels = form.querySelectorAll('label');
+        const radios = form.querySelectorAll('input[type="radio"]');
+        let selectedLabel = null;
+        let correctLabel = null;
+
+        labels.forEach((label, index) => {
+            const radio = radios[index];
+            radio.disabled = true;
+            label.classList.add('disabled');
+            if (radio.value === selectedLetter) selectedLabel = label;
+            if (radio.value === question.correctAnswer) correctLabel = label;
+        });
+
+        if (selectedLetter === question.correctAnswer) {
+            question.isCorrect = true;
+            correctCount++;
+            if (selectedLabel) selectedLabel.classList.add('respuesta-correcta');
+        } else {
+            question.isCorrect = false;
+            incorrectCount++;
+            if (selectedLabel) selectedLabel.classList.add('respuesta-incorrecta');
+            if (correctLabel) correctLabel.classList.add('es-correcta-destacada');
+        }
+
+        updateCounters();
+        saveProgress(); // Guardar progreso después de responder
+
+        if (answeredCount === totalActiveQuestions) {
+            showResultsModal();
+            localStorage.removeItem(progressKey); // Limpiar progreso al finalizar
+        }
+    }
+
+    /** Muestra el modal de resultados */
+    function showResultsModal() {
+        const percentage = totalActiveQuestions > 0 ? ((correctCount / totalActiveQuestions) * 100).toFixed(1) : 0;
+        resultsText.innerHTML = `Has respondido ${answeredCount} de ${totalActiveQuestions} preguntas.<br>
+                                 Aciertos: <strong style="color: green;">${correctCount}</strong><br>
+                                 Fallos: <strong style="color: red;">${incorrectCount}</strong><br>
+                                 Porcentaje: <strong>${percentage}%</strong>`;
+        modal.style.display = 'flex';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+    }
+
+    /** Oculta el modal de resultados */
+    function hideResultsModal() {
+        modal.style.display = 'none';
+    }
+
+    /** Reinicia el test (recarga la página) */
+    function restartTest() {
+        localStorage.removeItem(progressKey); // Limpiar progreso al reiniciar
+        window.location.reload();
+    }
+
+     /** Configura el modo revisión */
+     function reviewTest() {
+        hideResultsModal();
+        document.body.classList.add('modo-revision');
+
+        activeQuestions.forEach(q => { // Iterar sobre las preguntas activas
+            if (!q.answered) return;
+
+            const questionElement = document.getElementById('q' + q.id);
+            if (!questionElement) return; // Seguridad
+            const form = questionElement.querySelector('form');
+            const labels = form.querySelectorAll('label');
+            const radios = form.querySelectorAll('input[type="radio"]');
+
+            labels.forEach((label, index) => {
+                 const radio = radios[index];
+                 const currentLetter = radio.value;
+
+                 label.classList.remove('respuesta-correcta', 'respuesta-incorrecta', 'es-correcta-destacada', 'disabled');
+                 radio.style.display = 'none'; // Ocultar radio
+
+                 if (currentLetter === q.userAnswer) {
+                     label.classList.add('respuesta-seleccionada');
+                     if (q.isCorrect) {
+                         label.classList.add('respuesta-correcta');
+                     } else {
+                         label.classList.add('respuesta-incorrecta');
+                     }
+                 }
+                 if (currentLetter === q.correctAnswer) {
+                    label.classList.add('es-correcta-revision');
+                 }
+            });
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+     }
+
+    /** Encuentra y se desplaza a la siguiente pregunta pendiente */
+    function findAndScrollToNextPending(event) {
+        event.preventDefault();
+        const nextPendingQuestion = activeQuestions.find(q => !q.answered); // Buscar en activas
+        if (nextPendingQuestion) {
+            const element = document.getElementById('q' + nextPendingQuestion.id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.style.outline = '3px solid var(--accent-color)';
+                setTimeout(() => { element.style.outline = '0px solid transparent'; }, 1500);
+            }
+        }
+    }
+
+     /** Inicia un nuevo examen */
+     function startExam() {
+        const selectedValue = document.querySelector('input[name="numQuestions"]:checked').value;
+        let numQuestionsToSelect;
+
+        if (selectedValue === 'all') {
+            numQuestionsToSelect = allParsedQuestions.length;
+        } else {
+            numQuestionsToSelect = parseInt(selectedValue, 10);
+        }
+        numQuestionsToSelect = Math.min(numQuestionsToSelect, allParsedQuestions.length);
+
+        // Seleccionar subconjunto de la lista ya barajada
+        activeQuestions = allParsedQuestions.slice(0, numQuestionsToSelect);
+        totalActiveQuestions = activeQuestions.length;
+
+        // Reiniciar estado
+        correctCount = 0;
+        incorrectCount = 0;
+        answeredCount = 0;
+        localStorage.removeItem(progressKey); // Limpiar progreso anterior
+
+        renderActiveQuestions(false); // Renderizar solo las activas
+        updateCounters(); // Actualizar contadores con el total activo
+        showExamView(); // Mostrar vista del examen
+        saveProgress(); // Guardar estado inicial (0 respondidas)
+     }
+
+     /** Reanuda un examen guardado */
+     function resumeExam() {
+         const savedState = loadProgress();
+         if (!savedState) {
+             alert("No se encontró progreso guardado o está corrupto.");
+             localStorage.removeItem(progressKey);
+             showStartScreen(); // Volver a la pantalla de inicio
+             return;
+         }
+
+         // Restaurar contadores
+         correctCount = savedState.correctCount;
+         incorrectCount = savedState.incorrectCount;
+         answeredCount = savedState.answeredCount;
+         totalActiveQuestions = savedState.totalActiveQuestions;
+
+         // Restaurar estado de preguntas activas
+         // Asumiendo que allParsedQuestions ya está cargado y barajado igual
+         const savedQuestionsMap = new Map(savedState.activeQuestions.map(q => [q.id, q]));
+         activeQuestions = allParsedQuestions
+             .filter(q => savedQuestionsMap.has(q.id)) // Filtrar las que estaban en la sesión guardada
+             .map(q => {
+                 const savedQ = savedQuestionsMap.get(q.id);
+                 // Restaurar estado guardado
+                 return { ...q, answered: savedQ.answered, userAnswer: savedQ.selectedAnswer, isCorrect: savedQ.isCorrect };
+             });
+
+         // Comprobación de consistencia
+         if(activeQuestions.length !== totalActiveQuestions) {
+             console.error("Discrepancia en el número de preguntas al reanudar. Reiniciando.");
+             localStorage.removeItem(progressKey);
+             location.reload(); // Recargar para evitar estado inconsistente
+             return;
+         }
+
+         renderActiveQuestions(true); // Renderizar restaurando estado
+         updateCounters();
+         showExamView();
+     }
+
+
+    // --- Inicialización de la Aplicación ---
+    function initializeApp() {
+        parseQuestions(); // Cargar y parsear todas las preguntas primero
+        shuffle(allParsedQuestions); // Barajar la lista completa una vez
+        totalParsedCountSpan.textContent = allParsedQuestions.length; // Mostrar total en opción "Todas"
+
+        const savedProgress = loadProgress();
+
+        if (savedProgress) {
+            resumePrompt.classList.remove('hidden');
+            resumeButton.classList.remove('hidden');
+            resumeButton.onclick = resumeExam;
+        } else {
+            resumePrompt.classList.add('hidden');
+            resumeButton.classList.add('hidden');
+        }
+
+        startButton.onclick = startExam;
+
+        // Listeners de botones del modal y enlace pendientes
+        reiniciarBtn.addEventListener('click', restartTest);
+        revisarBtn.addEventListener('click', reviewTest);
+        if (pendingLink) {
+            pendingLink.addEventListener('click', findAndScrollToNextPending);
+        }
+
+        // Mostrar pantalla de inicio por defecto
+        showStartScreen();
+    }
+
+    /** Parsea el contenido del examen */
+    function parseQuestions() {
+        allParsedQuestions = []; // Asegurar que esté vacío antes de llenar
+        const blocks = fileContent.split(/\n\s*\d+\.\s+/).filter(block => block.trim().length > 0);
+        blocks.forEach((block, index) => {
+          const parts = block.split(/Respuesta Correcta:/);
+          if (parts.length < 2) { console.warn("Ignorando bloque sin 'Respuesta Correcta:':", block); return; }
+          const questionText = parts[0].trim();
+          const correctAnswer = parts[1].trim().split(/\s+/)[0];
+          const lines = questionText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+          if (lines.length === 0) { console.warn("Ignorando bloque con texto de pregunta vacío:", block); return; }
+          const enunciado = lines[0];
+          const options = lines.slice(1).filter(line => /^[A-D]\)\s+/.test(line));
+          const cleanedOptions = options.map(opt => opt.replace(/^[A-D]\)\s+/, ''));
+
+          if (enunciado && cleanedOptions.length > 0 && correctAnswer && /^[A-D]$/.test(correctAnswer)) {
+              allParsedQuestions.push({
+                  id: index + 1,
+                  enunciado: enunciado,
+                  options: cleanedOptions,
+                  optionLetters: options.map(opt => opt.charAt(0)),
+                  correctAnswer: correctAnswer,
+                  answered: false,
+                  userAnswer: null, // Para guardar la respuesta del usuario
+                  isCorrect: null   // Para saber si acertó o no
+              });
+          } else {
+             console.warn("Ignorando bloque mal formado:", block);
+          }
+        });
+    }
+
+    // --- Ejecutar Inicialización ---
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+  </script>
+</body>
+</html>
+

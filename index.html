@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulacros OPE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Paleta de colores actualizada - Alegre y Profesional */
+      --header-bg: #3b82f6; /* Azul vibrante pero profesional */
+      --header-text: #ffffff;
+      --card-border: #10b981; /* Verde esmeralda como acento */
+      --card-border-hover: #059669; /* Verde más oscuro */
+      --button-bg: #3b82f6; /* Azul consistente */
+      --button-hover-bg: #2563eb; /* Azul más oscuro */
+      --icon-color: #10b981; /* Verde esmeralda para iconos */
+      --body-bg-start: #e0f2fe; /* Azul cielo claro */
+      --body-bg-end: #d1fae5;   /* Verde menta claro */
+      --text-color: #1f2937; /* Gris oscuro (ligeramente más oscuro) */
+      --card-bg: #ffffff;
+      --card-shadow: rgba(0,0,0,0.08);
+      --card-shadow-hover: rgba(0,0,0,0.15);
+      --mensaje-color: #1e40af; /* Azul oscuro para el mensaje */
+      --image-border-color: #ddd; /* Color para el borde sutil de la imagen */
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      /* Gradiente más vivo pero suave */
+      background: linear-gradient(135deg, var(--body-bg-start), var(--body-bg-end));
+      color: var(--text-color);
+      text-align: center;
+      min-height: 100vh; /* Asegura que el gradiente cubra toda la altura */
+    }
+
+    header {
+      background-color: var(--header-bg); /* Nuevo color azul */
+      color: var(--header-text);
+      padding: 25px 20px; /* Padding ajustado */
+      font-size: 26px; /* Tamaño ajustado */
+      font-weight: 600;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Sombra sutil */
+      border-bottom: 4px solid rgba(0,0,0,0.1); /* Borde inferior sutil */
+    }
+
+    /* Estilo para la imagen ajustada (Base) */
+    .header-image {
+        width: 100%;                /* Ocupa el ancho disponible */
+        max-width: 750px;           /* Límite de ancho */
+        height: 300px;              /* Altura fija para object-fit (para escritorio) */
+        object-fit: cover;          /* Cubre el área, mantiene aspecto, puede recortar */
+        object-position: center;    /* Centra la imagen dentro del recorte */
+        margin: 30px auto 25px auto; /* Margen */
+        display: block;
+        border-radius: 8px;
+        border: 1px solid var(--image-border-color); /* Borde sutil */
+    }
+
+    .mensaje {
+      margin-top: 20px;
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--mensaje-color);
+      padding: 0 15px;
+    }
+
+    .tarjetas-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      padding: 40px 20px;
+      align-items: stretch;
+    }
+
+    .tarjeta {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px var(--card-shadow);
+      padding: 25px;
+      width: 260px;
+      min-height: 160px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-top-color 0.3s ease;
+      cursor: pointer;
+      border-top: 6px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .tarjeta:hover, .tarjeta:focus {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 8px 20px var(--card-shadow-hover);
+      border-top-color: var(--card-border-hover);
+      outline: 2px solid var(--card-border);
+      outline-offset: 2px;
+    }
+     .tarjeta:focus:not(:focus-visible) {
+        outline: none;
+     }
+
+    .tarjeta .material-symbols-outlined {
+        font-size: 44px;
+        color: var(--icon-color);
+        margin-bottom: 15px;
+    }
+
+    .tarjeta h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    iframe {
+      width: 100%;
+      height: 100vh;
+      border: none;
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 999;
+    }
+
+    #boton-menu {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background-color: var(--button-bg);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 20px 12px 16px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      z-index: 1000;
+      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #boton-menu:hover {
+      background-color: var(--button-hover-bg);
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    #boton-menu .material-symbols-outlined {
+      font-size: 24px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) { /* Ajustado breakpoint para tablets */
+        .header-image {
+            max-width: 95%; /* Más ancho en pantallas medianas */
+            height: 250px; /* Altura ajustada para tablets */
+        }
+    }
+
+    @media (max-width: 600px) {
+      body {
+          padding-top: 0;
+      }
+      header {
+          font-size: 22px;
+          padding: 20px 15px;
+      }
+      /* Estilos específicos de la imagen para móvil */
+      .header-image {
+          margin-top: 20px;
+          margin-bottom: 20px;
+          border-radius: 6px;
+          max-width: 92%;      /* Usar un poco más del ancho */
+          aspect-ratio: 2.5 / 1; /* Proporción ancho/alto (ajustar si es necesario) */
+          height: auto;         /* Altura automática basada en ancho y aspect-ratio */
+          object-fit: cover;    /* Asegura que cubra el área definida por aspect-ratio */
+          /* Hereda: display: block; object-position: center; border */
+      }
+      .mensaje {
+        font-size: 26px;
+      }
+      .tarjetas-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        gap: 20px;
+      }
+      .tarjeta {
+        width: 90%;
+        max-width: 320px;
+        padding: 20px;
+        min-height: 130px;
+      }
+       .tarjeta .material-symbols-outlined {
+           font-size: 36px;
+           margin-bottom: 10px;
+       }
+       .tarjeta h3 {
+           font-size: 17px;
+       }
+      #boton-menu {
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 16px 10px 14px;
+        font-size: 14px;
+      }
+      #boton-menu .material-symbols-outlined {
+        font-size: 20px;
+      }
+      iframe {
+          height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    Simulacros y Exámenes OPE
+  </header>
+
+  <img src="imagen web.jpg"
+       alt="Ilustración representativa de estudio y exámenes OPE"
+       class="header-image"
+       onerror="this.alt='Error al cargar imagen. Ilustración representativa.'; this.style.display='none';">
+       <div class="mensaje">¡OPE2025!</div>
+
+  <div class="tarjetas-container">
+      </div>
+
+  <button id="boton-menu" onclick="volverAlMenu()">
+    <span class="material-symbols-outlined">home</span>
+    Volver al menú
+  </button>
+
+  <iframe id="visor" title="Visor de Exámenes"></iframe>
+
+  <script>
+    // --- Datos de los exámenes ---
+    const examenes = [
+      { titulo: "Simulacro SAS", archivo: "simulacro-sas.html", icono: "assignment" },
+      { titulo: "Canarias parte 1", archivo: "examen-canarias-p1.html", icono: "assignment" },
+      { titulo: "Canarias parte 2", archivo: "examen-canarias-p2.html", icono: "assignment" },
+      { titulo: "Murcia Modelo A", archivo: "examen-murcia-modelo-a.html", icono: "assignment" },
+      { titulo: "Murcia Modelo B", archivo: "examen-murcia-modelo-b.html", icono: "assignment" },
+      { titulo: "Murcia 2018", archivo: "examen-murcia-2018.html", icono: "assignment" }
+    ];
+
+    // --- Elementos del DOM ---
+    const visorIframe = document.getElementById('visor');
+    const tarjetasContainer = document.querySelector('.tarjetas-container');
+    const mensajePrincipal = document.querySelector('.mensaje');
+    const botonMenu = document.getElementById('boton-menu');
+    const header = document.querySelector('header');
+    const headerImage = document.querySelector('.header-image'); // Referencia a la imagen
+
+    // --- Funciones ---
+
+    /**
+     * Genera las tarjetas de examen dinámicamente.
+     */
+    function renderizarTarjetas() {
+      tarjetasContainer.innerHTML = ''; // Limpiar contenedor
+      examenes.forEach(examen => {
+        const tarjeta = document.createElement('div');
+        tarjeta.className = 'tarjeta';
+        tarjeta.setAttribute('role', 'button');
+        tarjeta.setAttribute('tabindex', '0');
+        tarjeta.setAttribute('aria-label', `Abrir ${examen.titulo}`);
+
+        tarjeta.onclick = () => cargar(examen.archivo, examen.titulo);
+        tarjeta.onkeydown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            cargar(examen.archivo, examen.titulo);
+          }
+        };
+
+        if (examen.icono) {
+             tarjeta.innerHTML += `<span class="material-symbols-outlined">${examen.icono}</span>`;
+        }
+        tarjeta.innerHTML += `<h3>${examen.titulo}</h3>`;
+
+        tarjetasContainer.appendChild(tarjeta);
+      });
+    }
+
+    /**
+     * Carga un examen en el iframe.
+     * @param {string} nombreArchivo - El nombre del archivo HTML del examen.
+     * @param {string} tituloExamen - El título del examen para mostrar opcionalmente.
+     */
+    function cargar(nombreArchivo, tituloExamen) {
+      visorIframe.src = nombreArchivo;
+      visorIframe.style.display = 'block';
+      // Ocultar elementos del menú
+      tarjetasContainer.style.display = 'none';
+      mensajePrincipal.style.display = 'none';
+      header.style.display = 'none';
+      headerImage.style.display = 'none'; // Ocultar también la imagen
+      // Mostrar botón de volver
+      botonMenu.style.display = 'flex';
+    }
+
+    /**
+     * Vuelve a la vista del menú principal.
+     */
+    function volverAlMenu() {
+      visorIframe.style.display = 'none';
+      visorIframe.src = '';
+      // Mostrar elementos del menú
+      tarjetasContainer.style.display = 'flex';
+      mensajePrincipal.style.display = 'block';
+      header.style.display = 'block';
+      headerImage.style.display = 'block'; // Mostrar de nuevo la imagen
+      // Ocultar botón de volver
+      botonMenu.style.display = 'none';
+    }
+
+    // --- Inicialización ---
+    document.addEventListener('DOMContentLoaded', renderizarTarjetas);
+
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Examen Canarias Parte 2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Basic styling for the exam page */
+    :root {
+      --primary-color: #003366; /* Dark blue */
+      --accent-color: #FFCC00;  /* Yellow */
+      --text-color: #333;       /* Dark gray */
+      --correct-color: #28a745; /* Green */
+      --incorrect-color: #dc3545; /* Red */
+      --modal-bg: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
+      --question-bg: #e7f3ff; /* Light blue for question background */
+      --question-border: #bde0ff; /* Complementary border color */
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      /* Add padding to the top to avoid content being hidden by the fixed header */
+      padding-top: 100px; /* Adjust as needed based on header height */
+      background: #f8f8f8; /* Light gray background */
+      color: var(--text-color);
+    }
+    header {
+      background: var(--primary-color);
+      color: #fff; /* White text on dark blue */
+      padding: 10px 15px; /* Reduced padding slightly */
+      text-align: center;
+      position: fixed; /* Make header fixed */
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000; /* Ensure it stays on top */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    h1 {
+      margin: 0 0 5px 0; /* Add some bottom margin */
+      font-size: 1.6em; /* Slightly smaller */
+    }
+    #scoreboard {
+      /* Scoreboard is now part of the fixed header */
+      padding: 8px;
+      background: var(--accent-color);
+      color: #000; /* Black text on yellow */
+      font-weight: bold;
+      text-align: center;
+      border-radius: 4px; /* Slightly rounded corners */
+      font-size: 0.9em;
+      display: inline-block; /* Allow centering */
+      min-width: 200px;
+    }
+    #scoreboard .correct {
+        color: var(--correct-color);
+        font-weight: bold;
+    }
+    #scoreboard .incorrect {
+        color: var(--incorrect-color);
+        font-weight: bold;
+    }
+    .question-container {
+        padding: 10px; /* Add padding to main content area */
+    }
+    /* Updated styles for question boxes */
+    .question {
+      background: var(--question-bg); /* Light blue background */
+      border: 1px solid var(--question-border); /* Complementary border */
+      border-left: 5px solid var(--primary-color); /* Keep the dark blue accent */
+      border-radius: 4px; /* Slightly rounded corners */
+      padding: 15px;
+      margin: 15px auto;
+      max-width: 700px; /* Increased max-width */
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
+    }
+    .question p {
+      margin: 0 0 10px;
+      font-size: 1.1em; /* Slightly larger question text */
+      line-height: 1.5;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px; /* Increased spacing */
+      cursor: pointer;
+      padding: 8px; /* Padding for better click area */
+      border-radius: 4px;
+      transition: background-color 0.2s ease; /* Smooth hover effect */
+      border: 1px solid transparent; /* Add border for visual consistency */
+    }
+    label:hover:not(.disabled) { /* Don't highlight on hover if disabled */
+      background-color: #d1e7fd; /* Slightly darker blue on hover */
+    }
+    label.correct-answer-highlight {
+        background-color: #d4edda !important; /* Light green background for correct answer */
+        border-color: var(--correct-color);
+        font-weight: bold;
+    }
+    label.incorrect-answer-highlight {
+        background-color: #f8d7da !important; /* Light red background for incorrect answer */
+        border-color: var(--incorrect-color);
+    }
+    label.disabled { /* Style for disabled labels after answering */
+        cursor: default;
+        opacity: 0.7;
+    }
+    input[type="radio"] {
+      margin-right: 10px; /* More space after radio button */
+      vertical-align: middle;
+    }
+    /* Style for the feedback div */
+    .feedback {
+        margin-top: 10px;
+        font-weight: bold;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        display: none; /* Hidden by default */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--modal-bg);
+        z-index: 2000; /* Above header */
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        max-width: 400px;
+        width: 90%;
+    }
+    .modal-content h2 {
+        margin-top: 0;
+        color: var(--primary-color);
+    }
+    .modal-content p {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+    }
+    .modal-buttons button {
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 0 10px;
+        font-size: 1em;
+        transition: background-color 0.2s ease;
+    }
+    .modal-buttons button:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+    }
+    .modal-buttons button.secondary {
+        background-color: #6c757d; /* Gray for secondary */
+    }
+    .modal-buttons button.secondary:hover {
+        background-color: #5a6268; /* Darker gray on hover */
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      body {
+          padding-top: 120px; /* Adjust padding for smaller screens if header wraps */
+      }
+      h1 {
+        font-size: 1.4em;
+      }
+      .question {
+        margin: 10px 5px;
+        padding: 10px;
+      }
+      .modal-content {
+         padding: 20px;
+      }
+       .modal-buttons button {
+          padding: 8px 15px;
+          font-size: 0.9em;
+          margin: 5px; /* Stack buttons vertically if needed */
+          display: block;
+          width: calc(100% - 10px);
+       }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Examen Canarias Parte 2</h1>
+    <div id="scoreboard">
+      Aciertos: <span id="correctCount" class="correct">0</span> | Fallos: <span id="incorrectCount" class="incorrect">0</span> | Pendientes: <span id="pendingCount">0</span>
+    </div>
+  </header>
+
+  <div id="exam" class="question-container"></div>
+
+  <div id="endModal" class="modal-overlay">
+      <div class="modal-content">
+          <h2>¡Examen Completado!</h2>
+          <p>Resultado Final:</p>
+          <p>Aciertos: <span id="modalCorrect" class="correct">0</span></p>
+          <p>Fallos: <span id="modalIncorrect" class="incorrect">0</span></p>
+          <div class="modal-buttons">
+              <button id="reviewButton">Repasar test</button>
+              <button id="restartButton" class="secondary">Reiniciar test</button>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    // Paste the entire content of your "EXAMEN CANARIAs.txt" file here
+    const fileContent = `
+
+
+          151. La frecuencia absoluta es
+
+                  A)     el porcentaje de un valor de una variable que se obtiene multiplicando la frecuencia relativa por 100
+                  B)     el cociente entre la frecuencia absoluta acumulada y el número de observaciones realizadas
+                  C)     la diferencia entre el mayor y el menor de los valores que forman la variable
+                  D)     el número de veces que aparece repetido un valor en el conjunto de observaciones realizadas
+
+                  Respuesta Correcta: D
+
+          152. El diagrama de barras es una representación gráfica válida
+
+                  A)     para una variable discreta
+                  B)     para un intervalo homogéneo
+                  C)     para agrupar valores
+                  D)     para un perfil radial
+
+                  Respuesta Correcta: A
+
+          153. La media aritmética es
+
+                  A)     una medida cuadrática
+                  B)     una medida de tendencia central
+                  C)     lo que se conoce como mediana
+                  D)     un centil o percentil
+
+                  Respuesta Correcta: B
+
+          154. En las variables estadísticas bidimensionales, la distribución de los caracteres observados pueden ser
+
+                  A)     dos caracteres cualitativos
+                  B)     dos caracteres cuantitativos
+                  C)     un carácter cuantitativo y otro cualitativo
+                  D)     todas las respuestas anteriores son ciertas
+
+                  Respuesta Correcta: D
+
+          155. La desviación típica se define como
+
+                  A)     la raíz cuadrada positiva de la varianza
+                  B)     la raíz cuadrada negativa de la varianza
+                  C)     la varianza elevada al cubo
+                  D)     la desviación mediaa respecto al promedio de media aritmética
+
+                  Respuesta Correcta: A
+
+          156. Cuando se quiere comparar las dispersiones de dos muestras que vienen expresadas en diferentes unidades
+
+                  A)     será necesario un recorrido intermartílico
+                  B)     será necesario recurrir a medidas de dispersión como el coeficiente de variación de Pearson
+                  C)     bastará con hacer uso del binomio de Newton
+                  D)     obtendremos una distribución simétrica
+
+                  Respuesta Correcta: B
+
+          157. En una tabla de frecuencias de una variable discreta
+
+                  A)     no se requiere un orden concreto
+                  B)     siempre contendrá pocos valores
+                  C)     se ordenan los distintos valores de la misma
+                  D)     puede tener muchos valores distintos con que el campo de variabilidad es muy pequeño
+
+                  Respuesta Correcta: C
+
+          158. En el sistema de información sanitaria a nivel estatal se recogen
+
+                  A)     datos de salud y estilos de vida
+                  B)     datos sobre centros, servicios y establecimientos sanitarios
+                  C)     todas las respuestas anteriores son correctas
+                  D)     ninguna de las respuestas anteriores es correctas
+
+                  Respuesta Correcta: C
+
+          159. En los indicadores clave del sistema nacional de salud no se recogen indicadores sobre
+
+                  A)     bienestar
+                  B)     enfermedad
+                  C)     determinantes socioeconómicos
+                  D)     redes sociales
+
+                  Respuesta Correcta: D
+
+          160. Según la OMS asegurar que cada paciente reciba el conjunto se servicios diagnósticos y terapéuticos más adecuados para conseguir una atención sanitaria óptima es lo que se conoce como
+
+                  A)     práctica clínica
+                  B)     calidad sanitaria
+                  C)     eficacia
+                  D)     legitimidad
+
+                  Respuesta Correcta: B
+
+          161. La complacencia del usuario por el servicio recibido se conoce como
+
+                  A)     grado
+                  B)     conocimiento profesional
+                  C)     satisfacción
+                  D)     expectativas
+
+                  Respuesta Correcta: C
+
+          162. El modelo EFQM
+
+                  A)     es un modelo de excelencia
+                  B)     es un modelo de práctica clínica
+                  C)     es un modelo de terapéutica
+                  D)     es un portal de prescripción
+
+                  Respuesta Correcta: A
+
+          163. En los pasos de implementación del modelo EFQM aparece
+
+                  A)     la priorización de acciones dirigidas a la mejora hostelera del centro
+                  B)     el establecimiento de estándares
+                  C)     la formulación de prácticas terapéuticas
+                  D)     el seguimiento al alta del pacientes
+
+                  Respuesta Correcta: B
+
+          164. Un instrumento práctico que permite a las organizaciones establecer un sistema de gestión que las encamine a la excelencia es
+
+                  A)     una vía clínica orientada a la mejora de un procedimiento
+                  B)     el modelo de excelencia en la gestión
+                  C)     un éxito
+                  D)     un complemento de la codificación clínica
+
+                  Respuesta Correcta: B
+
+          165. Se puede afirmar que la calidad de una organización es directamente proporcional a su excelencia (marque la correcta )
+
+                  A)     verdadero
+                  B)     falso
+                  C)     son dos parámetros que no se pueden interrelacionar
+                  D)     no existe diferencia conceptual entre ambos parámetros
+
+                  Respuesta Correcta: A
+
+          166. ¿Qué garantiza la obtención de una certificación ISO ?
+
+                  A)     que el servicio que se da es amable
+                  B)     que el producto obtenido es apto para menores
+                  C)     que la empresa sigue normas o estándares para asegurar la calidad, seguridad y eficiencia de sus servicios
+                  D)     que el centro o servicio está catalogado como beneficiario
+
+                  Respuesta Correcta: C
+
+          167. Entre otras cosas, para conseguir una certificación ISO se requiere
+
+                  A)     la corrección del texto clínico
+                  B)     un informe de estado económico
+                  C)     una aplicación técnica de soporte
+                  D)     una auditoría
+
+                  Respuesta Correcta: D
+
+          168. Un método de acreditación de la codificación clínica puede ser
+
+                  A)     la inspección de las variables clínicas que forman el CMBd
+                  B)     un recuento numérico de procesos
+                  C)     la validación de las firmas electrónicas
+                  D)     el uso de una aplicación de gestión de pacientes
+
+                  Respuesta Correcta: A
+
+          169. Únicamente es apropiado en el proceso de acreditación el empleo de auditores externos (marque la correcta )
+
+                  A)     verdadero
+                  B)     el empleo de auditores internos también es válido
+                  C)     falso
+                  D)     b y c son correctas
+
+                  Respuesta Correcta: B
+
+          170. Indique la respuesta incorrecta:
+
+                  A)     El cistocele es un prolapso del útero.
+                  B)     El prolapso uterino completo se llama también prolapso uterino grados III-IV.
+                  C)     En el rectocele el recto desciende a través de la cara posterior de la vagina.
+                  D)     El uretrocele es la protrusión anormal de la uretra en el canal vaginal.
+
+                  Respuesta Correcta: A
+
+          171. En la asignación de un código de diagnóstico CIE-10-ES NO es necesario:
+
+                  A)     Comprobar la lista tabular ya que el índice alfabético nos proporciona el código completo.
+                  B)     Además de buscar el código por el índice alfabético siempre debe consultarse la lista tabular.
+                  C)     La lista tabular nos proporciona la lateralidad y cualquier séptimo carácter que sea de aplicación.
+                  D)     B y C son correctas.
+
+                  Respuesta Correcta: D
+
+          172. Respecto a los epónimos en Medicina:
+
+                  A)     Son abundantes
+                  B)     Son vocablos en los que el significado se asocia al nombre propio de una persona.
+                  C)     Síndrome de BUDD Chiari es un ejemplo.
+                  D)     Todas son ciertas
+
+                  Respuesta Correcta: D
+
+          173. La fractura de Bennett se produce en:
+                  A)     El brazo
+                  B)     El tobillo
+                  C)     Los cuerpos vertebrales
+                  D)     La mano
+
+                  Respuesta Correcta: D
+
+          174. La neutropenia es (indica la respuesta correcta):
+
+                  A)     Disminución en la cantidad de los glóbulos rojos
+                  B)     Aumento en la cantidad de los glóbulos blancos.
+                  C)     Disminución en la cantidad de los glóbulos blancos.
+                  D)     Ninguna es correcta.
+
+                  Respuesta Correcta: C
+
+          175. TNM: La "N" seguida de un "0", nos informe de que:
+                  A)     Existe diseminación de ganglios linfáticos regionales.
+                  B)     No es posible evaluar los ganglios linfáticos regionales.
+                  C)     No hay evidencia de tumor primario.
+                  D)     No existe diseminación de ganglios linfáticos regionales.
+
+                  Respuesta Correcta: D
+
+          176. Los modificadores no esenciales tienen la característica de:
+                  A)     Modificar la asignación del código
+                  B)     No modificar la asignación del código e ir entre paréntesis.
+                  C)     Modificar la asignación del código e ir entre paréntesis.
+                  D)     Ninguna es correcta.
+
+                  Respuesta Correcta: B
+
+          177. El término EPOC significa:
+
+                  A)     Enfermedad Pulmonar Crónica
+                  B)     Enfermedad Pulmonar Subaguda
+                  C)     Enfermedad Pulmonar Obstructiva Crónica
+                  D)     Ninguna es correcta
+
+                  Respuesta Correcta: C
+
+          178. ¿En qué año entra en vigor la CIE-10-ES:
+
+                  A)     2015
+                  B)     2016
+                  C)     2017
+                  D)     2014
+
+                  Respuesta Correcta: B
+
+          179. El uso de la CIE-9-MC para la codificación de los diagnósticos y procedimientos clínicos se ha venido utilizando de forma obligatoria en España desde el año:
+
+                  A)     1983
+                  B)     1985
+                  C)     1987
+                  D)     1984
+
+                  Respuesta Correcta: C
+
+          180. ¿Qué siglas NO corresponden a un sistema de clasificación de enfermedades?
+
+                  A)     SNAME CT
+                  B)     NANDA
+                  C)     CIE-O
+                  D)     DSM-IV
+
+                  Respuesta Correcta: A
+
+          181. ¿Qué herramienta facilita la correspondencia entre la CIE-9-MC y la CIE-10-ES?
+
+                  A)     GEM
+                  B)     CPT 4
+                  C)     SNOMED
+                  D)     CMA
+
+                  Respuesta Correcta: A
+
+          182. La Clasificación internacional de la atención primaria (CIAP-2), se publicó en español en el año:
+
+                  A)     1998
+                  B)     1999
+                  C)     1997
+                  D)     2000
+
+                  Respuesta Correcta: B
+
+          183. Clasificación internacional de enfermedades para oncología (CIE-O):
+
+                  A)     Dicho código consta de 6 caracteres (4 dígitos y una barra "/" que separa el 4º del 5º dígito). Los cuatro primeros dígitos identifican el tipo histológica de la neoplasia y el quinto número indica su comportamiento.
+                  B)     Dicho código consta de 7 caracteres (4 dígitos y una barra "/" que separa el 4º del 5º dígito). Los cuatro primeros dígitos identifican el tipo histológica de la neoplasia, el quinto número indica su comportamiento y
+                         el sexto el grado de diferenciación de la neoplasia.
+                  C)     Dicho código consta de 7 caracteres (4 dígitos y una barra "/" que separa el 4º del 5º dígito). Los cuatro primeros dígitos identifican el tipo histológica de la neoplasia, el quinto número indica el grado de
+                         diferenciación y el sexto su comportamiento.
+                  D)     Ninguna es correcta.
+
+                  Respuesta Correcta: B
+
+          184. CIE-10-ES contiene una Tabla de neoplasias con:
+
+                  A)     7 columnas
+                  B)     6 columnas
+                  C)     5 columnas
+                  D)     8 columnas
+
+                  Respuesta Correcta: A
+
+          185. CIE-10 Diagnósticos contiene un total de:
+
+                  A)     21 capítulos
+                  B)     19 capítulos
+                  C)     20 capítulos
+                  D)     22 capítulos
+
+                  Respuesta Correcta: D
+
+          186. ¿En qué capítulo se clasifican las enfermedades de embarazo, parto y puerperio?
+
+                  A)     Capítulo 15
+                  B)     Capítulo 16
+                  C)     Capítulo 17
+                  D)     Capítulo 13
+
+                  Respuesta Correcta: A
+
+          187. ¿Qué entendemos por indización del episodio asistencial?
+
+                  A)     Consiste en la identificación del diagnóstico principal y los procedimientos realizados durante el episodio asistencial.
+                  B)     Consiste en la identificación del diagnóstico principal, los diagnósticos secundarios y los procedimientos  realizados durante un episodio asistencial.
+                  C)     Consiste en la identificación del diagnóstico principal y los diagnósticos secundarios durante el episodio asistencial.
+                  D)     Consiste en la identificación del diagnóstico principal, los diagnósticos secundarios y los procedimientos realizados en parte del episodio asistencial.
+
+                  Respuesta Correcta: B
+
+          188. Para una correcta codificación ¿qué documentos se pueden consultar?
+
+                  A)     Sólo el informe de alta.
+                  B)     Otros documentos, como pueden ser el protocolo quirúrgico, anamnesis y evolutivo.
+                  C)     El informe de alta y otros documentos como puede ser el protocolo quirúrgico, anamnesis y evolutivo.
+                  D)     Ninguna es correcta.
+
+                  Respuesta Correcta: C
+
+          189. Si el informe clínico de alta no nos aporta información suficiente para una asignación correcta del diagnóstico principal, ¿podemos consultar la historia clínica electrónica?
+
+                  A)     Sí
+                  B)     No
+                  C)     Depende del caso clínico.
+                  D)     b y c son correctas
+
+                  Respuesta Correcta: A
+
+          190. En el proceso de codificación de un acto clínico el diagnóstico principal (D.P) será aquel qué:
+
+                  A)     Consuma más recursos hospitalarios.
+                  B)     Mayor duración o gravedad conlleve durante el episodio de atención.
+                  C)     A y B son correctas.
+                  D)     Proceso patológico que después del estudio y al alta del paciente se establece como causa del ingreso.
+
+                  Respuesta Correcta: D
+
+          191. El término clave es aquella palabra de la expresión diagnóstica que nos permite acceder al término principal del Índice Alfabético de Enfermedades, que puede ser:
+
+                  A)     Nombre de la enfermedad o afección.
+                  B)     Causa del ingreso o admisión.
+                  C)     Epónimo (Quervain, enfermedad de)
+                  D)     Todas son correctas.
+
+                  Respuesta Correcta: D
+
+          192. La instrucción "véase" del índice alfabético de enfermedades de la CIE-10-ES indica:
+
+                  A)     Que no es necesario dirigirse a otro término principal más específico pues el elegido aporta información suficiente sobre el código asignado.
+                  B)     Que es necesario dirigirse a otro término principal más específico pues el elegido no aporta información suficiente sobre el código a asignar. No es de obligatorio seguimiento.
+                  C)     Que es necesario dirigirse a otro término principal más específico pues el elegido no aporta información  suficiente sobre el código a asignar. Es de obligatorio seguimiento.
+                  D)     Ninguna es correcta
+
+                  Respuesta Correcta: C
+
+          193. La CIE-10-ES tiene dos tipos de nota Excluye. Cada una tiene una definición y un uso diferente pero ambas son similares en la manera de indicar que los códigos excluidos en cada una de las notas son independientes entre sí. En el caso de la nota Excluye 1:
+
+                  A)     Es una nota de exclusión pura
+                  B)     Significa "no codificar aquí"
+                  C)     No hay excepciones en su aplicación
+                  D)     A y B son correctas.
+
+                  Respuesta Correcta: D
+
+          194. Los términos "con" o "en" de la lista tabular de enfermedades de CIE-10-ES:
+
+                  A)     Establece una relación causal entre las dos afecciones vinculadas por este término.
+                  B)     No establece una relación causal entre las dos afecciones vinculadas por este término.
+                  C)     Estas afecciones deben ser codificadas como relacionadas, incluso aunque la documentación del clínico no las asocie de forma explícita, salvo que en la documentación se indique que dichas afecciones no guardan relación.
+                  D)     A y C son correctas.
+
+                  Respuesta Correcta: D
+
+          195. Características de la codificación clínica:
+
+                  A)     Es una tarea sencilla y no necesita demasiados conocimientos ni terminología específica.
+                  B)     No es una tarea sencilla, se trata de convertir el lenguaje médico o clínico asistencial al lenguaje de la CIE-   10-ES.
+                  C)     La calidad vendrá determinada cuanto mayor calidad tenga la documentación e información clínica.
+                  D)     B y C son correctas.
+
+                  Respuesta Correcta: D
+
+          196. CIE-10.ES procedimientos tiene varias cualidades en su diseño, ¿cuál de ellas es la principal?
+
+                  A)     Estructura multiaxial
+                  B)     Exhaustividad
+                  C)     Expansibilidad
+                  D)     Nivel de especificidad estandarizado
+
+                  Respuesta Correcta: A
+
+          197. La Unidad Técnica CIE-10-ES se compone de:
+
+                  A)     Un coordinador, un representante de cada CCAA y un representante de la SEDOM.
+                  B)     Un coordinador, un representante de cada CCAA, un representante de la SEDOM y un representante del  comité editorial de la CIE-10-ES.
+                  C)     Un coordinador, un representante de la SEDOM Y un representante del comité editorial de la CIE-10-ES.
+                  D)     Ninguna es correcta.
+
+                  Respuesta Correcta: B
+
+          198. El tipo de procedimiento extirpación se define como:
+
+                  A)     Erradicación total o parcial de una estructura anatómica mediante el uso directo de energía, fuerza o agente  destructivo.
+                  B)     Eliminar o cortar sin sustituir una estructura anatómica completa.
+                  C)     Extraer o eliminar una sustancia sólida de una estructura anatómica.
+                  D)     Ninguna es correcta.
+
+                  Respuesta Correcta: C
+
+          199. ¿Cuál de las siguientes patologías es una excepción a la norma de codificación de sospecha?
+
+                  A)     COVID19
+                  B)     SIDA
+                  C)     Gripe Aviar
+                  D)     Todas son correctas
+
+                  Respuesta Correcta: D
+
+          200. La escala de NIHSS se utiliza sólo en:
+
+                  A)     Infartos cerebrales
+                  B)     Hemorragias cerebrales
+                  C)     Cualquier otra patología que así lo requiera.
+                  D)     Infartos y hemorragias cerebrales.
+
+                  Respuesta Correcta: A
+
+          201. Paciente con ERC estadio IIIA debida a nefropatía diabética crónica y a HTA.
+
+                  A)     E11.22 Diabetes mellitus tipo 2 con nefropatía diabética crónica + I12.9 Enfermedad renal crónica  hipertensiva con enfermedad renal crónica en estadio 1 a 4 ó con enfermedad renal crónica no especificada + N18.9 Enfermedad renal crónica no especificada.
+                  B)     E11.21 Diabetes mellitus tipo 2 con nefropatía diabética + I12.9 Enfermedad renal crónica hipertensiva con enfermedad renal crónica en estadio 1 a 4 ó con enfermedad renal crónica no especificada + N18.31 Enfermedad renal crónica, estadio 3a.
+                  C)     E11.22 Diabetes mellitus tipo 2 con nefropatía diabética crónica + I12.9 Enfermedad renal crónica hipertensiva con enfermedad renal crónica en estadio 1 a 4 ó con enfermedad renal crónica no especificada + N18.31 Enfermedad renal crónica, estadio 3a.
+                  D)     E11.22 Diabetes mellitus tipo 2 con nefropatía diabética crónica + I12.0 Enfermedad renal crónica hipertensiva con enfermedad renal crónica en estadio 5 o con enfermedad renal en estadio terminal + N18.31 Enfermedad renal crónica, estadio 3a.
+
+                  Respuesta Correcta: C
+
+          202. Paciente que ingresa para una radioembolización hepática debido a un carcinoma hepatocelular, ¿cuál sería la
+               secuencia correcta?
+
+                  A)     Z51.0 Contacto para radioterapia antineoplásica + C22.0 Carcinoma de células hepáticas + 8170/3 Carcinoma hepatocelular, SAI.
+                  B)     C22.0 Carcinoma de células hepáticas + 8170/3 Carcinoma hepatocelular, SAI.
+                  C)     C22.0 Carcinoma de células hepáticas + 8170/3 Carcinoma hepatocelular, SAI. + Z51.0 Contacto para  radioterapia antineoplásica.
+                  D)     Z51.11 Contacto para quimioterapia antineoplásica + C22.0        Carcinoma de células hepáticas + 8170/3 Carcinoma hepatocelular, SAI.
+
+                  Respuesta Correcta: B
+
+          203. Con respecto al indicador presente al ingreso (POA), es correcto:
+
+                  A)     Hay que cumplimentarlo en todos los diagnósticos con SI o NO.
+                  B)     Indica que un diagnóstico es crónico.
+                  C)     Hace referencia a la gravedad de la enfermedad.
+                  D)     Se empieza a utilizar a partir de la versión 27 de los AP-GRD.
+
+                  Respuesta Correcta: D
+
+          204. ¿En qué capítulo de la CIE-10-ES se clasifica COVID-19?
+
+                  A)     Capítulo 01- Ciertas enfermedades Infecciosas y Parasitarias.
+                  B)     Capítulo 22 - Códigos para fines especiales.
+                  C)     Capítulo 10- Enfermedades del Aparato Respiratorio.
+                  D)     Ninguna es correcta
+
+
+          205. En el capítulo 15 de la CIE-10-ES se recogen los códigos de embarazo, parto y puerperio. Indique la respuesta correcta:
+
+                  A)     El capítulo 15 no recoge los códigos de embarazo, parto y puerperio.
+                  B)     Los códigos de este capítulo son para uso exclusivo en el episodio de las madres y del recién nacido.
+                  C)     El capítulo 15 recoge además los códigos de malformaciones congénitas, deformidades y anomalías cromosómicas.
+                  D)     Los códigos de este capítulo son para uso exclusivo en la codificación del episodio de la madre, nunca del
+                         recién nacido.
+
+                  Respuesta Correcta: D
+
+          206. Entendemos por resección: eliminar o cortar, sin sustituir una estructura anatómica completa. Un ejemplo de resección sería la eliminación de los productos de la concepción a través de una salpingectomía total. ¿cuál sería la secuencia correcta en el caso de una salpingectomía total laparoscópica derecha en un aborto túbárico?
+
+                  A)     10T24ZZ Resección de productos de la concepción, ectópicos, endoscópico percutáneo + 0UT54ZZ Resección de trompa de Falopio, derecha, abordaje endoscópico percutáneo.
+                  B)     0UT54ZZ Resección de trompa de Falopio, derecha, abordaje endoscópico percutáneo + 10T24ZZ  Resección de productos de la concepción, ectópicos, endoscópico percutáneo.
+                  C)     0UT50ZZ Resección de trompa de Falopio, derecha, abordaje abierto.
+                  D)     10T23ZZ Resección de productos de la concepción, ectópicos, abordaje percutáneo + 0UT54ZZ Resección de trompa de Falopio, derecha, abordaje endoscópico percutáneo.
+
+                  Respuesta Correcta: A
+
+          207. Según el CMBD se considera que un paciente genera estancia:
+
+                  A)     Si está de 8 a 17 horas y le hacen al menos una prueba diagnóstica.
+                  B)     Si está al menos 20 horas, en cualquier tramo horario.
+                  C)     Cuando permanece en este ámbito a la hora censal (00.00 horas)
+                  D)     Si ingresa y ocupa cama entre las 8 y las 20 horas.
+
+                  Respuesta Correcta: C
+
+          208. En el CMBDH (hospitalización) sólo se recogerán las estancias igual a 0 días cuando el motivo del alta sea:
+
+
+                  A)     Traslado a otro hospital
+                  B)     Alta voluntaria/Fuga
+                  C)     Éxitus
+                  D)     Traslado a otro hospital, Alta voluntaria/Fuga y Éxitus.
+
+                  Respuesta Correcta: D
+
+          209. ¿Qué instrucción establece el Conjunto Mínimo Básico de Datos de Hospitalización (CMBDH), Conjunto Mínimo de Datos de Cirugía Ambulatoria (CMBD-CA) y el Conjunto Mínimo Básico de Datos de Hospitalización a Domicilio (CMBD-HADO)?
+
+                  A)     Número 7/09 de 12 de junio de 2009.
+                  B)     Número 8/09 de 12 de junio de 2009.
+                  C)     Número 9/09 de 12 de junio de 2009.
+                  D)     Número 6/09 de 12 de junio de 2010.
+
+                  Respuesta Correcta: B
+
+          210. La variable del CMBD (Conjunto Mínimo Básico de Datos) número de registro de actividad (ICU) se compone de:
+
+                  A)     13 dígitos numéricos
+                  B)     13 dígitos alfanuméricos
+                  C)     12 dígitos numéricos
+                  D)     12 dígitos alfanuméricos
+
+                  Respuesta Correcta: B
+
+          211. En la variable del CMBD (Conjunto Mínimo Básico de Datos), ¿cómo se identifican los hospitales?
+
+                  A)     Campo alfanumérico de 5 dígitos
+                  B)     Campo numérico 6 dígitos
+                  C)     Campo alfanumérico 6 dígitos
+                  D)     Campo alfanumérico 7 dígitos
+
+                  Respuesta Correcta: C
+
+          212. La tercera variable del CMBD (Conjunto Mínimo Básico de Datos) es la identificación del paciente (Historia):
+
+                  A)     El número de historia se podrá compartir entre pacientes de la misma familia
+                  B)     En un caso de obstetricia con parto final el número de historia de la madre será el mismo que el del recién  nacido.
+                  C)     Habrá un único número de historia por paciente.
+                  D)     A y B son ciertas.
+
+                  Respuesta Correcta: C
+
+          213. En el caso de que el paciente pase a hospitalización a domicilio la fecha de alta se considera:
+
+                  A)     Aquella en que el paciente deja el hospital.
+                  B)     El día siguiente a la fecha de atención.
+                  C)     La fecha de la primera valoración del paciente en su domicilio.
+                  D)     Ninguna es correcta.
+
+                  Respuesta Correcta: A
+
+          214. Se consideran circunstancias al alta:
+
+                  A)     Domicilio
+                  B)     Hospitalización a domicilio.
+                  C)     Alta Voluntaria/Fuga
+                  D)     Todas son correctas.
+
+                  Respuesta Correcta: D
+
+          215. Cúal de los siguientes NO corresponde a los principios generales de la organización y funcionamento de las Áreas de Salud, según la Ley 11/1994 de 26 de Julio, de Ordenación Sanitaria de Canarias?.
+
+                  A)     Eficiencia y eficacia de su organización
+                  B)     Continuidad entre la Atención Primaria y la Atención Especializada
+                  C)     Formular el anteproyecto del Plan de Salud del Área
+                  D)     Preferencia de las actividades de promoción, prevención y protección de la salud
+
+                  Respuesta Correcta: C
+
+          216. ¿Quién delimita un Área de Salud?
+
+                  A)     El Director del Área de Salud
+                  B)     El Consejero de Sanidad
+                  C)     El Director de Atención Primaria del Área
+                  D)     El Consejo de Salud
+
+                  Respuesta Correcta: B
+
+          217. El consejo de Salud ejerce las siguientes funciones excepto una de las siguientes:
+
+                  A)     Promover la participación comunitaria en el seno del Área de Salud.
+                  B)     Evaluar de forma continuada la calidad de la asistencia prestada por los centros, servicios y  establecimientos del Área y proponer y, en su caso, adoptar las medidas oportunas para mejorar su funcionamiento
+                  C)     Conocer e informar el anteproyecto del Plan de Salud del Área y de sus adaptaciones anuales.
+                  D)     Orientar las directrices sanitarias del área, a cuyo efecto podrán elevar mociones e informes a los órganos de dirección.
+
+                  Respuesta Correcta: B
+
+          218. El Centro de Atención Primaria se define como:
+
+                  A)     La estructura física que sirve de centro integral de las actividades de atención primaria del equipo de atención primaria
+                  B)     La estructura funcional que sirve de centro integral de las actividades de atención primaria del equipo de atención primaria
+                  C)     La estructura física y funcional que sirve de centro integral de las actividades de atención primaria del equipo de atención primaria
+                  D)     Ninguna respuesta es correcta
+
+                  Respuesta Correcta: C
+
+          219. El Director del Área de Salud es nombrado por:
+
+                  A)     Por el Director Gerente del Área de Salud
+                  B)     Por el Gobierno de Canarias, a propuesta del consejero competente en materia de sanidad.
+                  C)     Por el Consejo de Salud del Área
+                  D)     Por el Director del Servicio Canario de Salud
+
+                  Respuesta Correcta: B
+
+          220. El Director de Zona Básica de Salud, es el presidente de:
+
+                  A)     Consejo Interterritorial
+                  B)     Consejo de Dirección del Área
+                  C)     Consejo de Salud de Zona
+                  D)     Ninguna de las anteriores
+
+                  Respuesta Correcta: C
+
+          221. Se dispondrá de, al menos, un hospital al que pueden acceder los usuarios del Servicio para recibir la atención
+               especializada en?
+
+                  A)     En cada zona de salud
+                  B)     En cada isla
+                  C)     En cada provincia
+                  D)     En cada área de salud
+
+                  Respuesta Correcta: D
+
+          222. En cuál de los siguientes capítulos y títulos de la Ley 11/1994 de 26 de Julio se regula la Estructura Pública Sanitaria de Canarias y en concreto, la Asistencia Sanitaria en Canarias?
+
+                  A)     Capítulo II del Título III
+                  B)     Capítulo II del título II
+                  C)     Capítulo III del Título III
+                  D)     Capítulo III del Título II
+
+                  Respuesta Correcta: D
+
+          223. La asistencia sanitaria especializada es:
+
+                  A)     Siempre hospitalaria
+                  B)     Extrahospitalaria
+                  C)     Hospitalaria y extrahospitalaria
+                  D)     Ninguna de las anteriores
+
+                  Respuesta Correcta: C
+
+          224. Las atribuciones del Equipo de Atención Primaria, dentro del marco de lo disposto en el artículo 30 de la Ley de Ordenación Sanitaria de Canarias, comprenderán entre otras las siguientes:
+
+                  A)     Área de Atención Directa.
+                  B)     Área de Salud Pública y Control Sanitario.
+                  C)     Área de Administración y Gestión.
+                  D)     Todas las anteriores
+
+                  Respuesta Correcta: D
+
+          225. La cartera de servicios que debe ofertar cada Equipo de Atención Primaria, se especificará anualmente a través de:
+
+                  A)     Programa de Gestión Convenida
+                  B)     Directrices del Consejo de Salud de la Zona Básica
+                  C)     Plan de Salud de Canarias
+                  D)     Plan de Salud del Área
+
+                  Respuesta Correcta: A
+
+          226. En su zona de influencia, el Equipo de Atención Primaria desempeñará las funciones establecidas en la normativa vigente en materia de salud pública, fundamentalmente la inspección y vigilancia sanitaria, y entre otras las siguientes:
+
+                  A)     Identificación y análisis de los problemas de salud de la Zona Básica de Salud.
+                  B)     Vigilancia epidemiológica de la Zona Básica de Salud.
+                  C)     Control de las enfermedades transmisibles, con atención prioritaria a las de mayor prevalencia en su Zona Básica de Salud.
+                  D)     Todas las anteriores
+
+                  Respuesta Correcta: D
+
+          227. La Zona Básica de Salud, a través del Equipo de Atención Primaria, prestará la oportuna colaboración a los órganos de la administración sanitaria de la Comunidad Autónoma, territoriales y centrales, tanto al personal de Salud Pública de las Áreas de Salud (Veterinarios y Farmacéuticos) como a cualquier otro que tenga  encomendada específicamente alguma función de inspección sanitaria o vigilancia epidemiológica.
+               Concretamente prestará apoyo y participará en el desarrollo de las siguientes actividades:
+
+
+                  A)     Control sanitario del agua, alimentos, industrias y comercios de alimentación.
+                  B)     Control de las condiciones sanitarias de viviendas, locales y establecimientos públicos.
+                  C)     Control sanitario de las Zoonosis transmisibles al hombre
+                  D)     Todas las anteriores son ciertas
+
+                  Respuesta Correcta: D
+
+          228. El personal no sanitario, sin perjuicio de las funciones específicas que le atribuyan los regímenes jurídicos que les resulten de aplicación, está obligado a colaborar con el resto de los miembros del  Equipo en:
+
+                  A)     las labores de prevención, rehabilitación y promoción de la salud
+                  B)     Facilitar el correcto acceso del ciudadano a la asistencia sanitaria o a cualquier tipo de atención ofertada desde el Centro, gestionándole e informándole sobre las prestaciones ofertadas y la demanda realizada.
+                  C)     Gestionar (cumplimentar, recoger y trasladar, registrar, archivar y poner a disposición del personal sanitario)  cuanta documentación sea precisa para una mejor atención al paciente y a la comunidad. c) Gestionar el  cobro de las cantidades devengadas por la asistencia a pacientes cuando exista un tercero obligado al pago.
+                  D)     Todas las anteriores son ciertas
+
+                  Respuesta Correcta: D
+
+          229. La Zona Básica de Salud, a través del Equipo de Atención Primaria, prestará la oportuna colaboración a los
+               órganos de la administración sanitaria de la Comunidad Autónoma, territoriales y centrales, tanto al personal de
+               Salud Pública de las Áreas de Salud, como a cualquier otro que tenga encomendada específicamente alguna
+               función de inspección sanitaria o vigilancia epidemiológica. Concretamente prestará apoyo y participará en el
+               desarrollo de las siguientes actividades:
+
+                  A)     Control sanitario del agua, alimentos, industrias y comercios de alimentación.
+                  B)     Control de las condiciones sanitarias de viviendas, locales y establecimientos públicos.
+                  C)     Control sanitario de las Zoonosis transmisibles al hombre.
+                  D)     Todas las anteriores son ciertas
+
+                  Respuesta Correcta: D
+
+          230. Corresponderá al Director de la Zona Básica de Salud, las siguientes atribuciones excepto:
+
+                  A)     Ostentar la representación oficial del Servicio Canario de la Salud en el ámbito de la Zona Básica de Salud, ejerciendo la superior autoridad dentro de los Centros de Atención Primaria de la misma.
+                  B)     Cumplir y hacer cumplir las disposiciones que regulan las actuaciones del Servicio Canario de la Salud en la  Zona Básica de Salud de su competencia, y los acuerdos adoptados por los órganos competentes del Servicio Canario de la Salud.
+                  C)     Presidir el Consejo de Dirección del Área
+                  D)     Suscribir anualmente el Programa de Gestión Convenida de la Zona Básica de Salud, realizar su
+                         seguimiento y velar por su cumplimiento.
+
+                  Respuesta Correcta: C
+
+          231. El órgano de asesoramiento, consulta y participación comunitaria en la gestión de la Zona Básica de Salud es:
+
+                  A)     El Consejo de Salud del Área
+                  B)     El Consejo de Salud de Zona
+                  C)     La Comisión de Zona de participación hospitalaria y de atención primaria
+                  D)     No existe un órgano específico para lo descrito
+
+                  Respuesta Correcta: B
+
+          232. La historia clínica formará un expediente ordenado por episodios, integrado cada uno de ellos, en su caso, por los
+               siguientes documentos básicos entre otros:
+
+                  A)     Hoja clínico estadística e informes de alta
+                  B)     Hoja médica y de enfermería de urgencias: informe de urgencia.
+                  C)     Documentación médica y de enfermeria
+                  D)     Todos los anteriores son ciertos
+
+                  Respuesta Correcta: D
+
+          233. El documento de autorización de ingreso debe ser firmado por los siguientes excepto:
+
+                  A)     Por el paciente o su representante
+                  B)     Por personas vinculadas al paciente en los casos que proceda según la legislación
+                  C)     Por el médico responsable en el Servicio de Urgencias
+                  D)     Por el enfermero que le atiende en el Servicio de Urgencias
+
+                  Respuesta Correcta: D
+
+          234. En caso de que se decida el ingreso hospitalario, debe proponerse al paciente la firma de la autorización de ingreso y debe incluir como mínimo los siguientes datos excepto:
+
+                  A)     Datos de identificación del paciente.
+                  B)     Datos del representante o de la persona vinculada o allegada al paciente.
+                  C)     Diagnóstico clínico al ingreso.
+                  D)     Fecha
+
+                  Respuesta Correcta: C
+
+          235. En el Conjunto Mínimo Básico de Datos (CMBD) al alta hospitalaria para todos los pacientes que sean dados de  alta tras un ingreso y los sometidos a cirugía ambulatoria deberán constar, entre otras las siguientes variables menos una:
+
+                  A)     Fecha de ingreso.
+                  B)     Financiación.
+                  C)     Consentimiento informado del ingreso por parte del paciente
+                  D)     Identificación del médico responsable del alta.
+
+                  Respuesta Correcta: C
+
+          236. La gestión de la historia clínica y del procedimiento de constancia del acceso y uso corresponde a:
+
+                  A)     La unidad competente en materia de admisión y documentación clínica del centro.
+                  B)     El servicio clínico médico que atienda al paciente
+                  C)     La unidad de enfermería que atienda al paciente
+                  D)     La biblioteca del centro
+
+                  Respuesta Correcta: A
+
+          237. La conservación de la historia clínica se rige por lo disposto en la legislación básica reguladora de la autonomía del paciente y de derechos y obligaciones en materia de información y documentación clínica, teniendo losmcentros sanitarios la obligación de conservar las historias clínicas en condiciones que garanticen su seguridad y correcta conservación, para la debida asistencia al paciente durante el tiempo adecuado a cada caso y, como
+               mínimo, cinco años contados desde la fecha del alta de cada proceso asistencial pudiendo ser en los siguiente pero no necesariamente en uno de ellos :
+
+                  A)     Soporte original
+                  B)     Soporte audiovisual
+                  C)     Soporte informático
+                  D)     Soporte de papel
+
+                  Respuesta Correcta: A
+
+          238. Podrán ser destruidos a partir de los cinco años desde la fecha de alta de cada episodio asistencial, los  siguientes documentos, entre otros, contenidos en su historia clínica menos uno:
+
+                  A)     Hoja clínico-estadística.
+                  B)     Hoja del recién nacido, en la historia clínica de la madre.
+                  C)     Hoja quirúrgica.
+                  D)     Radiografías y otros documentos iconográficos, conservando los informes.
+
+                  Respuesta Correcta: C
+
+          239. Transcurridos veinte años desde la última actividad asistencial recogida en la historia clínica, podrán ser destruidos los siguientes documentos, entre otros excepto:
+
+                  A)     Hoja de Autorización de ingreso.
+                  B)     Hoja de órdenes médicas.
+                  C)     Informes de Anatomía Patológica.
+                  D)     Las hojas de anamnesis y exploración física y las hojas de evolución de los episodios asistenciales de los que no exista informe de Alta.
+
+                  Respuesta Correcta: D
+
+          240. Entre los documentos de enfermería de la historia clínica constará el registro de enfermería del área quirúrgica
+               será cumplimentado por los siguiente excepto:
+
+                  A)     Enfermero instrumentista
+                  B)     Enfermero supervisor del área quirúrgica
+                  C)     Enfermero circulante
+                  D)     Enfermero supervisor de la planta donde esté ingresado el paciente
+
+                  Respuesta Correcta: D
+
+          241. Tienen el derecho y el deber de obtener la tarjeta sanitaria canaria.
+
+                  A)     Los ciudadanos residentes que estén empadronados en cualquiera de los municipios de la Comunidad  Autónoma de Canarias y que acrediten el derecho a la asistencia sanitaria pública.
+                  B)     Los ciudadanos residentes aunque no estén empadronados en un municipio de la Comunidad Autónoma de Canarias
+                  C)     Ciudadanos extranjeros empadronados en cualquier municipio de la Comunidad Autónoma Canaria en que  residan habitualmente y que tengan derecho a la asistencia sanitaria de conformidad con lo previsto por la  legislación sobre derechos y libertades de los extranjeros en España y su integración social.
+                  D)     El Servicio Canario de la Salud podrá expedir, de oficio o a solicitud del interesado, este documento para facilitar la identificación de cualesquiera otros ciudadanos que tengan acceso y hagan uso de sus servicios y prestaciones, aunque sea a título privado
+
+                  Respuesta Correcta: A
+
+          242. La norma que regula la Tarjeta Sanitaria Canaria es...
+
+                  A)     Un Decreto del Gobierno
+                  B)     Un Decreto del Consejero de Sanidad
+                  C)     Una Ley aprobada por el Parlamento Canario
+                  D)     Una Ley aprobada por el Parlamento Canario correspondiente al proyecto presentado por el Gobierno
+                         Canario a propuesta del Consejero de Sanidad
+
+                  Respuesta Correcta: A
+
+          243. En la tarjeta sanitaria canaria constarán los siguientes datos excepto uno de ellos:
+
+                  A)     El texto: "Comunidad Autónoma de Canarias. Servicio Canario de la Salud".
+                  B)     Los datos personales del titular: apellidos, nombre.
+                  C)     Residencia del titular
+                  D)     Vigencia y fecha de caducidad, en su caso
+
+                  Respuesta Correcta: C
+
+          244. El sistema de Información Poblacional incluye:
+
+                  A)     A todos los residentes de una comunidad autónoma.
+                  B)     A todos los que soliciten asistencia sanitaria
+                  C)     A todos los ciudadanos residentes empadronados y a los no empadronados que soliciten asistencia sanitaria.
+                  D)     Ninguna es correcta
+
+                  Respuesta Correcta: C
+
+          245. La validez de la Tarjeta Sanitaria Europea es hasta:
+
+                  A)     La indicada en la Tarjeta
+                  B)     5 años después de su expedición
+                  C)     10 años después de su expedición
+                  D)     No caduca
+
+                  Respuesta Correcta: A
+
+          246. La Tarjeta Sanitaria Europea es válida en:
+
+                  A)     Estados Miembros de la Unión Europea
+                  B)     Espacio Económico Europeo
+                  C)     Suiza
+                  D)     Todos los anteriores
+
+                  Respuesta Correcta: D
+
+          247. El certificado provisional sustitutorio de la Tarjeta Sanitaria Europea:
+
+                  A)     Es equivalente a la Tarjeta Sanitaria Europea
+                  B)     Sustituye a la Tarjeta Sanitaria Europea en caso de pérdida u olvido
+                  C)     Tiene el mismo valor que la Tarjeta Sanitaria Europea
+                  D)     Todas las anteriores son ciertas
+
+                  Respuesta Correcta: D
+
+          248. Desde cuando se expide y reconoce la Tarjeta Sanitaria Europea?
+
+                  A)     1 de enero 2006
+                  B)     1 de junio 2004
+                  C)     31 de diciembre 2005
+                  D)     31 de diciembre 2004
+
+                  Respuesta Correcta: A
+
+          249. La Tarjeta Sanitaria Europea incluye los siguientes datos excepto:
+
+                  A)     Nombre y apellidos del titular
+                  B)     Número de identificación personal
+                  C)     Datos médicos
+                  D)     Fecha nacimiento del titular
+
+                  Respuesta Correcta: C
+
+          250. El Real Decreto 69/2015, de 6 de febrero, regula:
+
+                  A)     El Registro de Actividad de Atención Sanitaria Especializada.
+                  B)     El Registro de Actividad de Atención Sanitaria Ambulatoria.
+                  C)     La Organización de los servicios periféricos del Instituto Nacional de Gestión Sanitaria.
+                  D)     El Registro Estatal de Enfermedades Raras.
+
+                  Respuesta Correcta: A
+
+          251. ¿En qué año aprobó el Consejo Interterritorial del Sistema Nacional de Salud el CMBD (Conjunto Mínimo Básico de Datos)?
+
+                  A)     1986
+                  B)     1987
+                  C)     1985
+                  D)     1988
+
+                  Respuesta Correcta: B
+
+          252. Cada hospital deberá remitir a la Dirección General de Programas Asistenciales, Servicio de Evaluación de la  Calidad Asistencial y Sistemas de Información, un fichero que contenga el CMBD:
+
+                  A)     Semestralmente
+                  B)     Trimestralmente
+                  C)     Anualmente
+                  D)     Mensualmente
+
+                  Respuesta Correcta: B
+
+          253. El ámbito de aplicación, por el que se regula el Registro de Actividad de Atención Sanitaria Especializada abarca:
+
+
+                  A)     Hospitalización, hospitalización a domicilio, hospital de día médico, cirugía ambulatoria, procedimentos ambulatorios de especial complejidad y urgencias.
+                  B)     Hospitalización, hospital de día médico, cirugía ambulatoria, procedimentos ambulatorios de especial complejidad y urgencia.
+                  C)     Hospitalización, hospitalización a domicilio, hospital de día médico, cirugía ambulatoria y urgencias.
+                  D)     Hospitalización, hospitalización a domicilio, cirugía ambulatoria y urgencias.
+
+                  Respuesta Correcta: A
+
+          254. El Conjunto Mínimo Básico de Datos (CMBD) es un registro administrativo que contiene un conjunto de variables:
+
+
+                  A)     Clínicas
+                  B)     Demográficas
+                  C)     Administrativas
+                  D)     A, B y C son correctas
+
+                  Respuesta Correcta: D
+
+          255. El Registro de Actividad de Atención Sanitaria Especializada se regula mediante:
+
+                  A)     Real Decreto 69/2015 de 8 de Febrero.
+                  B)     Real Decreto 69/2015 de 6 de Febrero.
+                  C)     Real Decreto 68/2015 de 6 de Febrero.
+                  D)     Ley 14/1986, de 25 de Abril
+
+                  Respuesta Correcta: B
+
+          256. ¿En qué año?, Mediante la Instrucción número 10, de la Dirección del Servicio Canario de Salud, se estableció el  Conjunto Mínimo Básico de Datos al Alta Hospitalaria.
+
+                  A)     1997
+                  B)     1999
+                  C)     1998
+                  D)     2000
+
+                  Respuesta Correcta: C
+
+          257. ¿Qué decreto estable las bases generales sobre autorización de centros, servicios y establecimientos sanitarios  en cuanto el Hospital de Día?
+
+                  A)     Real Decreto, 1277/2003, de 10 de Octubre
+                  B)     Real Decreto, 1200/2003, de 12 de Octubre
+                  C)     Real Decreto, 1277/2003, de 12 de Octubre
+                  D)     Real Decreto, 1200/2003, de 10 de Octubre
+
+                  Respuesta Correcta: A
+
+          258. La Instrucción número 7/10, del Director del Servicio Canario de la Salud por la que se establece el Conjunto Mínimo Básico de Datos del Hospital de Día Médico (CMBD-HDM), tiene por objeto establecer la estructura del  CMBD-HDM, que será recogido con carácter:
+
+                  A)     Opcional
+                  B)     Obligatorio
+                  C)     Depende del convenio o contrato
+                  D)     A y C son correctas
+
+                  Respuesta Correcta: B
+
+          259. Un indicador habitualmente utilizado en la gestión hospitalaria es el cociente entre pacientes que reingresan por distinta patología , dividido por el número de egresos hospitalarios multiplicado por 100, y se conoce como
+
+                  A)     estándar de reingresos
+                  B)     reingresos hospitalarios
+                  C)     las respuestas anteriores correctas
+                  D)     las respuestas anteriores son falsas
+
+                  Respuesta Correcta: D
+
+          260. La calidad del Servicio de Obstetricia se valora por el siguiente indicador
+
+                  A)     El número de partos por cesárea dividido por el total de partos atendidos multiplicado por 100
+                  B)     el número de partos atendidos por cesárea dividido por el total de cesáreas bianual multiplicado por 100
+                  C)     el número de cesáreas dividido por el número de embarazos de alto riesgo atendidos dividido por 100
+                  D)     la tasa de nacimientos al año dividido por la tasa de cesáreas realizadas en el mismo periodo de tiempo multiplicado por 100
+
+                  Respuesta Correcta: A
+
+          261. La esperanza de vida al nacer es
+
+                  A)     una herramienta de ayuda
+                  B)     un indicador estadístico de salud
+                  C)     un indicador estadístico socioeconómico
+                  D)     una categoría de seguridad
+
+                  Respuesta Correcta: B
+
+          262. Un indicador de salud que determina el bienestar es
+
+                  A)     a tasa de insulina en sangre
+                  B)     el síndrome doloroso de columna vertebral
+                  C)     la calidad de vida infantil
+                  D)     el accidente laboral
+
+                  Respuesta Correcta: C
+
+          263. Una medición cuantitativa de variables o condiciones determinadas para entender o explicar una realidad es
+
+                  A)     un dato
+                  B)     una situación sanitaria
+                  C)     un indicador
+                  D)     un establecimiento de salud
+
+                  Respuesta Correcta: C
+
+          264. Son características de un indicador
+                  A)     la relevancia
+                  B)     la sensibilidad
+                  C)     la especificidad
+                  D)     todas las anteriores
+
+                  Respuesta Correcta: D
+
+          265. La presión asistencial ajustada es
+
+                  A)     una medida en atención pediátrica
+                  B)     un trabajo efectivo
+                  C)     un indicador en Atención Primaria
+                  D)     parte de la organización de cada centro de salud
+
+                  Respuesta Correcta: C
+
+          266. Los medicamentos genéricos respecto al total de los medicamentos prescritos a los pacientes en Atención Primaria es un indicador de
+
+                  A)     la efectividad clínica
+                  B)     la eficiencia
+                  C)     la seguridad del paciente
+                  D)     la satisfacción con el médico de familia
+
+                  Respuesta Correcta: B
+
+          267. La población asignada total y por tramos etarios es un indicador de
+
+                  A)     tipo general entre los indicadores de atención primaria
+                  B)     el número de consultas totales en el año
+                  C)     la actividad anual
+                  D)     tipo clínico y seguridad del paciente
+
+                  Respuesta Correcta: A
+
+          268. En el portal estadístico de Ministerio de Sanidad se presenta información sobre
+
+                  A)     salud y estilos de vida
+                  B)     medicamentos y productos sanitarios
+                  C)     opinión de los ciudadanos
+                  D)     todas las respuestas anteriores son ciertas
+
+
+                  Respuesta Correcta: D
+
+          269. El Servicio de Admisión y Documentación Clínica es la unidad funcional y orgánica del hospital que:
+
+                  A)     Registra la información médico-administrativa
+                  B)     Gestiona la información médico-administrativa
+                  C)     Coordina información del trabajo asistencial, médico y directivo
+                  D)     Todas son ciertas
+
+                  Respuesta Correcta: D
+
+          270. En el Servicio de Admisión y Documentación clínica con modelo de gestión es cierto que:
+
+                  A)     Es el que se ocupa de adecuar acciones para que ocurran en el momento, lugar y sobre el paciente elegido
+                  B)     Decide la estructura funcional del hospital
+                  C)     Implementa los programas fundamentales en el centro hospitalario
+                  D)     Desarrolla estructuras físicas adecuadas a las necesidades
+
+                  Respuesta Correcta: A
+
+          271. En el Servicio de Admisión y Documentación clínica con modelo de atención al cliente es cierto que:
+
+                  A)     No tiene mucha relación con los servicios de atención al paciente
+                  B)     No se considera un instrumento de control interno
+                  C)     Es una orientación interna del Servicio de Admisión y Documentación clínica
+                  D)     Este modelo se orienta a un Servicio del paciente más que a un Servicio del hospital
+
+                  Respuesta Correcta: D
+
+          272. En un Servicio de Admisión y Documentación Clínica existe una Unidad de Coordinación con:
+
+                  A)     El Servicio de Mantenimiento
+                  B)     Otros centros hospitalarios
+                  C)     Con el Servicio de Hosteleria
+                  D)     Con ninguno de los anteriores
+
+                  Respuesta Correcta: B
+
+          273. El Servicio de Admisión y Documentación clínica es:
+
+                  A)     Un Servicio Administrativo
+                  B)     Un Servicio de Enfermería
+                  C)     Un Servicio Médico
+                  D)     Ninguna de las anteriores
+
+                  Respuesta Correcta: C
+
+          274. En el Servicio de Admisión y Documentación clínica se desarrollan todas las funciones siguientes menos una:
+
+                  A)     Programación quirúrgica
+                  B)     Gestión de traslados
+                  C)     Gestión de los menús de los pacientes
+                  D)     Control y evaluación del sistema de información asistencial
+
+                  Respuesta Correcta: C
+
+          275. En el Servicio de Admisión y Documentación Clínica y concretamente en su Unidad de Coordinación con otros centros se tramitan los siguientes excepto uno:
+
+                  A)     Solicitudes de asistencia
+                  B)     Traslados en transporte sanitario a otros centros
+                  C)     Informe sociosanitario del paciente
+                  D)     Derivación a Centros de Referencia
+
+                  Respuesta Correcta: C
+
+          276. En el sistema de información del Servicio de Admisión y Documentación Clínica se establece un catálogo de  productos:
+
+                  A)     Que se ofrece por el servicio
+                  B)     Que debe ser cuantificado
+                  C)     Que debe presentarse de forma escalonada
+                  D)     Todos los anteriores son correctos
+
+                  Respuesta Correcta: D
+
+          277. La información del Servicio de Admisión y Documentación Clínica dispone de:
+
+                  A)     Los recursos aportados
+                  B)     Los productos elaborados
+                  C)     Los resultados obtenidos
+                  D)     Todas las anteriores son correctas
+
+                  Respuesta Correcta: D
+
+          278. El Servicio de Admisión y Documentación ClÍnica es:
+
+                  A)     Un servicio incluido en las especialidades de medicina interna
+                  B)     Un servicio incluido en las especialidades quirúrgicas
+                  C)     Un servicio central
+                  D)     Un servicio externalizado
+
+                  Respuesta Correcta: C
+
+          279. En el control de calidad de un registro hay que validar los datos administrativos:
+
+                  A)     Con la detección de errores por cruce muestral sistemático
+                  B)     Con la detección de errores por reclamaciones recibidas
+                  C)     a y b son correctas
+                  D)     Ninguna es correcta
+
+                  Respuesta Correcta: C
+
+          280. En el Archivo Central de Historias Clínicas:
+
+                  A)     Se custodian las historias clínicas de los paciente
+                  B)     Se prestan las historias clínicas a los profesionales sanitarios
+                  C)     Se impide el acceso al Archivo por parte de personal no autorizado
+                  D)     Se hace una gestión total y correcta de la documentación clínica
+
+                  Respuesta Correcta: D
+
+          281. El índice de rentabilidad funcional de un Archivo de Historias Clínicas tiene en cuenta:
+
+                  A)     Tanto el depósito activo como el pasivo
+                  B)     El depósito activo
+                  C)     El depósito pasivo
+                  D)     Ninguna de las anteriores es cierta
+
+                  Respuesta Correcta: B
+
+          282. El sistema de control por auditorias puede ser:
+
+                  A)     Interno del propio hospital por profesionales del sector
+                  B)     Externo al centro hospitalario por profesionales del sector
+                  C)     Por organismos competentes
+                  D)     Todas las anteriores son ciertas
+
+                  Respuesta Correcta: D
+
+          283. En el planteamiento de auditar un hecho, se debe centrar la atención en:
+
+                  A)     Algo que ocurre frecuentemente, que sea posible corregir y que la corrección produzca grandes beneficios
+                  B)     Algo que ocurre frecuentemente, que no se pueda corregir y que la corrección produzca grandes beneficios
+                  C)     Algo que ocurre infrecuentemente, que sea posible corregir y que la corrección no produzca grandes beneficios
+                  D)     Algo que no ocurre frecuentemente, que sea posible corregir y que la corrección produzca grandes beneficios
+
+                  Respuesta Correcta: A
+
+          284. Entendiendo el criterio como el juicio técnico que constituye el patrón de medida del fenómeno estudiado, deberá tener alguna de las siguientes características:
+
+                  A)     Fidelidad
+                  B)     Calidad
+                  C)     Fiabilidad
+                  D)     a y b son ciertos
+
+                  Respuesta Correcta: C
+
+          285. En las personas que recogerán los datos necesarios para un estudio de calidad hay que contemplar:
+
+                  A)     Entrenamiento
+                  B)     Responsabilidad
+                  C)     Imparcialidad
+                  D)     Todos los anteriores
+
+                  Respuesta Correcta: D
+
+          286. La calidad del Servicio de Admisión y Documentación Clínica es fundamental para:
+
+                  A)     La empresa
+                  B)     Para la satisfacción del consumidor
+                  C)     Para los sanitarios
+                  D)     Para todos los anteriores
+
+                  Respuesta Correcta: D
+
+          287. El control de la gestión de camas por parte del Servicio de Admisión tiene como objetivo:
+
+                  A)     Calcular el número de camas que hay que instalar en el hospital
+                  B)     Comprar las camas adecuadas, por su funcionalidad, a los pacientes
+                  C)     Evaluar la eficacia a través de la adecuación de la oferta a la demanda prevista de ingresos
+                  D)     Evaluar la eficacia a través de la adecuación de la oferta a los ingresos urgentes
+
+                  Respuesta Correcta: C
+
+          288. El control de citas anuladas ( paciente no presentado) tiene como objetivo:
+
+                  A)     Evaluar las horas disponibles del personal sanitario
+                  B)     Evaluar la ocupación indebida en la agenda de citación
+                  C)     Evaluar la corrección de la agenda en cuanto a la asignación de horas
+                  D)     Evaluar el tiempo trabajado efectivo en consultas
+
+                  Respuesta Correcta: B
+
+          289. El control de la codificación clínica tiene como objetivo:
+
+                  A)     Conocer la validez de la codificación en el Servicio de Historias Clínicas
+                  B)     Conocer la validez de la codificación realizada de los términos de gestión
+                  C)     Conocer la validez de las contraseñas informáticas de los programas de Admisión
+                  D)     Conocer la validez de la codificación realizada de los términos clínicos
+
+                  Respuesta Correcta: D
+
+          290. ¿Cual es el primer escalón identificador del paciente?
+
+                  A)     La información clínico-asistencial
+                  B)     La información administrativa-sanitaria con identificador
+                  C)     La información económica del paciente
+                  D)     Ninguna es cierta
+
+                  Respuesta Correcta: B
+
+          291. ¿Quien es el Servicio con potestad operativa y ejecutiva para admitir pacientes en el hospital?
+
+                  A)     El Servicio de Urgencias
+                  B)     El Servicio de Admisión
+                  C)     El Servicio de Seguridad en el centro
+                  D)     Ninguna de las anteriores
+
+                  Respuesta Correcta: B
+
+          292. El Servicio de Admisión y Documentación Clínica está adscrito a:
+
+                  A)     Dirección Gerencia del Hospital
+                  B)     Servicio de Urgencias
+                  C)     Secretaría General
+                  D)     Dirección de Área
+
+                  Respuesta Correcta: A
+
+          293. La gestión del Archivo de Historias Clínicas depende de:
+
+                  A)     La Dirección del Área
+                  B)     El Servicio de Admisión y Documentación Clínica
+                  C)     La Dirección de Gestión del hospital
+                  D)     Ninguna de las anteriores es correcta
+
+                  Respuesta Correcta: B
+
+          294. La programación quirúrgica del hospital la lleva a cabo:
+
+                  A)     La Dirección Médica
+                  B)     La Gerencia
+                  C)     El Servicio de Admisión
+                  D)     La Dirección de Enfermería
+
+                  Respuesta Correcta: C
+
+          295. ¿Cuando se entiende que se produce un alta hospitalaria administrativa?
+
+                  A)     Cuando el paciente abandona el hospital con un alta autorizada
+                  B)     Cuando el paciente abandona el hospital sin un alta autorizada
+                  C)     Cuando el paciente abandona el hospital por su propia iniciativa
+                  D)     En ninguno de los casos anteriores
+
+                  Respuesta Correcta: A
+
+          296. En las variables clínicas de los ingresos intervienen:
+
+                  A)     El nivel de cuidado de los pacientes
+                  B)     Tipos de pacientes
+                  C)     a y b son ciertas
+                  D)     Ninguna es cierta
+
+                  Respuesta Correcta: C
+
+          297. Entre las tareas del Servicio de Admisión están:
+
+                  A)     Ordenar el funcionamento de las Consultas Externas
+                  B)     Tramitar el traslado de pacientes a Centros de mayor nivel
+                  C)     Custodiar las Historias Clínicas
+                  D)     Todas son ciertas
+
+                         Respuesta Correcta: D
+
+                  298. ¿Qué es el censo de pacientes?
+
+                         A)     Número de pacientes hospitalizados en un momento concreto u hora censal
+                         B)     Número de pacientes hospitalizados del total de un territorio geográfico
+                         C)     Pacientes que pueden votar en unas elecciones
+                         D)     Ninguna es cierta
+
+                         Respuesta Correcta: A
+
+                  299. En cuanto al Archivo de Historias Clínicas, se debe formar al personal en lo relativo a:
+
+                         A)     Deber de respeto a la intimidad del paciente
+                         B)     Vigilancia en el cumplimiento de la normativa vigente sobre datos clínicos
+                         C)     Deber de confidencialidad en la información a su alcance
+                         D)     Todas las anteriores
+
+                         Respuesta Correcta: D
+
+                  300. Los Médicos de Admisión y Documentación Clínica:
+                         A)     Organizan y gestionan el acceso de los usuarios a las prestaciones sanitarias.
+                         B)     Atender a la demanda de Ingresos.
+                         C)     Atender la demanda Quirúrgica.
+                         D)     Todas las anteriores
+
+                         Respuesta Correcta: D
+
+
+
+    `; // End of fileContent
+
+    /**
+     * Shuffles array in place.
+     * @param {Array} array items An array containing the items.
+     */
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]]; // ES6 destructuring swap
+      }
+      return array;
+    }
+
+    // --- Global Variables ---
+    let correctCount = 0;
+    let incorrectCount = 0;
+    let answeredQuestionsCount = 0; // Counter for answered questions
+    const questions = []; // Array to hold all question objects
+    let totalQuestions = 0; // *** CORRECTED: Changed from const to let ***
+
+    // --- DOM Elements ---
+    const examDiv = document.getElementById("exam");
+    const correctCountSpan = document.getElementById("correctCount");
+    const incorrectCountSpan = document.getElementById("incorrectCount");
+    const pendingCountSpan = document.getElementById("pendingCount");
+    const modalOverlay = document.getElementById("endModal");
+    const modalCorrectSpan = document.getElementById("modalCorrect");
+    const modalIncorrectSpan = document.getElementById("modalIncorrect");
+    const reviewButton = document.getElementById("reviewButton");
+    const restartButton = document.getElementById("restartButton");
+
+
+    /**
+     * Parses the raw text content into question objects.
+     */
+    function parseQuestions() {
+        // Split the content into blocks based on question numbers (e.g., "151. ")
+        const blocks = fileContent.split(/\n\s*\d+\.\s+/).filter(block => block.trim().length > 0);
+
+        blocks.forEach(block => {
+            // Split each block into question part and answer part
+            const parts = block.split(/Respuesta Correcta:/);
+            if (parts.length < 2) {
+                console.warn("Skipping block without 'Respuesta Correcta:':", block);
+                return; // Skip if format is incorrect
+            }
+            const questionText = parts[0].trim();
+            // Extract the correct answer letter (A, B, C, or D)
+            const correctAnswer = parts[1].trim().split(/\s+/)[0];
+
+            // Further process the question part
+            const lines = questionText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+             if (lines.length === 0) {
+                console.warn("Skipping block with empty question text:", block);
+                return; // Skip if question text is empty
+            }
+            const enunciado = lines[0]; // The first line is the question statement
+            // Filter lines starting with A), B), C), or D) as options
+            const options = lines.slice(1).filter(line => /^[A-D]\)/.test(line));
+
+            // Add the parsed question object to the array
+            if (enunciado && options.length > 0 && correctAnswer && /^[A-D]$/.test(correctAnswer)) {
+                questions.push({ enunciado, options, correctAnswer, answered: false, id: `q${questions.length + 1}` });
+            } else {
+                console.warn("Skipping malformed block:", block); // Log if a block is not parsed correctly
+            }
+        });
+         // Set the total number of questions after parsing
+        totalQuestions = questions.length; // *** This assignment now works ***
+    }
+
+
+    /**
+     * Renders a single question onto the page.
+     * @param {object} q - The question object.
+     * @param {number} index - The index of the question.
+     */
+    function renderQuestion(q, index) {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question"; // Apply CSS class
+        qDiv.id = q.id; // Unique ID for the question div
+
+        // Create and add the question statement paragraph
+        const p = document.createElement("p");
+        // Display question number (index + 1) and text
+        p.innerHTML = `<strong>${index + 1}. ${q.enunciado}</strong>`;
+        qDiv.appendChild(p);
+
+        // Create a form for the options
+        const form = document.createElement("form");
+        q.options.forEach(option => {
+            const letter = option.charAt(0); // Get the option letter (A, B, C, D)
+            const label = document.createElement("label");
+            const inputId = `${q.id}_${letter}`; // Unique ID for the input
+
+            // Create radio button and label for each option
+            // Corrected: Ensure label text is properly associated using 'for' attribute
+            label.innerHTML = `<input type="radio" name="${q.id}" value="${letter}" id="${inputId}"> <label for="${inputId}" style="display: inline; margin-left: 5px;">${option}</label>`; // Added inline style to inner label
+
+            // Add an event listener to check the answer when an option is selected
+            label.querySelector('input').addEventListener('change', function() {
+                checkAnswer(q.id, q.correctAnswer, feedbackDiv, q, form); // Pass form element
+            });
+            form.appendChild(label);
+        });
+
+        qDiv.appendChild(form); // Add the form to the question div
+
+        // Create a div to display feedback (correct/incorrect)
+        const feedbackDiv = document.createElement("div");
+        feedbackDiv.id = "feedback-" + q.id; // Unique ID for feedback
+        feedbackDiv.className = "feedback"; // Apply CSS class
+        qDiv.appendChild(feedbackDiv);
+
+        examDiv.appendChild(qDiv); // Add the complete question div to the exam container
+    }
+
+    /**
+     * Updates the scoreboard display (fixed header).
+     */
+    function updateScoreboard() {
+      correctCountSpan.textContent = correctCount;
+      incorrectCountSpan.textContent = incorrectCount;
+      // Ensure totalQuestions is a number before calculation
+      pendingCountSpan.textContent = (typeof totalQuestions === 'number' ? totalQuestions : 0) - answeredQuestionsCount;
+    }
+
+    /**
+     * Checks the selected answer against the correct answer and updates feedback/score.
+     * @param {string} questionId - The ID of the question (e.g., "q1").
+     * @param {string} correctAnswer - The correct answer letter (e.g., "A").
+     * @param {HTMLElement} feedbackDiv - The div element to display feedback.
+     * @param {object} questionObject - The question object containing its state.
+     * @param {HTMLElement} formElement - The form containing the radio buttons.
+     */
+    function checkAnswer(questionId, correctAnswer, feedbackDiv, questionObject, formElement) {
+       // Prevent checking again if already answered
+      if (questionObject.answered) return;
+
+      const radios = formElement.elements[questionId]; // More specific way to get radios
+      let selected = null;
+      let selectedLabel = null;
+
+      // Find the selected radio button and its label
+      for (let i = 0; i < radios.length; i++) {
+        radios[i].disabled = true; // Disable radio button
+        const label = radios[i].parentElement; // Get the wrapping label
+         label.classList.add('disabled'); // Add disabled class to label
+        if (radios[i].checked) {
+          selected = radios[i].value;
+          selectedLabel = label;
+        }
+      }
+
+      // Should not happen if triggered by 'change' event, but keep as safeguard
+      if (!selected) {
+        feedbackDiv.innerHTML = "❌ Error al seleccionar."; // More generic error
+        feedbackDiv.style.color = "orange";
+        return;
+      }
+
+      // Mark the question as answered and increment counter
+      questionObject.answered = true;
+      answeredQuestionsCount++;
+
+      // Check if the selected answer is correct
+      if (selected === correctAnswer) {
+        feedbackDiv.innerHTML = "✅ Correcto";
+        feedbackDiv.style.color = "green";
+        correctCount++; // Increment correct count
+        if(selectedLabel) selectedLabel.classList.add('correct-answer-highlight'); // Highlight selected correct label
+      } else {
+        feedbackDiv.innerHTML = `❌ Incorrecto. La respuesta correcta es ${correctAnswer}`;
+        feedbackDiv.style.color = "red";
+        incorrectCount++; // Increment incorrect count
+
+        // Highlight the correct answer's label
+        const correctInput = formElement.querySelector(`input[value="${correctAnswer}"]`);
+        if (correctInput) {
+            const correctLabel = correctInput.parentElement;
+            if (correctLabel) {
+                correctLabel.classList.add('correct-answer-highlight');
+            }
+        }
+         // Highlight the wrong selected answer's label
+         if (selectedLabel) {
+            selectedLabel.classList.add('incorrect-answer-highlight');
+        }
+      }
+
+      updateScoreboard(); // Update the score display
+
+      // Check if all questions are answered
+      if (answeredQuestionsCount === totalQuestions) {
+          showEndModal();
+      }
+    }
+
+    /**
+     * Displays the end-of-exam modal.
+     */
+    function showEndModal() {
+        modalCorrectSpan.textContent = correctCount;
+        modalIncorrectSpan.textContent = incorrectCount;
+        modalOverlay.style.display = 'flex'; // Show the modal
+    }
+
+    /**
+     * Hides the end-of-exam modal.
+     */
+    function hideEndModal() {
+        modalOverlay.style.display = 'none'; // Hide the modal
+    }
+
+    /**
+     * Reloads the page to restart the test.
+     */
+    function restartTest() {
+        location.reload();
+    }
+
+    // --- Initialization ---
+
+    // Parse the questions from the text content
+    parseQuestions();
+
+    // Shuffle the questions for random order
+    shuffle(questions);
+
+    // Render each question
+    questions.forEach(renderQuestion);
+
+    // Initial update of the scoreboard when the page loads
+    updateScoreboard();
+
+    // Add event listeners for modal buttons
+    reviewButton.addEventListener('click', hideEndModal);
+    restartButton.addEventListener('click', restartTest);
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Examen Murcia Modelo A - Interactivo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* --- Variables de Color y Estilos Base --- */
+    :root {
+      --primary-color: #003366; /* Azul oscuro original */
+      --accent-color: #FFCC00;  /* Amarillo original */
+      --text-color: #333;
+      --correct-bg: #d4edda;
+      --correct-border: #c3e6cb;
+      --correct-text: #155724;
+      --incorrect-bg: #f8d7da;
+      --incorrect-border: #f5c6cb;
+      --incorrect-text: #721c24;
+      --correct-highlight-border: #28a745; /* Verde fuerte para borde correcto */
+      --button-primary-bg: #003366;
+      --button-primary-hover: #002244;
+      --button-secondary-bg: #6c757d;
+      --button-secondary-hover: #5a6268;
+      --button-restart-bg: #28a745; /* Verde para reiniciar */
+      --button-restart-hover: #218838;
+      --button-review-bg: #ffc107; /* Amarillo/Naranja para revisar */
+      --button-review-hover: #e0a800;
+      --fixed-counter-height: 45px; /* Estimación altura contador */
+      --mobile-fixed-counter-height: 40px; /* Estimación altura móvil */
+    }
+    html, body {
+        height: 100%;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0; /* Padding gestionado por JS/clase */
+      background: #f0f4f8;
+      color: var(--text-color);
+      line-height: 1.6;
+      scroll-padding-top: 60px; /* Espacio para contador fijo al hacer scroll */
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* Centrar start screen */
+    }
+     /* Padding superior cuando el examen está activo */
+     body.exam-active {
+        padding-top: var(--fixed-counter-height); /* Espacio para contador fijo */
+        justify-content: flex-start;
+    }
+
+    /* --- Start Screen Styles --- */
+    #startScreen {
+        display: flex; /* Visible por defecto */
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+        text-align: center;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin: 20px auto;
+        max-width: 500px;
+        width: 90%;
+    }
+    #startScreen h2 {
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        font-size: 1.8em;
+    }
+    .question-options label {
+        display: block;
+        margin: 10px 0;
+        font-size: 1.1em;
+        cursor: pointer;
+        background-color: transparent;
+        padding: 5px;
+        border: none;
+        border-radius: 0;
+        position: static;
+        text-align: left;
+    }
+     .question-options label:hover {
+         background-color: transparent;
+         border-color: transparent;
+     }
+     .question-options input[type="radio"] {
+         margin-right: 8px;
+         vertical-align: middle;
+     }
+    .start-buttons button {
+        background: var(--button-primary-bg);
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-size: 1.1em;
+        transition: background-color 0.2s ease;
+        min-width: 200px;
+    }
+    .start-buttons button:hover {
+        background-color: var(--button-primary-hover);
+    }
+     .start-buttons button#resumeButton {
+         background-color: var(--button-secondary-bg);
+     }
+      .start-buttons button#resumeButton:hover {
+         background-color: var(--button-secondary-hover);
+     }
+     #resumePrompt {
+         margin-top: 15px;
+         padding: 10px;
+         background-color: #fff3cd;
+         border: 1px solid #ffeeba;
+         border-radius: 4px;
+         color: #856404;
+         font-size: 0.9em;
+         margin-bottom: 15px;
+     }
+
+
+    /* --- Exam View Styles --- */
+    header {
+      background: var(--primary-color);
+      color: #fff;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    header h1 {
+        margin: 5px 0;
+        font-size: 1.5em;
+    }
+
+    /* Contador fijo */
+    #contador-fijo {
+        background-color: var(--accent-color);
+        color: var(--primary-color);
+        padding: 8px 15px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.05em;
+        position: fixed; /* Cambiado a fixed */
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 900;
+        border-bottom: 2px solid var(--primary-color);
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    #contador-fijo > div { /* Aplicar a los divs internos si se usan */
+        margin: 0 5px;
+        white-space: nowrap;
+    }
+     #contador-fijo span, #contador-fijo a { /* Estilo original mantenido por si acaso */
+        margin: 0 8px;
+    }
+    .contador-aciertos { color: green; }
+    .contador-fallos { color: red; }
+    #pendingLink { cursor: pointer; text-decoration: none; color: inherit; }
+    #pendingLink:hover { text-decoration: underline; }
+    #pendingLink.disabled { cursor: default; opacity: 0.5; pointer-events: none; }
+
+
+    .quiz-container {
+      margin: 20px auto; /* Margen superior ya no es necesario con padding-top */
+      max-width: 700px;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .question {
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+      transition: outline 0.2s ease-in-out;
+      outline: 0px solid transparent;
+    }
+     .question:last-child { border-bottom: none; }
+    .question p { margin: 0 0 15px; font-size: 1.1em; font-weight: bold; color: var(--primary-color); }
+
+    /* Estilos específicos para labels dentro de las preguntas */
+    .question form label {
+      display: block;
+      margin-bottom: 8px;
+      cursor: pointer;
+      background-color: #f9f9f9;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      position: relative;
+      text-align: left;
+    }
+    .question form label:hover:not(.disabled) { background-color: #eef; border-color: #aab; }
+    .question form label.disabled { cursor: default; opacity: 0.7; }
+    .question form input[type="radio"] { margin-right: 10px; vertical-align: middle; }
+    .question form label.respuesta-correcta { background-color: var(--correct-bg); border-color: var(--correct-border); color: var(--correct-text); font-weight: bold; }
+    .question form label.respuesta-incorrecta { background-color: var(--incorrect-bg); border-color: var(--incorrect-border); color: var(--incorrect-text); }
+    .question form label.es-correcta-destacada { border: 2px solid var(--correct-highlight-border) !important; font-weight: bold; }
+
+    .feedback { margin-top: 10px; padding: 8px; border-radius: 4px; font-weight: bold; font-size: 0.95em; display: none; }
+    .feedback.correct { color: var(--correct-text); background-color: var(--correct-bg); border: 1px solid var(--correct-border); display: block; }
+    .feedback.incorrect { color: var(--incorrect-text); background-color: var(--incorrect-bg); border: 1px solid var(--incorrect-border); display: block; }
+
+    .comprobar-btn { display: none !important; }
+
+    /* Modal de Resultados */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+    .modal-content { background-color: #fff; margin: 10% auto; padding: 30px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 8px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .modal-content h2 { color: var(--primary-color); margin-top: 0; margin-bottom: 25px; }
+    .modal-content #results-text { font-size: 1.8em; margin: 25px 0; line-height: 1.4; }
+    .modal-content #results-text strong { display: inline-block; margin: 0 5px; }
+    .modal-content button { color: white; padding: 12px 22px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; margin: 10px 5px 0 5px; transition: background-color 0.3s ease; min-width: 140px; }
+    .modal-content button:hover { opacity: 0.9; }
+    .modal-content button#reiniciar-btn { background-color: var(--button-restart-bg); }
+    .modal-content button#reiniciar-btn:hover { background-color: var(--button-restart-hover); }
+    .modal-content button#revisar-btn { background-color: var(--button-review-bg); color: #333; }
+    .modal-content button#revisar-btn:hover { background-color: var(--button-review-hover); }
+
+    /* Estilos modo revisión */
+    .modo-revision .feedback { display: none; }
+    .modo-revision .question form label.respuesta-seleccionada::before { content: '▶'; position: absolute; left: -15px; top: 50%; transform: translateY(-50%); color: var(--primary-color); font-size: 0.8em; }
+    .modo-revision .question form label.es-correcta-revision { font-weight: bold; border: 2px solid var(--button-restart-bg); }
+    .modo-revision .question form label.respuesta-correcta { background-color: var(--correct-bg); border-color: var(--correct-border); color: var(--correct-text); }
+    .modo-revision .question form label.respuesta-incorrecta { background-color: var(--incorrect-bg); border-color: var(--incorrect-border); color: var(--incorrect-text); }
+    .modo-revision .question form input[type="radio"] { display: none; }
+
+     /* Utility class to hide elements */
+    .hidden {
+        display: none !important;
+    }
+
+     @media (max-width: 600px) {
+       body.exam-active { padding-top: var(--mobile-fixed-counter-height); }
+       header h1 { font-size: 1.3em; }
+       #contador-fijo { font-size: 0.9em; padding: 6px 10px; justify-content: space-around; }
+       #contador-fijo > div, #contador-fijo span, #contador-fijo a { margin: 3px 5px; } /* Ajustar margen para todos los elementos */
+       #startScreen { padding: 20px; margin-top: 20px; margin-bottom: 20px; }
+       .question-options label { font-size: 1em; }
+       .start-buttons button { width: calc(100% - 10px); margin: 8px 5px; font-size: 1em; padding: 10px 20px;}
+       .quiz-container { margin: 10px auto; padding: 15px; /* margin-top ya no es necesario */}
+       .question { margin-bottom: 15px; padding: 10px; }
+       .question p { font-size: 1em; }
+       .question form label { padding: 8px 12px; font-size: 0.95em;}
+       .modal-content { padding: 20px; }
+       .modal-content #results-text { font-size: 1.5em; }
+       .modal-content button { padding: 10px 18px; font-size: 0.9em; margin: 5px; display: block; width: calc(100% - 10px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="startScreen">
+      <h2>Configurar Examen - Murcia Modelo A</h2>
+      <div id="resumePrompt" class="hidden">
+          <p>Se encontró progreso guardado.</p>
+      </div>
+      <div class="question-options">
+          <p><strong>Número de preguntas:</strong></p>
+          <label><input type="radio" name="numQuestions" value="30" checked> 30 Preguntas</label>
+          <label><input type="radio" name="numQuestions" value="50"> 50 Preguntas</label>
+          <label><input type="radio" name="numQuestions" value="70"> 70 Preguntas</label>
+          <label><input type="radio" name="numQuestions" value="all"> Todas (<span id="totalParsedCount">0</span>)</label>
+      </div>
+      <div class="start-buttons">
+          <button id="startButton">Empezar Nuevo Examen</button>
+          <button id="resumeButton" class="hidden">Continuar Examen Anterior</button>
+      </div>
+  </div>
+
+  <header class="header hidden"> <h1>Examen Murcia Modelo A</h1>
+  </header>
+
+  <div id="contador-fijo" class="hidden">
+    <div>Aciertos: <span id="contador-aciertos" class="contador-aciertos">0</span></div> |
+    <div>Fallos: <span id="contador-fallos" class="contador-fallos">0</span></div> |
+    <div>Respondidas: <span id="contador-respondidas">0</span> / <span id="contador-total-activo">0</span></div> |
+    <div id="pending-indicator"> <a href="#" id="pendingLink" title="Ir a la siguiente pregunta pendiente">
+            Pendientes: <span id="contador-pendientes">0</span>
+        </a>
+    </div>
+  </div>
+
+  <div class="quiz-container hidden">
+    <div id="exam">
+      </div>
+  </div>
+
+  <div id="results-modal" class="modal">
+    <div class="modal-content">
+      <h2>Resultados del Test</h2>
+      <p id="results-text"></p>
+      <button id="reiniciar-btn">Empezar de nuevo</button>
+      <button id="revisar-btn">Revisar Test</button>
+    </div>
+  </div>
+
+
+  <script defer> // <-- Añadido 'defer'
+    // --- Constantes y Variables Globales ---
+    const examDiv = document.getElementById("exam");
+    const quizContainer = document.querySelector(".quiz-container"); // Referencia al contenedor principal
+    const resultsModal = document.getElementById('results-modal');
+    const resultsText = document.getElementById('results-text');
+    const reiniciarBtn = document.getElementById('reiniciar-btn');
+    const revisarBtn = document.getElementById('revisar-btn');
+    const startScreen = document.getElementById('startScreen');
+    const startButton = document.getElementById('startButton');
+    const resumeButton = document.getElementById('resumeButton');
+    const resumePrompt = document.getElementById('resumePrompt');
+    const examHeader = document.querySelector('.header'); // Usar clase .header
+    const contadorFijoDiv = document.getElementById('contador-fijo');
+    // const mainQuizContainer = document.querySelector('.quiz-container'); // Ya definido como quizContainer
+    const totalParsedCountSpan = document.getElementById('totalParsedCount');
+
+    // --- Elementos del contador fijo ---
+    const contadorAciertosSpan = document.getElementById('contador-aciertos');
+    const contadorFallosSpan = document.getElementById('contador-fallos');
+    const contadorRespondidasSpan = document.getElementById('contador-respondidas');
+    const contadorTotalActivoSpan = document.getElementById('contador-total-activo');
+    const contadorPendientesSpan = document.getElementById("contador-pendientes");
+    const pendingLink = document.getElementById('pendingLink');
+
+    const progressKey = 'examProgressMurciaA_v2'; // Clave única actualizada
+
+    let correctAnswersCount = 0;
+    let incorrectAnswersCount = 0;
+    let answeredQuestionsCount = 0;
+    let allParsedQuestions = []; // Todas las preguntas parseadas
+    let activeQuestions = [];    // Preguntas de la sesión actual
+    let totalActiveQuestions = 0; // Total de preguntas en la sesión actual
+    let userSelections = {}; // Para modo revisión
+
+    // Contenido del examen (extraído del archivo subido)
+    const fileContent = `
+
+1.
+¿Cuál es el código de la CIE-10 correspondiente a una microcirugía laríngea endoscópica con decorticación de cuerda vocal derecha (CVD) con microdesbridador por edema de Reinke?:
+A)     0CTT8ZZ Resección de cuerda vocal, derecha, abordaje orificio natural artificial, endoscópico.
+B)     0CDT8ZZ Extracción de cuerda vocal, derecha, abordaje orificio natural o artificial, endoscópico.
+C)     0CBT8ZZ Escisión de cuerda vocal, derecha, abordaje orificio natural o artificial, endoscópico.
+D)     0CCT8ZZ Extirpación de cuerda vocal, derecha, abordaje orificio natural o artificial, endoscópico.
+
+RESPUESTA CORRECTA: B
+
+3.
+¿Cuál es el propósito de la sección de evolución y seguimiento en la historia clínica?:
+A)      Registrar sólo eventos importantes.
+B)      Documentar los cambios en la condición del paciente y el progreso del tratamiento.
+C)     Mantener registros administrativos.
+D)     Registrar sólo diagnósticos finales.
+
+RESPUESTA CORRECTA: B
+
+4.
+¿Qué extensión de archivo tienen las bases de datos creadas en Access 2019:
+A)      .accdb
+B)      .mdb
+C)     .accbd
+D)     .accdbx
+
+RESPUESTA CORRECTA:A
+
+5.
+Indique la respuesta correcta:
+A)	La sepsis grave implica una sepsis asociada a una disfunción o fallo orgánico agudo de uno o más órganos o sistemas.
+B)      Para codificar la sepsis grave solo se requiere un código que siempre será diagnóstico principal.
+C)	Siempre que el paciente presente un fallo orgánico y tenga una sepsis grave, se deberá asociar ese fallo orgánico a la sepsis aunque no esté documentada esa relación.
+D)      A y C son correctas.
+
+RESPUESTA CORRECTA:A
+
+6.
+El síndrome de HELLP:
+A)     Es una afección genética causada por la ausencia parcial o completa de un cromosoma X.
+B)     Es una afección genética originada por una carencia de componentes genéticos del cromosoma 7.
+C)     Es una enfermedad neoplásica caracterizada por tumor benigno de ovario, hidrotórax y ascitis.
+D)     Es una variante de la preeclampsia y cursa con hemólisis, elevación de encimas hepáticas y plaquetopenia.
+
+RESPUESTA CORRECTA:D
+
+7.
+El colesteatoma es:
+A)     Una neoplasia que se origina en las células nerviosas llamadas neuroblastos.
+B)     Una patología del oído medio causada por la proliferación de masas de epitelio queratinizante.
+C)     Un tumor benigno de los conductos biliares.
+D)     Un tumor benigno de coroides.
+
+RESPUESTA CORRECTA:B
+
+8.
+En relación a los GRDs (Grupos Relacionados por el Diagnóstico), indique cuál de las siguientes es correcta:
+A)     Sirven para conocer la casuística hospitalaria.
+B)     La agrupación GRDs es única y excluyente de forma que cada paciente se clasifica en un único GRD.
+C)     Las respuestas A y B son correctas.
+D)     No se pueden utilizar en la evaluación de diferencias en tasas de mortalidad de hospitalizados.
+
+RESPUESTA CORRECTA:C
+
+9.
+Referente a los sistemas o estudios de calidad más aplicados en la documentación sanitaria, pueden estructurarse en:
+A)     Análisis de la estructura y análisis del proceso.
+B)     Tasas de infecciones, autopsias, tratamientos prescritos, calidad de la historia clínica,… otros.
+C)     Análisis del resultado.
+D)     Todas las respuestas anteriores son CORRECTAS.
+
+RESPUESTA CORRECTA:D
+
+10.
+Según el artículo 4 de la Ley 31/1995, de 8 de noviembre, de prevención de riesgos laborales, se entenderá como riesgo laboral:
+A)	El conjunto de actividades o medidas adoptadas o previstas en todas las fases de actividad de la empresa con el fin de evitar o disminuir los riesgos derivados del trabajo.
+B)      La posibilidad de que un trabajador sufra un determinado daño derivado del trabajo.
+C)	Los daños derivados del trabajo, las enfermedades, pero no las patologías o lesiones sufridas con motivo u ocasión del trabajo.
+D)      Ninguna respuesta es correcta.
+
+RESPUESTA CORRECTA:B
+
+11.
+¿Cuál es el hueso más largo del cuerpo humano?:
+A)     La tibia, la encontramos en la pierna y va desde la cadera hasta la rodilla.
+B)     El fémur, lo encontramos en la pierna y va desde la cadera hasta el tobillo.
+C)     El fémur, lo encontramos en la pierna y va desde la cadera hasta la rodilla.
+D)     La tibia, la encontramos en la pierna y va desde la cadera hasta el tobillo.
+
+RESPUESTA CORRECTA: C
+
+12.
+Legalmente, se entiende por documentación clínica a:
+A)	Soporte de cualquier tipo o clase que contiene un conjunto de datos e informaciones de carácter asistencial.
+B)	Conjunto de documentos que contienen los datos, valoraciones e informaciones de cualquier índole sobre la situación y evolución de un paciente.
+C)	Conjunto de documentos sanitarios en los que se recoge toda la información clínica de un paciente que se va generando en sus diferentes procesos asistenciales.
+D)	Documentos asistenciales donde se resume el historial clínico, la actividad asistencial prestada, además de los diagnósticos y procedimientos de los procesos de un paciente.
+
+RESPUESTA CORRECTA: A
+
+13.
+La codificación de las fracturas periprotésicas debe realizarse con la siguiente secuencia:
+A)	Primero  el  tipo  específico  de  fractura  (traumática  o  patológica),  a  continuación,  el  código correspondiente a la fractura periprotésica, seguido del código de causa externa, si procede.
+B)	Primero el código correspondiente a la fractura periprotésica, a continuación, el tipo específico de fractura (traumática o patológica), seguido del código de causa externa, si procede.
+C)     Con  un  código  de  combinación que  describe  tanto  la  fractura  periprotésica como  la  fractura
+(traumática o patológica), seguido del código de causa externa, si procede.
+D)     Con un código de complicación de la prótesis, seguido del código de causa externa, si procede.
+
+RESPUESTA CORRECTA: A
+
+15.
+¿Cómo debemos codificar la radiofrecuencia pulsada de nervio periférico no destructiva?:
+A)     Destrucción del nervio.
+B)     Reparación de nervio.
+C)     Existe valor de dispositivo para el procedimiento Destrucción.
+D)     Denervación de nervio.
+
+RESPUESTA CORRECTA:B
+
+16.
+El control de calidad del proceso de archivado de historias clínicas se realiza a través de los siguientes indicadores:
+A)      Índice de rentabilidad (Ir) e índice de eficacia (Ie).
+B)      Índice de rentabilidad (Ir), índice de eficacia (Ie) e índice de extravíos (Ix).
+C)	Índice de errores de localización de la historia clínica (Iel) e índice de errores de localización de la historia clínica en préstamo (Ielp).
+D)      Las respuestas A y C son CORRECTAS.
+
+RESPUESTA CORRECTA:D
+
+17.
+El término “estatus migrañoso” se refiere a un ataque de migraña severo que dura:
+A)     Más de 72 horas.
+B)     Hasta 48 horas.
+C)     Menos de 48 horas.
+D)     Menos de 24 horas.
+
+RESPUESTA CORRECTA:A
+
+18.
+Respecto al marcador POA (asignación del marcador de diagnóstico presente al ingreso):
+A)      Se asignará una “S” (si) en cualquier afección que el clínico documente como presente al ingreso.
+B)      Se asignará una “S” (si) para las afecciones que se diagnosticaron antes del ingreso.
+C)	Se asignará una “S” (si) para las afecciones que aparezcan durante su estancia hospitalaria y que no estaban presentes en el ingreso.
+D)      A y B son ciertas.
+
+RESPUESTA CORRECTA:D
+
+19.
+Por defecto, las hernias se consideran:
+A)     Unilaterales, no recidivadas, con obstrucción y sin gangrena.
+B)     Unilaterales, recidivadas, sin obstrucción y con gangrena.
+C)     Unilaterales, recidivadas, con obstrucción y con gangrena.
+D)     Unilaterales, no recidivadas, sin obstrucción y sin gangrena.
+
+RESPUESTA CORRECTA:D
+
+20.
+En recién nacidos que den positivo para COVID-19 y el clínico documente que la infección se contrajo en el útero o durante el proceso de nacimiento su codificación correcta es:
+A)	En primer lugar el código U07.1, COVID-19 seguido del código P35.8, Otras enfermedades virales congénitas.
+B)	En primer lugar el código P35.8, Otras enfermedades virales congénitas seguido del código U07.1, COVID-19.
+C)	En primer lugar el código P39.8 Otros tipos especificados de infecciones especificadas del periodo perinatal seguido del código U07.1, COVID-19.
+D)	En primer lugar el código P00.3 Recién nacido afectado por otras enfermedades circulatorias y respiratorias de la madre seguido del código U07.1, COVID-19.
+
+RESPUESTA CORRECTA:B
+
+21.
+¿Cómo se llaman los tejidos que conectan los músculos con el hueso?:
+A)     Cartílagos.
+B)     Tendones.
+C)     Fibras musculares.
+D)     Arterias.
+
+RESPUESTA CORRECTA:B
+
+22.
+Un paciente diagnosticado de neumonía vírica por posible Covid:
+A)     Codificamos primero el Covid (U07.1) y después la neumonía por Covid (J12.82).
+B)     Codificamos primero la neumonía por Covid (J12.82) y después el Covid (U07.1).
+C)     Codificamos primero la neumonía vírica (J12.9) seguido del código de contacto y (sospecha) de exposición a Covid (Z20.822).
+D)     Codificamos solo la neumonía vírica.
+
+RESPUESTA CORRECTA:C
+
+23.
+¿Cuáles son las herramientas más importantes de Excel?:
+A)     Hoja de trabajo.
+B)     Columnas.
+C)     Insertar.
+D)     Filas.
+
+RESPUESTA CORRECTA:C
+
+24.
+¿De cuántas Instituciones se compone la Unión Europea?:
+A)   4.
+B)   3.
+C)   6.
+D)   7.
+
+RESPUESTA CORRECTA:D
+
+25.
+La  severidad  del  asma  cuya  frecuencia  es  a  diario  y  puede  restringir  la  actividad  física  se denomina:
+A)     Asma intermitente.
+B)     Asma persistente leve.
+C)     Asma persistente moderada.
+D)     Asma persistente grave.
+
+RESPUESTA CORRECTA:C
+
+26.
+Cuando la documentación clínica acredita el consumo, el abuso y la dependencia de una misma sustancia, para identificar el patrón de uso, solo debe asignar un código basado en la jerarquía:
+A)     Si consumo y abuso están documentados a la vez, asigne solo el código de abuso.
+B)     Si abuso y dependencia están documentados a la vez, asigne el código de abuso.
+C)     Si consumo y dependencia están documentados a la vez, asigne el código de consumo.
+D)     Si consumo, abuso y dependencia están documentados a la vez, asigne el código de abuso.
+
+RESPUESTA CORRECTA:A
+
+27.
+Respecto a los factores que influyen en el estado de salud y contacto con los servicios sanitarios, indique la respuesta correcta:
+A)     Son códigos diagnósticos que describen el procedimiento realizado.
+B)     Pueden ser utilizados cuando una persona, que puede estar o no enferma en la actualidad, contacta con los servicios sanitarios por una razón específica.
+C)     Siempre son diagnóstico principal.
+D)     Ninguna es cierta.
+
+RESPUESTA CORRECTA:B
+
+28.
+¿Qué normativa es la que regula los derechos y deberes de los usuarios del Sistema Sanitario de la Región de Murcia?:
+A)     R. D. 3/2018 de 5 de diciembre.
+B)     Ley 3/2009 de 11 de mayo.
+C)     Ley 41/2002 de 14 de noviembre.
+D)     R. D. 69/2015 de 6 de febrero.
+
+RESPUESTA CORRECTA:B
+
+29.
+¿Cuándo podemos poner en código de historia personal de mieloma Z85.79 y leucemia Z85.6?:
+A)	Cuando nos indiquen en el informe de alta que el paciente está en remisión de su mieloma o leucemia.
+B)	Cuando hayan transcurrido 2 años desde haber alcanzado la remisión completa y durante ese mismo periodo de tiempo haya estado sin tratamiento para la neoplasia.
+C)	Cuando hayan transcurrido 7 años desde haber alcanzado la remisión completa y durante ese mismo período de tiempo haya estado sin tratamiento para la neoplasia.
+D)	Cuando hayan transcurrido 7 años desde haber alcanzado la remisión completa aunque continúe en tratamiento para la neoplasia.
+
+RESPUESTA CORRECTA:C
+
+30.
+¿Cuál es la importancia de la fecha y hora en la historia clínica?:
+A)     No es importante.
+B)     Sólo es necesario en caso de procedimientos quirúrgicos.
+C)     Facilita la organización temporal de la información médica.
+D)     Sólo es necesario en registros electrónicos.
+
+RESPUESTA CORRECTA:C
+
+31.
+El prolapso uterino completo también es denominado:
+A)     Prolapso uterino grados III-IV o prolapso urogenital total o prolapso uterovaginal total.
+B)     Prolapso uterino grados I-II o prolapso urogenital o uterovaginal grados I-II.
+C)     Prolapso de cérvix.
+D)     Prolapso de bóveda vaginal.
+
+RESPUESTA CORRECTA:A
+
+33.
+Entendemos por “Informe de alta médica” a:
+A)	Una declaración escrita de un médico que da fe del estado de salud de una persona en un momento concreto.
+B)	Un documento emitido por el médico responsable en un Centro Sanitario al finalizar cada proceso asistencial de un paciente, especificando los datos de dicho proceso, así como un resumen de su historial clínico, actividad asistencial prestada, diagnóstico y recomendaciones terapéuticas.
+C)	Un documento que recoge toda la información médica y de enfermería referente a la situación del paciente, no importa en qué momento de su episodio asistencial.
+D)	Un documento que sólo resume el estado físico y mental de un paciente, referente a su proceso asistencial actual y elaborado siempre por el responsable del servicio que lo atiende.
+
+RESPUESTA CORRECTA:B
+
+34.
+Paciente  que  ingresa  por  una  anemia  debida  a  un  colangiocarcinoma,  el  tratamiento  es exclusivamente dirigido a la anemia. La secuencia de códigos sería la siguiente:
+A)      Código de anemia en enfermedad neoplásica (D63.0) + código de Colangiocarcinoma (C22.1) + ódigo de morfología (8160/3).
+B)	Código de Colangiocarcinoma (C22.1) + código de morfología (8160/3) + código de anemia en enfermedad neoplásica (D63.0).
+C)      El diagnóstico principal será el que indique el facultativo en el informe de alta.
+D)	La anemia no se codifica cuando está asociada a una neoplasia, ya que es un síntoma inherente a la propia enfermedad.
+
+RESPUESTA CORRECTA:B
+
+35.
+Neonato de 7 días diagnosticado de coledocolitiasis neonatal. Señale la codificación correcta en un informe de hospitalización:
+A)     P84 Otros problemas del recién nacido. K80.50 Cálculo del conducto biliar sin colangitis ni colecistitis, sin obstrucción.
+B)     P78.89 Otros trastornos perinatales especificados del aparato digestivo. K80.50 Cálculo del conducto biliar, sin colangitis ni colecistitis, sin obstrucción.
+C)     K80.50 Cálculo del conducto biliar, sin colangitis ni colecistitis, sin obstrucción.
+D)     P96.89 Otros problemas especificados originados en el periodo perinatal. K80.50 Cálculo del conducto biliar, sin colangitis ni colecistitis, sin obstrucción.
+
+RESPUESTA CORRECTA:B
+
+36.
+Teniendo en cuenta que los Archivos de Historias Clínicas en papel están desapareciendo debido a la informatización de la Historia Clínica, si un hospital debe mantener un archivo, ¿cuál es el mejor sistema de ordenación y clasificación?:
+A)     Clasificación alfabética.
+B)     Clasificación cronológica.
+C)     Clasificación numérica.
+D)     Clasificación alfanumérica.
+
+RESPUESTA CORRECTA:C
+
+37.
+En una pancitopenia se produce una:
+A)     Disminución de plaquetas.
+B)     Disminución de hematíes.
+C)     Disminución de hematites, leucocitos y plaquetas.
+D)     Disminución de leucocitos.
+
+RESPUESTA CORRECTA:C
+
+38.
+Señale la respuesta correcta en relación a los Códigos de Causa Externa Relacionados con las complicaciones de Cuidados Médicos y Quirúrgicos:
+A)      Pueden ser diagnóstico principal.
+B)      Son de uso obligatorio para todos los códigos del capítulo 19 (Lesiones, Envenenamientos y Otras Consecuencias de Causas Externas), siempre que aporten información adicional.
+C)      Las intoxicaciones precisan código de causa externa.
+D)	Pueden ser diagnóstico principal y secundario a un código de otro capítulo donde se recoge la naturaleza de la lesión.
+
+RESPUESTA CORRECTA:B
+
+39.
+Los códigos de la categoría Z3A Semanas de gestación no deben utilizarse:
+A)      En embarazos con resultado abortivo (categorías O00-O08).
+B)      En contacto para interrupción voluntaria del embarazo (código Z33.2).
+C)     Para afecciones postparto.
+D)     Todas las respuestas anteriores son correctas.
+
+RESPUESTA CORRECTA:D
+
+40.
+¿Qué información recoge el grupo de “variables clínicas” del CMBD de hospitalización?:
+A)     Número de historia clínica (NHC), única y exclusiva de cada paciente.
+B)     Procedimientos quirúrgicos.
+C)     Tipo de alta (domicilio, alta voluntaria, traslado...).
+D)     Todas son incorrectas.
+
+RESPUESTA CORRECTA:B
+
+41.
+¿Qué  nos  indica  el  sufijo  MEGALIA,  en  medicina,  teniendo  en  cuenta  el  siguiente  ejemplo: hepatomegalia?:
+A)     Hígado anormalmente pequeño.
+B)     Hígado anormalmente grande.
+C)     Hígado inflamado.
+D)     Hígado infectado.
+
+RESPUESTA CORRECTA:B
+
+42.
+Señala la respuesta correcta:
+A)     Las notas tipo “Excluye 2” significan: “no codificar aquí”.
+B)     Las notas “Excluye 1” indican que el código excluido nunca debe utilizarse junto al código afectado por dicha nota de exclusión.
+C)     Las notas “Excluye 1” significan “no incluido aquí”.
+D)     Las notas “Excluye 2” indican que no es posible utilizar juntos ambos códigos.
+
+RESPUESTA CORRECTA:B
+
+43.
+Términos sinónimos de síndrome de Distrés Respiratorio del Adulto son:
+A)      Pulmón blanco.
+B)      Pulmón de shock.
+C)     Hipoxemia refractaria.
+D)     Todas las respuestas anteriores son correctas.
+
+RESPUESTA CORRECTA:D
+
+44.
+Según el artículo 22 de la Constitución española, las asociaciones que persigan fines o utilicen medios tipificados como delitos son:
+A)     Legales.
+B)     Ilegales.
+C)     Lícitas.
+D)     Legítimas.
+
+RESPUESTA CORRECTA:B
+
+46.
+Dentro de los  indicadores de calidad utilizados para el control del proceso de  archivado de historias clínicas, está el índice de eficacia (Ie) que:
+A)	Es igual al número de historias clínicas buscadas al año en el archivo, entre el número total de historias clínicas que se han archivado en ese año.
+B)	Es igual al número de historias clínicas localizadas en el archivo, dividido entre el número de historias clínicas buscadas, teniendo en cuenta tanto las historias almacenadas en el archivo activo como en el pasivo.
+C)	Es igual al número de historias clínicas localizadas en el archivo, dividido entre el número de historias clínicas buscadas, teniendo en cuenta solamente las historias almacenadas en el archivo activo.
+D)	Es igual al número de historias clínicas que reingresan al archivo dividido entre el número de historias clínicas que salen en préstamo de archivo.
+
+RESPUESTA CORRECTA:B
+
+47.
+En CIE-10-ES Procedimientos, la pieloplastia derecha con colgajo laparoscópico percutáneo, se codificará:
+A)     0TQ34ZZ Reparación de pelvis renal derecha, abordaje endoscópico percutáneo.
+B)     0T734ZZ Dilatación de pelvis renal derecha, abordaje endoscópico percutáneo.
+C)     0TM34ZZ Reimplantación de pelvis renal derecha, abordaje endoscópico percutáneo.
+D)     0TS34ZZ Reposición de pelvis renal derecha, abordaje endoscópico percutáneo.
+
+RESPUESTA CORRECTA:B
+
+48.
+Según el artículo 62.1 de la Ley 55/2003, de 16 de diciembre, del Estatuto marco del personal estatutario de los servicios de salud, ¿cuál de éstas no está contemplada como situaciones del personal estatutario fijo?:
+A)     Servicios especiales.
+B)     Servicio activo.
+C)     Suspensión de funciones.
+D)     Excedencia forzosa.
+
+RESPUESTA CORRECTA:D
+
+49.
+Paciente con sarcoma de Kaposi (enfermedad relacionada con el SIDA) y una infección VIH en estadio C3. La secuencia de códigos sería:
+A)     C46.4 (sarcoma de Kaposi) + 9140/3 (morfología) + B20 (SIDA).
+B)     C46.4 (sarcoma de Kaposi) + 9140/3 (morfología) + Z21 (infección asintomática VIH).
+C)     B20 (SIDA) + C46.4 (sarcoma de Kaposi) + 9140/3 (morfología).
+D)     Z21 (infección asintomática VIH) + C46.4 (sarcoma de Kaposi) + 9140/3 (morfología).
+
+RESPUESTA CORRECTA:C
+
+50.
+En la hepatopatía tóxica por envenenamiento, el diagnóstico principal será:
+A)	Como diagnóstico principal codificaremos la hepatopatía tóxica y como diagnóstico adicional un código de las categorías T36 a T65 con el quinto o sexto carácter que corresponda según la intención, es decir del 1 al 4.
+B)	Un código de las categorías T36 a T65 con el quinto o sexto carácter que corresponda según la intención, es decir del 1 al 4 y como diagnóstico adicional codificaremos la hepatopatía tóxica.
+C)	Un código de las categorías T36 a T65 con el quinto o sexto carácter que corresponda según la intención, es decir del 5 al 6 y como diagnóstico adicional codificaremos la hepatopatía tóxica.
+D)	Como diagnóstico principal codificaremos la hepatopatía tóxica y como diagnóstico adicional un código de las categorías T36 a T65 con el quinto o sexto carácter que corresponda según la intención, es decir del 5 al 6.
+
+RESPUESTA CORRECTA:B
+
+51.
+¿Cómo  deben  codificarse  los  diagnósticos  de  un  episodio  de  un  paciente  que  acude  para realizarse una paracentesis evacuadora de una ascitis maligna?:
+A)	En  primer  lugar  el  código  Z46.89  Contacto  para  colocación  y  ajuste  de  otros  dispositivos especificados seguido del código de la neoplasia con su morfología y de la ascitis maligna (R18.0).
+B)	En primer lugar el código de la neoplasia maligna con su morfología seguido del código de la ascitis maligna (R18.0).
+C)	En primer lugar el código de la ascitis maligna (R18.0) seguido del código de la neoplasia con su morfología.
+D)      En primer lugar el código de la neoplasia con su morfología seguido del código otros tipos de ascitis (R18.8).
+
+RESPUESTA CORRECTA:B
+
+52.
+Los  documentos  clínicos  deben  cumplir  unos  requisitos  de  calidad  documental.  Señale  la respuesta correcta:
+A)      Letra legible y clara, con el uso de siglas normalizadas.
+B)      La información puede ser completa y pertinente, aunque no sea oportuna.
+C)	La información debe ser clara, concisa y ordenada, aunque a veces se deba no exponer claramente los diagnósticos por la conspiración de silencio.
+D)      Nada de lo anterior valora la calidad documental.
+
+RESPUESTA CORRECTA:A
+
+53.
+La disminución de los glóbulos rojos o hematíes nos puede producir una:
+A)      Pancitopenia.
+B)      Anemia.
+C)     Bicitopenia.
+D)     Trombocitosis.
+
+RESPUESTA CORRECTA:B
+
+54.
+Los papilomas solitarios de mama cuya codificación es D24 Neoplasia benigna de mama más código de morfología, ¿qué riesgo cancerígeno tienen?:
+A)      Patologías benignas sin riesgo cancerígeno.
+B)      Patologías benignas con bajo riesgo de degeneración cancerígena. 
+C)     Patologías benignas con alto riesgo cancerígeno.
+D)     Ninguna de las respuestas anteriores es correcta.
+
+RESPUESTA CORRECTA:B
+
+55.
+Indique la respuesta adecuada respecto a la jerarquía de consumo de drogas y alcohol:
+A)     Consumo + Abuso: Abuso.
+B)     Abuso + Dependencia: Dependencia.
+C)     Consumo + Dependencia: Dependencia.
+D)     Todas son correctas.
+
+RESPUESTA CORRECTA:D
+
+56.
+Señale la respuesta correcta de la escala de coma de Glasgow:
+A)      A cada grado de reacción se le asigna un número (más alto cuanto peor es su significado clínico).
+B)      Pueden ser, en casos especiales, diagnóstico principal.
+C)	La escala de Glasgow permite cuantificar el nivel de consciencia de un paciente con posible lesión encefálica.
+D)	Para pacientes con comas inducidos médicamente o pacientes sedados, los códigos que reflejan la escala de Glasgow se pueden asignar.
+
+RESPUESTA CORRECTA:C
+
+57.
+Indique la respuesta correcta referida a la tuberculosis:
+A)	La tuberculosis latente se da en personas que no están enfermas, no son contagiosas, pero sí están infectadas.
+B)	La tuberculosis afecta sobre todo a los pulmones, pero puede afectar a cualquier órgano o parte del cuerpo.
+C)	La tuberculosis puede dejar secuelas, en estos casos el código que se secuencia en primer lugar es el de  la  manifestación, seguido del código correspondiente de  la categoría B90: secuelas de tuberculosis.
+D)     Todas las respuestas son correctas.
+
+RESPUESTA CORRECTA:D
+
+58.
+Referente a la externalización de archivos clínicos, NO ES CIERTO que:
+A)	Se realizará cuando el volumen de la documentación del Archivo aumente y produzca falta de espacio.
+B)	Se contratará una empresa externa que dé cabida a la documentación sobrante y se encargará de su gestión.
+C)	La empresa externa encargada de la custodia de la documentación será la principal responsable de dicha documentación.
+D)	Son criterios a tener en cuenta cuando se realiza la subcontrata de la empresa externa: sus instalaciones, funcionalidad y profesionalidad del personal, garantías de confidencialidad y continuidad… entre otros.
+
+RESPUESTA CORRECTA:C
+
+59.
+De las siguientes condiciones, ¿cuál no está asociada a un parto normal (Código O80)?:
+A)      Presentación fetal transversa.
+B)      Recién nacido único y vivo.
+C)     Situación longitudinal.
+D)     Presentación fetal cefálica u occipital.
+
+RESPUESTA CORRECTA:A
+
+60.
+Son funciones básicas de la Comisión de Historias Clínicas:
+A)	Normalizar la  historia clínica en  cuanto a  su  formato, contenido y  normativa mínima de  uso, elaborando un manual de uso y funcionamiento periódicamente actualizado.
+B)      Auditar al servicio de Documentación Clínica bimensualmente y remitir los informes elaborados a la Dirección del Centro para que tenga conocimiento de la situación.
+C)	Evaluar la situación del archivo central de historias clínicas y plantear las condiciones básicas para la preservación y confidencialidad de la historia clínica.
+D)     A y C son CORRECTAS.
+
+RESPUESTA CORRECTA:D
+
+61.
+Según el artículo 8.2 del Real Decreto Legislativo 5/2015, de 30 de octubre, por el que se aprueba el Texto Refundido del Estatuto Básico del Empleado Público, los empleados públicos se clasifican en:
+A)      Funcionarios de carrera y funcionarios interinos.
+B)      Personal laboral y personal eventual.
+C)	Funcionarios de carrera, funcionarios interinos, personal laboral, ya sea fijo, por tiempo indefinido o temporal y personal eventual.
+D)      Funcionarios de carrera, personal laboral y personal eventual.
+
+RESPUESTA CORRECTA:C
+
+62.
+Cuando la infección urinaria está en relación a la presencia de un injerto o dispositivo (catéter), debemos utilizar el código T83.5 o T83.6 (Infección y reacción inflamatoria debidas a prótesis, implantes e injertos en aparato urinario o tracto genital) y añadir un código adicional para especificar el tipo de infección. En ausencia de documentación que indique si la infección es debida al procedimiento, el código de diagnóstico principal es:
+A)     El código R82.81 Piuría.
+B)     El código N39.0 Infección del tracto urinario, sitio no especificado.
+C)     Los códigos T83.5 o T83.6.
+D)     El código A41.9 Sepsis, microorganismo no especificado.
+
+RESPUESTA CORRECTA:B
+
+63.
+¿Cuál de los siguientes no es un sistema operativo?:
+A)      Unix.
+B)      Microsoft Windows.
+C)      Solaris.
+D)      Todas las respuestas anteriores son correctas.
+
+RESPUESTA CORRECTA:D
+
+64.
+Si el tipo de diabetes no está documentado en la historia del paciente, por defecto la codificamos como:
+A)      Diabetes tipo 1.
+B)      Diabetes tipo 2.
+C)      Diabetes no especificada.
+D)      Ninguna respuesta es correcta.
+
+RESPUESTA CORRECTA:B
+
+65.
+La insuficiencia cardiaca con fracción de eyección normal o conservada se codifica como:
+A)      Insuficiencia cardiaca sistólica.
+B)      Insuficiencia cardiaca diastólica.
+C)      Insuficiencia cardiaca, no especificada.
+D)      Otra insuficiencia cardiaca.
+
+RESPUESTA CORRECTA:B
+
+66.
+Según el artículo 14 de la Ley 31/1995, de 8 de noviembre, de prevención de riesgos laborales, ¿cuál de éstos se considera un derecho de los trabajadores?:
+
+A)	No  se  consideran  derechos  de  información,  consulta  y  participación,  formación  en  materia preventiva, en caso de riesgo grave e inminente.
+B)	El coste de las medidas relativas a la seguridad y a la salud en el trabajo deberá recaer sobre los trabajadores.
+C)	El trabajador deberá cumplir las obligaciones establecidas en la normativa sobre prevención de riesgos laborales.
+D)	Los trabajadores tienen derecho a una protección eficaz en materia de seguridad y salud en el trabajo.
+
+RESPUESTA CORRECTA:D
+
+67.
+¿Cuál es la principal finalidad de la historia clínica?:
+A)      Facturación de servicios médicos.
+B)      Mantenimiento de registros administrativos.
+C)     Registro de eventos médicos importantes.
+D)     Garantizar una asistencia adecuada al paciente.
+
+RESPUESTA CORRECTA:D
+
+68.
+Respecto a la morfología de las neoplasias:
+A)	Cuando un paciente presente múltiples localizaciones metástasis de un mismo tumor maligno primario, es suficiente la asignación de un solo código de morfología metastásica.
+B)	Cuando un diagnóstico morfológico indique dos adjetivos y estos tengan diferente código numérico, se usará el código de menor valor numérico ya que implica una mayor especificidad.
+C)	En el caso de que una morfología carezca de su correspondiente código de metástasis, no se podrá codificar la misma, codificaremos solo la morfología del tumor primario.
+D)     A y B son ciertas.
+
+RESPUESTA CORRECTA:A
+
+69.
+¿Cuándo se debe asignar un código de infradosificación?:
+A)	La interrupción del uso de un medicamento prescrito, por iniciativa del paciente (sin indicación del médico).
+B)      La afección producida por la infradosificación no se codifica.
+C)     Pueden ser diagnóstico principal.
+D)     Las respuestas B y C son ciertas.
+
+RESPUESTA CORRECTA:A
+
+70.
+El documento que recoge la información referente a los procedimientos quirúrgicos u obstétricos recibe el nombre de:
+A)      Hoja circulante quirúrgica.
+B)      Protocolo quirúrgico y/o registro del parto.
+C)     Informe de evolución quirúrgica.
+D)     Hoja de procedimiento.
+
+RESPUESTA CORRECTA:B
+
+71.
+¿Cuándo se debe codificar la intubación endotraqueal que es necesaria para realizar la ventilación mecánica utilizando un laringoscopio?:
+A)	No debe codificarse la intubación endotraqueal ni la ventilación mecánica que van implícitas en una cirugía.
+B)	El código apropiado para la intubación endotraqueal es el (0BH17EZ) Inserción en tráquea de dispositivo intraluminal, cánula endotraqueal, abordaje orificio natural o artificial.
+C)	La  intubación  endotraqueal que  es  necesaria  para  realizar  la  ventilación  mecánica  debe  ser codificada.
+D)      Todas las respuestas anteriores son ciertas.
+
+RESPUESTA CORRECTA:D
+
+72.
+¿Cuál de los siguientes objetos no pertenece a la estructura de una base de datos en Access 2019?:
+A)      Plantillas.
+B)      Módulos.
+C)     Informes.
+D)     Macros.
+
+RESPUESTA CORRECTA:A
+
+73.
+En el código de la subcategoría F02.8- Demencia en otras enfermedades clasificadas bajo otro concepto, se añadirá un quinto carácter para indicar si cursa o no con alteraciones de:
+A)      Genética.
+B)      Cromosómica.
+C)     Hormonal.
+D)     Conducta.
+
+RESPUESTA CORRECTA:D
+
+74.
+La memoria RAM sirve para almacenar:
+A)      Los registros de la unidad central de proceso (CPU).
+B)      Los registros de una base de datos.
+C)     Datos e instrucciones de forma temporal.
+D)     Información que necesitemos almacenar por mucho tiempo.
+
+RESPUESTA CORRECTA:C
+
+75.
+Un  paciente  con  dependencia  a  la  cocaína  pero  que  hace  dos  años  que  no  consume,  lo codificaremos como:
+A)      Historia personal de dependencia a la cocaína.
+B)      Dependencia de cocaína ya que un paciente que consume cocaína siempre tendrá dependencia.
+C)     Dependencia de cocaína en remisión.
+D)     Historia personal de abuso a la cocaína.
+
+RESPUESTA CORRECTA:C
+
+76.
+En CIE-10-ES las gastritis crónicas se clasifican:
+A)      Gastritis crónica alcohólica sin sangrado.
+B)      Gastritis crónica superficial, gastritis crónica atrófica y gastritis crónica no especificada.
+C)      Gastritis crónica deslizante y gastritis crónica erosiva.
+D)      Gastritis crónica granulomatosa con sangrado.
+
+RESPUESTA CORRECTA:B
+
+77.
+Según el artículo 72 de la Ley 55/2003, de 16 de diciembre, del Estatuto marco del personal estatutario de los servicios de salud, es falta muy grave:
+A)     La falta de obediencia debida a los superiores.
+B)     La aceptación de cualquier tipo de contraprestación por los servicios prestados a los usuarios de los servicios de salud.
+C)     El abandono del servicio.
+D)     El abuso de autoridad en el ejercicio de sus funciones.
+
+RESPUESTA CORRECTA:C
+
+78.
+Una “FISURA” ósea debida a un traumatismo, se codifica con CIE-10-ES como:
+A)      No existen en CIE-10-ES Diagnósticos códigos específicos para las fisuras.
+B)      Una fisura es una fractura incompleta.
+C)     La fisura no produce una pérdida de la continuidad del hueso.
+D)     Todas las respuestas anteriores son correctas.
+
+RESPUESTA CORRECTA:D
+
+79.
+El término mononeuropatía se refiere a la enfermedad o lesión de un solo nervio. Las causas más frecuentes son:
+A)      Físicas, mentales y tóxicas.
+B)      Compresión, atrapamiento y traumatismos.
+C)     Descompresión, aplastamiento y efectos adversos.
+D)     Congénitas.
+
+RESPUESTA CORRECTA:B
+
+80.
+Señale la respuesta FALSA:
+A)      El principal responsable del funcionamiento y organización del archivo clínico es el Jefe Médico.
+B)      La organización de los turnos de trabajo del personal del Archivo depende de la Dirección del Hospital.
+C)	El personal administrativo y/o técnico en documentación sanitaria es quien se encarga de gestionar la documentación clínica y repartir historias clínicas, registrar préstamos y devoluciones de historias clínicas, entre otros.
+D)     El médico documentalista ejerce la responsabilidad de la Unidad de Documentación Clínica.
+
+RESPUESTA CORRECTA:C
+
+81.
+Los glóbulos blancos o leucocitos:
+A)      Aportan oxígenos a los tejidos.
+B)      Ayudan al cuerpo a combatir las infecciones.
+C)     Tienen un papel importante en la coagulación de la sangre.
+D)     Las tres son ciertas.
+
+RESPUESTA CORRECTA:B
+
+82.
+El procedimiento de infiltración de anestésico en el hiato sacro se codificará como:
+A)      Espacio epidural.
+B)      Canal espinal.
+C)     Nervios y plexos periféricos.
+D)     Todas las localizaciones anatómicas son incorrectas.
+
+RESPUESTA CORRECTA:B
+
+83.
+Respecto al informe de alta, elija la opción FALSA:
+A)      Todo paciente, familiar o persona vinculada a él, en su caso, tendrá el derecho a recibir del Centro o Servicio Sanitario, una vez finalizado el proceso asistencial, un informe de alta.
+B)      En caso de no aceptar el tratamiento prescrito, se propondrá al paciente la firma del alta voluntaria. Si no la firmara, la Dirección del Centro Sanitario, a propuesta del médico responsable podrá disponer el alta forzosa en las condiciones reguladas por ley.
+C)	Si el paciente no acepta el alta, la Dirección del Centro, previa comprobación del informe clínico correspondiente, oirá al paciente y, si persiste en su negativa, lo pondrá en conocimiento del juez para que confirme o revoque la decisión.
+D)     Solamente las respuestas A y C son VERDADERAS.
+
+RESPUESTA CORRECTA:D
+
+84.
+En la sección Asistencia y Soporte Extracorpóreos o Sistémicos, para la función “Ventilación” en la localización anatómica “Respiratorio”, la 5ª posición, indica:
+A)      Función.
+B)      Abordaje.
+C)      Dispositivo.
+D)      Duración.
+
+RESPUESTA CORRECTA:D
+
+85.
+En cuanto a la Comisión de Historias Clínicas, no es cierto que:
+A)      Tiene carácter obligatorio en el funcionamiento de los hospitales.
+B)      Su objetivo fundamental es llegar a conseguir una historia clínica operativa y bien cumplimentada.
+C)	La obligatoriedad de constitución de esta comisión fue creada por R.D. 520/83, sobre Estructura, organización y Funcionamiento de Hospitales del INSALUD.
+D)	Velar por el cumplimiento de todas las funciones de la historia clínica: asistencial, docente, para investigación, médico-legal, estudios epidemiológicos, calidad y planificación sanitaria.
+
+RESPUESTA CORRECTA:C
+
+86.
+La correcta codificación de una complicación por dehiscencia anastomosis intestinal es:
+A)	K91.89 Otras complicaciones y trastornos de aparato digestivo postprocedimiento + T81.31XA Ruptura de herida operatoria (quirúrgica) externa, no clasificada bajo otro concepto, contacto inicial +  Y83.2  Cirugía  con  anastomosis, derivación  o  injerto  como  causa  de  reacción  anormal  del paciente, o de complicación posterior, sin mención de evento adverso en el momento del procedimiento.
+B)	K91.89 Otras complicaciones y trastornos de aparato digestivo postprocedimiento + Y83.2 Cirugía con anastomosis, derivación o injerto como causa de reacción anormal del paciente, o de complicación posterior, sin mención de evento adverso en el momento del procedimiento.
+C)	T81.32XA Ruptura de herida operatoria (quirúrgica) interna, no clasificada bajo otro concepto, contacto inicial + Y83.2 Cirugía con anastomosis, derivación o injerto como causa de reacción anormal del paciente, o de complicación posterior, sin mención de evento adverso en el momento del procedimiento.
+D)	K91.89 Otras complicaciones y trastornos de aparato digestivo postprocedimiento + T81.32XA Ruptura de herida operatoria (quirúrgica) interna, no clasificada bajo otro concepto, contacto inicial + Y83.2 Cirugía con anastomosis, derivación o injerto como causa de reacción anormal del paciente, o complicación posterior, sin mención de evento adverso en el momento del procedimiento.
+
+RESPUESTA CORRECTA:D
+
+87.
+El artículo 93 del Real Decreto Legislativo 5/2015, de 30 de octubre, por el que se aprueba el Texto Refundido del Estatuto Básico del Empleado Público, contempla que el régimen disciplinario del personal laboral se regirá, en lo no previsto en el mismo Título:
+A)      Por la legislación social.
+B)      Por la legislación penal.
+C)     Por la legislación laboral.
+D)     Por la legislación social y penal.
+RESPUESTA CORRECTA:C
+
+88.
+Paciente que ingresa para control del dolor debido a su enfermedad neoplásica:
+A)      El dolor no se codifica, ya que es un síntoma asociado a la neoplasia.
+B)      El diagnóstico principal será la neoplasia y como diagnóstico secundario se asignará el código G89.3 Dolor (agudo) (crónico) relacionado con neoplasia.
+C)     El diagnóstico principal será el que el facultativo nos indique en el informe de alta.
+D)	Cuando el ingreso es para el tratamiento específico del dolor provocado por una neoplasia se asignará el código G89.3 Dolor (agudo) (crónico) relacionado con neoplasia  como diagnóstico principal y como código adicional el de la neoplasia.
+
+RESPUESTA CORRECTA:D
+
+89.
+Referente a la definición y archivo de la historia clínica, señale la respuesta INCORRECTA:
+A)	La historia clínica comprende el conjunto de documentos relativos a los procesos asistenciales de cada paciente, identificando a los médicos y profesionales que han intervenido en ellos, con el fin de obtener la máxima integración posible de la documentación clínica de cada paciente.
+B)	Cada Centro Hospitalario archivará las historias clínicas de todos los pacientes de su área de salud, incluyendo las de Atención Primaria, garantizando así la seguridad y la correcta conservación de todas ellas.
+C)	Las  historias  clínicas  archivadas  en  cada  Centro  podrán  tener  soporte  papel,  audiovisual, informático o de otro tipo.
+D)	Las Comunidades Autónomas serán quienes aprueben las disposiciones necesarias para que los Centros Sanitarios puedan adoptar medidas técnicas y adecuadas para archivar y proteger las historias clínicas y evitar así su destrucción o pérdida accidental.
+
+RESPUESTA CORRECTA:B
+
+90.
+Según el artículo 1.2 de la Ley 14/1986, de 25 de abril, General de Sanidad, son titulares del derecho a la protección de la salud y a la atención sanitaria todos:
+A)      Los españoles y los extranjeros de determinados países.
+B)      Los extranjeros.
+C)	Los españoles y los ciudadanos extranjeros que tengan establecida su residencia en territorio nacional.
+D)	Los españoles y los ciudadanos extranjeros que tengan establecida su residencia en territorio internacional.
+
+RESPUESTA CORRECTA:C
+
+91.
+El recambio de doble J en pacientes en tratamiento de litiasis renal se codificará:
+A)      Cambio.
+B)      Revisión.
+C)     Retirada + Drenaje.
+D)     Cambio + Drenaje.
+
+RESPUESTA CORRECTA:C
+
+92.
+Según las normas de la CIE-10, todos los diagnósticos de sospecha se consideran ciertos en los pacientes de hospitalización, excepto:
+A)     Todas las gripes.
+B)     Neumonía.
+C)     Infección por VIH.
+D)     Meningitis.
+
+RESPUESTA CORRECTA:C
+
+93.
+Para CORTAR un texto en un procesador de textos como Writer (LibreOffice) o Word (Microsoft) podemos emplear el método abreviado:
+A)     Ctrl + C.
+B)     Ctrl + V.
+C)     Ctrl + X.
+D)     Ctrl + Shift + V.
+
+RESPUESTA CORRECTA:C
+
+94.
+El periodo periparto se define como el que abarca desde:
+A)     Los 28 días inmediatos después del parto.
+B)     Los últimos dos meses del embarazo hasta cinco meses después del parto.
+C)     El último mes del embarazo hasta cinco meses después del parto.
+D)     El último mes del embarazo hasta seis semanas después del parto.
+
+RESPUESTA CORRECTA:C
+
+95.
+Duodeno, yeyuno e íleon pertenecen a:
+A)      La vesícula biliar.
+B)      Intestino grueso.
+C)     Intestino delgado.
+D)     El yeyuno y duodeno al intestino delgado y el íleon al intestino grueso.
+
+RESPUESTA CORRECTA:C
+
+97.
+En los códigos de procedimientos, el tercer carácter hace referencia:
+A)      Abordaje.
+B)      Localización anatómica.
+C)     Tipo de procedimiento.
+D)     Sistema orgánico.
+
+RESPUESTA CORRECTA:C
+
+98.
+Las glándulas sebáceas que se encuentran situadas en los párpados (superior e inferior) reciben el nombre de:
+A)      Glándulas de Montgomery.
+B)      Glándulas de Brunner.
+C)     Glándulas de Cowper.
+D)     Glándulas de Meibomio.
+
+RESPUESTA CORRECTA:D
+
+99.
+Según la OMS (Organización Mundial de la Salud) exfumador es aquel que lleva al menos seis meses sin fumar. En codificación, la CIE-10 considera exfumador:
+A)     Al paciente que lleva al menos tres meses sin fumar.
+B)     Al paciente que lleva al menos un año sin fumar.
+C)     Al paciente que ha dejado de fumar, independientemente del tiempo.
+D)     Para su codificación la CIE-10 lo considera igual que la OMS: cuando lleva al menos seis meses sin fumar.
+
+RESPUESTA CORRECTA:C
+
+100.
+¿Qué tipo de infarto de miocardio es el debido a  isquemia por demanda o secundario a un desequilibrio isquémico?:
+A)     IAM Tipo 1.
+B)     IAM Tipo 2.
+C)     IAM Tipo 3.
+D)     IAM Tipo 4.
+
+RESPUESTA CORRECTA:B
+
+
+    `; // Fin de fileContent
+
+    // --- FUNCIONES ---
+
+    /** Función para barajar un arreglo (algoritmo Fisher–Yates) */
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    /** Guarda el estado actual del examen en localStorage */
+    function saveProgress() {
+        const state = {
+            correctAnswersCount,
+            incorrectAnswersCount,
+            answeredQuestionsCount,
+            totalActiveQuestions,
+            activeQuestions: activeQuestions.map(q => ({
+                originalIndex: q.originalIndex,
+                answered: q.answered,
+                selectedAnswer: q.userAnswer,
+                isCorrect: q.isCorrect
+            }))
+        };
+        try {
+            localStorage.setItem(progressKey, JSON.stringify(state));
+        } catch (e) {
+            console.error("Error guardando progreso en localStorage:", e);
+        }
+    }
+
+    /** Carga el estado del examen desde localStorage */
+    function loadProgress() {
+        const savedState = localStorage.getItem(progressKey);
+        if (savedState) {
+            try {
+                return JSON.parse(savedState);
+            } catch (e) {
+                console.error("Error parseando progreso guardado:", e);
+                localStorage.removeItem(progressKey);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /** Muestra la vista del examen y oculta la pantalla de inicio */
+    function showExamView() {
+        startScreen.classList.add('hidden');
+        examHeader.classList.remove('hidden');
+        contadorFijoDiv.classList.remove('hidden');
+        quizContainer.classList.remove('hidden');
+        document.body.classList.add('exam-active'); // Añadir clase para padding
+        document.body.style.justifyContent = 'flex-start';
+    }
+
+    /** Muestra la pantalla de inicio y oculta la vista del examen */
+    function showStartScreen() {
+        startScreen.classList.remove('hidden');
+        examHeader.classList.add('hidden');
+        contadorFijoDiv.classList.add('hidden');
+        quizContainer.classList.add('hidden');
+        document.body.classList.remove('exam-active'); // Quitar clase
+        document.body.style.justifyContent = 'center';
+        document.body.style.paddingTop = '0'; // Asegurar que no hay padding
+    }
+
+    /** Renderiza una única pregunta, restaurando su estado si se está reanudando */
+    function renderSingleQuestion(q, index, isResuming = false) {
+        const questionIndex = q.originalIndex;
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.id = "q-" + questionIndex;
+
+        const p = document.createElement("p");
+        p.innerHTML = `<strong>${index + 1}. ${q.enunciado}</strong>`;
+        qDiv.appendChild(p);
+
+        const form = document.createElement("form");
+        form.className = "options";
+        form.dataset.questionIndex = questionIndex;
+
+        const sortedLetters = Object.keys(q.options).sort();
+        sortedLetters.forEach(letter => {
+            const optionText = q.options[letter];
+            const label = document.createElement("label");
+            label.dataset.letter = letter;
+            const radioId = `q${questionIndex}_${letter}`;
+            label.htmlFor = radioId;
+
+            const radioInput = document.createElement("input");
+            radioInput.type = "radio";
+            radioInput.name = `q${questionIndex}`;
+            radioInput.value = letter;
+            radioInput.id = radioId;
+
+            const isDisabled = isResuming && q.answered;
+            const isChecked = isResuming && q.userAnswer === letter;
+
+            radioInput.disabled = isDisabled;
+            radioInput.checked = isChecked;
+
+            label.appendChild(radioInput);
+            label.appendChild(document.createTextNode(` (${letter}) ${optionText}`));
+
+            if (isDisabled) {
+                label.classList.add('disabled');
+                if (isChecked) {
+                    if (q.isCorrect) {
+                        label.classList.add('respuesta-correcta');
+                    } else {
+                        label.classList.add('respuesta-incorrecta');
+                    }
+                }
+                if (!q.isCorrect && letter === q.correctAnswer) {
+                    label.classList.add('es-correcta-destacada');
+                }
+            } else {
+                radioInput.addEventListener("change", () => handleOptionChange(q, letter, form));
+            }
+
+            form.appendChild(label);
+        });
+        qDiv.appendChild(form);
+
+        const feedbackDiv = document.createElement("div");
+        feedbackDiv.className = "feedback";
+        feedbackDiv.id = "feedback-" + questionIndex;
+         if (isResuming && q.answered) {
+             if (q.isCorrect) {
+                 feedbackDiv.innerHTML = "✅ Correcto";
+                 feedbackDiv.classList.add("correct");
+            } else {
+                 feedbackDiv.innerHTML = `❌ Incorrecto. La respuesta correcta es ${q.correctAnswer}`;
+                 feedbackDiv.classList.add("incorrect");
+            }
+            feedbackDiv.style.display = 'block';
+        }
+        qDiv.appendChild(feedbackDiv);
+
+        examDiv.appendChild(qDiv);
+    }
+
+     /** Renderiza las preguntas activas en el contenedor del examen */
+     function renderActiveQuestions(isResuming = false) {
+        examDiv.innerHTML = '';
+        activeQuestions.forEach((q, index) => {
+            renderSingleQuestion(q, index, isResuming);
+        });
+     }
+
+
+    /** Actualiza los contadores en la barra fija */
+    function actualizarContadorFijo() {
+        contadorAciertosSpan.textContent = correctAnswersCount;
+        contadorFallosSpan.textContent = incorrectAnswersCount;
+        contadorRespondidasSpan.textContent = answeredQuestionsCount;
+        contadorTotalActivoSpan.textContent = totalActiveQuestions;
+        const pending = totalActiveQuestions - answeredQuestionsCount;
+        contadorPendientesSpan.textContent = pending;
+
+        if (pendingLink) {
+            pendingLink.classList.toggle('disabled', pending === 0);
+        }
+    }
+
+    /** Maneja la selección de una respuesta */
+    function handleOptionChange(questionData, selectedAnswer, form) {
+        if (!questionData || questionData.answered) return;
+
+        const questionIndex = questionData.originalIndex;
+        const questionDiv = document.getElementById(`q-${questionIndex}`);
+        const feedbackDiv = questionDiv.querySelector(".feedback");
+        const labels = form.querySelectorAll('label');
+        const correctAnswer = questionData.correctAnswer;
+
+        questionData.answered = true;
+        questionData.userAnswer = selectedAnswer;
+        answeredQuestionsCount++;
+        userSelections[questionIndex] = selectedAnswer;
+
+        const selectedLabel = form.querySelector(`label[data-letter="${selectedAnswer}"]`);
+        const correctLabel = form.querySelector(`label[data-letter="${correctAnswer}"]`);
+
+        feedbackDiv.className = "feedback";
+
+        if (selectedAnswer === correctAnswer) {
+            questionData.isCorrect = true;
+            feedbackDiv.innerHTML = "✅ Correcto";
+            feedbackDiv.classList.add("correct");
+            if(selectedLabel) selectedLabel.classList.add('respuesta-correcta');
+            correctAnswersCount++;
+        } else {
+            questionData.isCorrect = false;
+            feedbackDiv.innerHTML = `❌ Incorrecto. La respuesta correcta es ${correctAnswer}`;
+            feedbackDiv.classList.add("incorrect");
+            if(selectedLabel) selectedLabel.classList.add('respuesta-incorrecta');
+            incorrectAnswersCount++;
+        }
+        feedbackDiv.style.display = 'block';
+
+        if (correctLabel) {
+            correctLabel.classList.add('es-correcta-destacada');
+        }
+
+        labels.forEach(label => {
+            const input = label.querySelector('input[type="radio"]');
+            if (input) input.disabled = true;
+            label.classList.add('disabled');
+        });
+
+        actualizarContadorFijo();
+        saveProgress();
+
+        if (answeredQuestionsCount === totalActiveQuestions) {
+            setTimeout(mostrarResultadosFinales, 500);
+            localStorage.removeItem(progressKey);
+        }
+    }
+
+
+    /** Muestra el modal de resultados */
+    function mostrarResultadosFinales() {
+        const percentage = totalActiveQuestions > 0 ? ((correctAnswersCount / totalActiveQuestions) * 100).toFixed(1) : 0;
+        resultsText.innerHTML = `Aciertos: <strong style="color: green;">${correctAnswersCount}</strong><br>Fallos: <strong style="color: red;">${incorrectAnswersCount}</strong><br>Total: ${totalActiveQuestions}<br>Porcentaje: <strong>${percentage}%</strong>`;
+        resultsModal.style.display = 'flex';
+        resultsModal.style.justifyContent = 'center';
+        resultsModal.style.alignItems = 'center';
+    }
+
+     /** Oculta el modal de resultados */
+    function hideResultsModal() {
+        resultsModal.style.display = 'none';
+    }
+
+    /** Reinicia el test (recarga la página) */
+    function reiniciarQuiz() {
+        localStorage.removeItem(progressKey);
+        window.location.reload();
+    }
+
+     /** Configura el modo revisión */
+     function mostrarRevision() {
+        hideResultsModal();
+        quizContainer.classList.add('modo-revision');
+
+        activeQuestions.forEach(q => {
+            const questionIndex = q.originalIndex;
+            const questionDiv = document.getElementById(`q-${questionIndex}`);
+            if (!questionDiv) return;
+
+            const feedbackDiv = questionDiv.querySelector(".feedback");
+            const form = questionDiv.querySelector("form");
+            const labels = form.querySelectorAll('label');
+
+            if (feedbackDiv) feedbackDiv.style.display = 'none';
+
+            labels.forEach(label => {
+                 const letter = label.dataset.letter;
+                 const input = label.querySelector('input[type="radio"]');
+                 if(input) input.style.display = 'none';
+
+                 label.classList.remove('respuesta-correcta', 'respuesta-incorrecta', 'respuesta-seleccionada', 'es-correcta-revision', 'es-correcta-destacada', 'disabled');
+                 label.classList.add('disabled');
+
+                 if (letter === q.correctAnswer) {
+                    label.classList.add('es-correcta-revision');
+                 }
+
+                 if (userSelections.hasOwnProperty(questionIndex) && letter === userSelections[questionIndex]) {
+                     label.classList.add('respuesta-seleccionada');
+                     if (userSelections[questionIndex] === q.correctAnswer) {
+                         label.classList.add('respuesta-correcta');
+                     } else {
+                         label.classList.add('respuesta-incorrecta');
+                     }
+                 }
+            });
+        });
+         quizContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+     }
+
+    /** Encuentra y se desplaza a la siguiente pregunta pendiente */
+    function findAndScrollToNextPending(event) {
+        event.preventDefault();
+        const nextPendingQuestion = activeQuestions.find(q => !q.answered);
+        if (nextPendingQuestion) {
+            const element = document.getElementById('q-' + nextPendingQuestion.originalIndex);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.style.outline = '3px solid var(--accent-color)';
+                setTimeout(() => { element.style.outline = '0px solid transparent'; }, 1500);
+            }
+        }
+    }
+
+     /** Inicia un nuevo examen */
+     function startExam() {
+        const selectedValue = document.querySelector('input[name="numQuestions"]:checked').value;
+        let numQuestionsToSelect;
+
+        if (selectedValue === 'all') {
+            numQuestionsToSelect = allParsedQuestions.length;
+        } else {
+            numQuestionsToSelect = parseInt(selectedValue, 10);
+        }
+        numQuestionsToSelect = Math.min(numQuestionsToSelect, allParsedQuestions.length);
+
+        activeQuestions = allParsedQuestions.slice(0, numQuestionsToSelect);
+        totalActiveQuestions = activeQuestions.length;
+
+        correctAnswersCount = 0;
+        incorrectAnswersCount = 0;
+        answeredQuestionsCount = 0;
+        userSelections = {};
+        localStorage.removeItem(progressKey);
+
+        activeQuestions.forEach(q => {
+            q.answered = false;
+            q.userAnswer = null;
+            q.isCorrect = null;
+        });
+
+        renderActiveQuestions(false);
+        actualizarContadorFijo();
+        showExamView();
+        saveProgress();
+     }
+
+     /** Reanuda un examen guardado */
+     function resumeExam() {
+         const savedState = loadProgress();
+         if (!savedState) {
+             alert("No se encontró progreso guardado o está corrupto.");
+             localStorage.removeItem(progressKey);
+             showStartScreen();
+             return;
+         }
+
+         correctAnswersCount = savedState.correctAnswersCount;
+         incorrectAnswersCount = savedState.incorrectAnswersCount;
+         answeredQuestionsCount = savedState.answeredQuestionsCount;
+         totalActiveQuestions = savedState.totalActiveQuestions;
+
+         const savedQuestionsMap = new Map(savedState.activeQuestions.map(q => [q.originalIndex, q]));
+
+         activeQuestions = allParsedQuestions
+             .filter(q => savedQuestionsMap.has(q.originalIndex))
+             .map(q => {
+                 const savedQ = savedQuestionsMap.get(q.originalIndex);
+                 return { ...q,
+                          answered: savedQ.answered,
+                          userAnswer: savedQ.selectedAnswer, // Mapear de vuelta
+                          isCorrect: savedQ.isCorrect };
+             });
+
+         userSelections = {};
+         activeQuestions.forEach(q => {
+             if(q.answered && q.userAnswer !== null) {
+                 userSelections[q.originalIndex] = q.userAnswer;
+             }
+         });
+
+         if(activeQuestions.length !== totalActiveQuestions) {
+             console.error("Discrepancia en el número de preguntas al reanudar. Reiniciando.");
+             localStorage.removeItem(progressKey);
+             location.reload();
+             return;
+         }
+
+         renderActiveQuestions(true);
+         actualizarContadorFijo();
+         showExamView();
+     }
+
+
+    // --- Inicialización de la Aplicación ---
+    function initializeApp() {
+        parseQuestions();
+        shuffle(allParsedQuestions);
+        totalParsedCountSpan.textContent = allParsedQuestions.length;
+
+        const savedProgress = loadProgress();
+
+        if (savedProgress && savedProgress.activeQuestions && savedProgress.activeQuestions.length > 0) {
+            resumePrompt.classList.remove('hidden');
+            resumeButton.classList.remove('hidden');
+            resumeButton.onclick = resumeExam;
+        } else {
+            resumePrompt.classList.add('hidden');
+            resumeButton.classList.add('hidden');
+             if (savedProgress) {
+                localStorage.removeItem(progressKey);
+            }
+        }
+
+        startButton.onclick = startExam;
+
+        reiniciarBtn.addEventListener('click', reiniciarQuiz);
+        revisarBtn.addEventListener('click', mostrarRevision);
+        if (pendingLink) {
+            pendingLink.addEventListener('click', findAndScrollToNextPending);
+        }
+
+        showStartScreen();
+    }
+
+    /** Parsea el contenido del examen */
+    function parseQuestions() {
+        allParsedQuestions = [];
+        // Regex mejorada para capturar número, enunciado (puede tener saltos de línea), opciones y respuesta
+        const questionRegex = /^\s*(\d+)\.\s*([\s\S]*?)\n([A-D]\)\s+[\s\S]*?)\nRESPUESTA CORRECTA:\s*([A-D])/gm;
+        let match;
+        let lastIndex = 0; // Para detectar si el regex se atasca
+
+        while ((match = questionRegex.exec(fileContent)) !== null) {
+             // Seguridad anti-bucle infinito
+             if (match.index === questionRegex.lastIndex) {
+                questionRegex.lastIndex++;
+             }
+              // Evitar re-procesar si el índice no avanza
+             if(questionRegex.lastIndex <= lastIndex) {
+                 console.warn("Regex no avanza, posible bucle. Saliendo del parseo.");
+                 break;
+             }
+             lastIndex = questionRegex.lastIndex;
+
+            const questionNumber = parseInt(match[1], 10);
+            let enunciado = match[2].trim();
+            const optionsBlock = match[3].trim();
+            const correctAnswer = match[4].toUpperCase();
+
+            // Limpiar enunciado (quitar ':' final si existe)
+             if (enunciado.endsWith(':')) {
+                enunciado = enunciado.slice(0, -1).trim();
+            }
+
+            const options = {};
+            const optionLines = optionsBlock.split('\n');
+            let optionCount = 0;
+            optionLines.forEach(line => {
+                 const optionMatch = line.trim().match(/^([A-D])\)\s*(.*)/i);
+                 if (optionMatch) {
+                    options[optionMatch[1].toUpperCase()] = optionMatch[2].trim();
+                    optionCount++;
+                 }
+            });
+
+
+            if (enunciado && optionCount > 0 && correctAnswer && /^[A-D]$/.test(correctAnswer)) {
+                 allParsedQuestions.push({
+                    originalIndex: questionNumber, // Usar número original como ID único
+                    enunciado: enunciado,
+                    options: options,
+                    correctAnswer: correctAnswer,
+                    answered: false,
+                    userAnswer: null,
+                    isCorrect: null
+                 });
+            } else {
+                 console.warn(`Pregunta ${questionNumber} ignorada: formato inválido. Enunciado: ${enunciado}, Opciones: ${JSON.stringify(options)}, Correcta: ${correctAnswer}`);
+            }
+        }
+        // totalQuestions = allParsedQuestions.length; // Actualizar total global (ya no se usa esta variable global)
+        console.log(`Total de preguntas parseadas: ${allParsedQuestions.length}`);
+         if (allParsedQuestions.length === 0) {
+             console.error("Error Crítico: No se parseó ninguna pregunta. Revisa el formato del texto de entrada y la Regex.");
+             examDiv.innerHTML = "<p style='color: red; font-weight: bold;'>Error: No se pudieron cargar las preguntas. Verifica el formato del texto.</p>";
+         }
+    }
+
+
+    // --- Ejecutar Inicialización ---
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+  </script>
+</body>
+</ht
