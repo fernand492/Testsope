@@ -43,11 +43,11 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      scroll-padding-top: 60px;
+      scroll-padding-top: 60px; /* Ajustar para la barra fija */
     }
      body.exam-active {
-        padding-top: var(--fixed-counter-height);
-        justify-content: flex-start;
+        padding-top: var(--fixed-counter-height); /* Espacio para la barra fija */
+        justify-content: flex-start; /* Alinear al inicio cuando el examen está activo */
     }
 
     /* --- Start Screen Styles --- */
@@ -105,7 +105,7 @@
     /* --- Contenedor Principal --- */
     .main-container {
       max-width: 900px;
-      margin: 20px auto;
+      margin: 20px auto; /* Margen superior reducido */
       padding: 0 15px;
     }
 
@@ -117,10 +117,11 @@
       background-color: var(--sas-green-dark);
       color: #fff;
       padding: 15px 20px;
-      border-radius: 0 0 8px 8px;
+      border-radius: 0 0 8px 8px; /* Redondeo solo abajo */
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       flex-wrap: wrap;
       gap: 15px;
+      /* Quitar position:fixed si no es necesario que el header sea fijo */
     }
     .header-image-container img { height: 45px; width: auto; display: block; }
     h1 { color: #fff; margin: 0; font-size: 1.6em; font-weight: 600; text-align: center; }
@@ -135,18 +136,18 @@
         background-color: var(--sas-green-medium); /* Verde medio SAS */
         font-size: 0.95em;
         color: #ffffff; /* Texto blanco para contraste */
-        position: fixed;
+        position: fixed; /* Fijar en la parte superior */
         top: 0;
         left: 0;
         width: 100%;
-        z-index: 950;
+        z-index: 950; /* Asegurar que esté sobre otros elementos */
         border-bottom: 1px solid var(--sas-green-dark); /* Borde oscuro para separar */
-        box-sizing: border-box;
-        flex-wrap: wrap;
-        gap: 10px;
+        box-sizing: border-box; /* Incluir padding y border en el ancho */
+        flex-wrap: wrap; /* Permitir que los elementos pasen a la siguiente línea */
+        gap: 10px; /* Espacio entre elementos */
     }
     #score-display, #progress-indicator, #pending-indicator {
-        flex-shrink: 0;
+        flex-shrink: 0; /* Evitar que los elementos se encojan */
     }
     /* Asegurar que los spans y el enlace usen el color blanco */
     #score-display span, #progress-indicator span, #pending-indicator span {
@@ -164,7 +165,7 @@
 
     /* --- Contenedor del Cuestionario --- */
     #quiz-container {
-      margin-top: 25px;
+      margin-top: 25px; /* Espacio debajo de la barra fija */
     }
 
     /* --- Tarjeta de Pregunta --- */
@@ -176,7 +177,7 @@
       margin-bottom: 25px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       transition: box-shadow 0.3s ease, outline 0.2s ease-in-out;
-      outline: 0px solid transparent;
+      outline: 0px solid transparent; /* Para destacar al navegar a pendientes */
     }
     .question-card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
     .question-card p strong { font-weight: 600; color: var(--text-dark); display: block; margin-bottom: 15px; }
@@ -186,23 +187,25 @@
     .options button:hover:not(:disabled) { background-color: #e9ecef; border-color: #adb5bd; }
     .options button:disabled { cursor: not-allowed; opacity: 0.7; }
     .options button .icon { margin-right: 10px; font-size: 1.1em; min-width: 20px; text-align: center; }
+    /* Estilos para respuestas correctas/incorrectas */
     .options button.correct { background-color: #d4edda !important; border-color: var(--correct-color) !important; color: #155724 !important; font-weight: 600; opacity: 1 !important; }
     .options button.correct .icon::before { content: '✔️'; color: var(--correct-color); }
     .options button.incorrect { background-color: #f8d7da !important; border-color: var(--incorrect-color) !important; color: #721c24 !important; opacity: 1 !important; }
     .options button.incorrect .icon::before { content: '❌'; color: var(--incorrect-color); }
+    /* Estilo para mostrar la correcta cuando se falla */
     .options button.show-correct { background-color: #d4edda !important; border-color: var(--correct-color) !important; color: #155724 !important; font-weight: 600; opacity: 0.9 !important; }
     .options button.show-correct .icon::before { content: '✔️'; color: var(--correct-color); }
 
 
     /* --- Sección de Explicación --- */
-    .explanation { display: none; margin-top: 15px; padding: 15px; background-color: #eef; border: 1px solid #cce; border-radius: 6px; font-size: 0.9em; color: #334; }
+    .explanation { display: none; /* Oculto por defecto */ margin-top: 15px; padding: 15px; background-color: #eef; border: 1px solid #cce; border-radius: 6px; font-size: 0.9em; color: #334; }
     .explanation strong { display: block; margin-bottom: 5px; color: #223; }
 
     /* --- Pregunta Anulada --- */
     .annulled { font-style: italic; color: var(--text-light); padding: 10px 15px; border: 1px dashed var(--border-color); background-color: #f1f1f1; margin-top: 15px; border-radius: 6px; text-align: center; }
 
     /* --- Modal de Resultados --- */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+    .modal-overlay { display: none; /* Oculto por defecto */ position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
     .modal-content { background-color: var(--card-background); padding: 30px 40px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); text-align: center; max-width: 500px; width: 100%; animation: fadeInModal 0.3s ease-out; }
     @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     .modal-content h2 { color: var(--sas-green-dark); margin-top: 0; margin-bottom: 25px; font-size: 1.8em; }
@@ -220,7 +223,7 @@
       h1 { font-size: 1.4em; }
       .header-container { padding: 12px 15px; }
       .main-container { margin-top: 15px; }
-      #progress-score-bar { font-size: 0.9em; padding: 8px 15px; flex-wrap: wrap; gap: 5px; justify-content: center;}
+      #progress-score-bar { font-size: 0.9em; padding: 8px 15px; flex-wrap: wrap; gap: 5px; justify-content: center;} /* Ajustar barra fija */
       .question-card { padding: 15px 20px; }
       .options button { font-size: 0.9em; padding: 10px 12px; }
       .modal-content { padding: 25px 30px; }
@@ -228,14 +231,14 @@
       .modal-content p { font-size: 1em; }
       .modal-content .score { font-size: 1.4em; }
       .modal-close-btn { font-size: 1em; padding: 10px 20px; }
-       body.exam-active { padding-top: var(--mobile-fixed-counter-height); }
+       body.exam-active { padding-top: var(--mobile-fixed-counter-height); } /* Ajustar padding para barra fija en móvil */
     }
      @media (max-width: 480px) {
          h1 { font-size: 1.2em; }
          .header-container { justify-content: space-around; }
          .header-image-container img { height: 35px; }
          .main-container { margin-top: 10px; padding: 0 10px; }
-         #progress-score-bar { font-size: 0.85em; padding: 6px 10px; justify-content: space-around; }
+         #progress-score-bar { font-size: 0.85em; padding: 6px 10px; justify-content: space-around; } /* Ajustar barra fija */
          #score-display, #progress-indicator, #pending-indicator { margin: 3px 5px; }
          .question-card { padding: 15px; }
          .options button { font-size: 0.85em; }
@@ -254,7 +257,8 @@
 <body>
 
   <div id="startScreen">
-      <h2>EXAMEN OPE 2024</h2> <div id="resumePrompt" class="hidden">
+      <h2>EXAMEN OPE 2024</h2>
+      <div id="resumePrompt" class="hidden">
           <p>Se encontró progreso guardado.</p>
       </div>
       <div class="start-buttons">
@@ -269,7 +273,8 @@
            alt="Logotipo Servicio Andaluz de Salud (SAS)"
            onerror="this.style.display='none'; console.error('Error al cargar el logo del SAS');">
            </div>
-    <h1>EXAMEN OPE 2024</h1> </header>
+    <h1>EXAMEN OPE 2024</h1>
+  </header>
 
   <div id="progress-score-bar" class="hidden">
       <div id="score-display">
@@ -305,7 +310,7 @@
           </div>
   </div>
 
-  <script defer> // <-- Añadido 'defer'
+  <script defer> // 'defer' asegura que el script se ejecute después de parsear el HTML
     // --- Constantes y Variables Globales ---
     const quizContainer = document.getElementById("quiz-container");
     const resultsModalOverlay = document.getElementById('results-modal-overlay');
@@ -329,877 +334,879 @@
     const pendingLink = document.getElementById('pendingLink'); // Enlace para pendientes
     const contadorPendientesSpan = document.getElementById("contador-pendientes"); // Span para número pendientes
 
-    const progressKey = 'examProgressSAS_v4'; // Clave única actualizada
+    const progressKey = 'examProgressSAS_v4'; // Clave única para guardar progreso (actualizada)
 
-    let correctCount = 0;
-    let incorrectCount = 0;
-    let answeredCount = 0;
-    let allParsedQuestions = []; // Todas las preguntas parseadas
-    let activeQuestions = [];    // Preguntas de la sesión actual (serán todas las válidas)
-    let totalActiveQuestions = 0; // Total de preguntas válidas en la sesión
-    let userSelections = {}; // Para modo revisión
-    let pointsPerCorrect = 0;
-    let penaltyPerIncorrect = 0;
+    let correctCount = 0; // Contador de respuestas correctas
+    let incorrectCount = 0; // Contador de respuestas incorrectas
+    let answeredCount = 0; // Contador de preguntas respondidas
+    let allParsedQuestions = []; // Array con todas las preguntas parseadas
+    let activeQuestions = [];    // Array con las preguntas de la sesión actual (válidas)
+    let totalActiveQuestions = 0; // Número total de preguntas válidas en la sesión
+    let userSelections = {}; // Objeto para guardar las respuestas del usuario (útil para revisión)
+    let pointsPerCorrect = 0; // Puntos por respuesta correcta
+    let penaltyPerIncorrect = 0; // Penalización por respuesta incorrecta
 
 
-    // --- Array de Preguntas (Extraído del HTML original) ---
+    // --- Array de Preguntas (Modificado para quitar números) ---
+    // Contiene los datos de cada pregunta: texto, opciones, respuesta correcta e explicación.
     const questionsData = [
       {
-        text: "1. NO es una función de la Agencia Española de Protección de Datos (AEPD):",
+        text: "NO es una función de la Agencia Española de Protección de Datos (AEPD):",
         options: [
            "A) Velar por el cumplimiento de la legislación sobre protección de datos y controlar su aplicación, en especial en lo relativo a derechos como acceso, rectificación, oposición y cancelación.",
            "B) Realizar formación a los responsables de Protección de Datos de los hospitales.",
            "C) Redactar una memoria anual presentada ante las Cortes.",
            "D) Sancionar a toda persona responsable o encargado del tratamiento cuando se infrinja la normativa."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "La AEPD supervisa y sanciona, pero la formación específica a responsables de hospitales no es una de sus funciones principales listadas en la ley (LOPDGDD, Título VII). Sus funciones incluyen velar por el cumplimiento, emitir informes, atender reclamaciones y sancionar."
       },
       {
-        text: "2. El facultativo proporcionará al paciente, antes de recabar su consentimiento escrito, la información básica respecto a la intervención. ¿Cuál de las siguientes, NO se considera información básica?",
+        text: "El facultativo proporcionará al paciente, antes de recabar su consentimiento escrito, la información básica respecto a la intervención. ¿Cuál de las siguientes, NO se considera información básica?",
         options: [
           "A) El tiempo que dura la intervención.",
           "B) Los riesgos probables en condiciones normales, conforme a la experiencia y al estado de la ciencia o directamente relacionados con el tipo de intervención.",
           "C) Los riesgos relacionados con las circunstancias personales o profesionales del paciente.",
           "D) Las consecuencias relevantes o de importancia que la intervención origina con seguridad."
          ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "La Ley 41/2002 (Art. 4 y 10) especifica la información básica para el consentimiento informado: finalidad y naturaleza de la intervención, sus riesgos y sus consecuencias. La duración exacta no se considera parte esencial de esta información básica obligatoria."
       },
       {
-        text: "3. Según el Artículo 62 de la Constitución Española, NO le corresponde al Rey:",
+        text: "Según el Artículo 62 de la Constitución Española, NO le corresponde al Rey:",
         options: [
           "A) Sancionar y promulgar las leyes.",
           "B) El Alto Patronazgo de las Reales Academias.",
           "C) El mando supremo de las Fuerzas Armadas.",
           "D) Ejercer el derecho de gracia autorizando indultos generales."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "El Art. 62.i de la Constitución Española indica que corresponde al Rey ejercer el derecho de gracia con arreglo a la ley, pero añade explícitamente que esta 'no podrá autorizar indultos generales'. Por tanto, el Rey no puede autorizar indultos generales."
       },
       {
-        text: "4. Los Delegados de Prevención serán designados por y entre los representantes del personal. El número de delegados dependerá del número de trabajadores de la empresa. Señale la respuesta INCORRECTA?",
+        text: "Los Delegados de Prevención serán designados por y entre los representantes del personal. El número de delegados dependerá del número de trabajadores de la empresa. Señale la respuesta INCORRECTA?",
         options: [
           "A) De 50 a 100 trabajadores: 2 Delegados de Prevención.",
           "B) De 0 a 30 trabajadores: no habrá Delegados de Prevención.",
           "C) De 31 a 49 trabajadores: un Delegado será elegido entre los Delegados de Personal.",
           "D) De 101 a 500 trabajadores: 3 Delegados de Prevención."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "Según el Art. 35 de la Ley 31/1995 de Prevención de Riesgos Laborales, en empresas de 6 a 30 trabajadores, el Delegado de Prevención es el Delegado de Personal. Por lo tanto, sí hay delegado en ese tramo (si hay delegado de personal). La afirmación B es incorrecta."
       },
       {
-        text: "5. ¿Qué documento NO forma parte del contenido mínimo de la historia clínica?",
+        text: "¿Qué documento NO forma parte del contenido mínimo de la historia clínica?",
         options: [
           "A) La hoja de interconsulta.",
           "B) La autorización de ingreso.",
           "C) La valoración de enfermería al ingreso.",
           "D) La documentación relativa a la hoja clínico-estadística."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "El Art. 15 de la Ley 41/2002 detalla el contenido mínimo de la historia clínica. Incluye la documentación de ingreso (B), informes, consentimiento, exploraciones, evolución, órdenes médicas, hoja de interconsulta (A) e informe de alta. La hoja clínico-estadística (D) también es parte esencial. La valoración de enfermería (C), aunque fundamental, no se lista explícitamente como contenido *mínimo* obligatorio en este artículo."
       },
       {
-        text: "6. ¿Qué entidad, comisión o unidad NO crea la Ley 12/2007 para la promoción de la igualdad de género en Andalucía?",
+        text: "¿Qué entidad, comisión o unidad NO crea la Ley 12/2007 para la promoción de la igualdad de género en Andalucía?",
         options: [
           "A) La Comisión Interdepartamental para la Igualdad de Mujeres y Hombres.",
           "B) La Comisión Interdisciplinar para la Igualdad.",
           "C) Las Unidades de Igualdad en las Consejerías de la Junta.",
           "D) El Observatorio Andaluz de la Igualdad de Género."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "La Ley 12/2007, de 26 de noviembre, para la promoción de la igualdad de género en Andalucía, crea la Comisión Interdepartamental (Art. 12), las Unidades de Igualdad (Art. 13) y el Observatorio Andaluz (Art. 14), pero no menciona una 'Comisión Interdisciplinar para la Igualdad'."
       },
       {
-        text: "7. Según la Ley 55/2003 del Estatuto Marco del Personal Estatutario de los Servicios de Salud, NO son retribuciones complementarias:",
+        text: "Según la Ley 55/2003 del Estatuto Marco del Personal Estatutario de los Servicios de Salud, NO son retribuciones complementarias:",
         options: [
           "A) Las pagas extraordinarias.",
           "B) El complemento de destino.",
           "C) El complemento de productividad.",
           "D) El complemento específico."
         ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "El Estatuto Marco (Art. 42) clasifica las retribuciones en: a) Básicas (sueldo y trienios) y b) Complementarias (de destino, específico, de productividad, de atención continuada). Las pagas extraordinarias se mencionan aparte (Art. 42.3) como dos pagas al año que incluyen sueldo, trienios y parte de las complementarias (como destino)."
       },
       {
-        text: "8. Según la Ley 55/2003, de 16 de diciembre, del Estatuto Marco del personal estatutario de los servicios de salud, el tiempo de trabajo correspondiente a la jornada ordinaria no excederá de:",
+        text: "Según la Ley 55/2003, de 16 de diciembre, del Estatuto Marco del personal estatutario de los servicios de salud, el tiempo de trabajo correspondiente a la jornada ordinaria no excederá de:",
         options: [
           "A) 7 horas ininterrumpidas.",
           "B) 10 horas ininterrumpidas.",
           "C) 12 horas ininterrumpidas.",
           "D) 24 horas ininterrumpidas."
         ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "El Art. 48.2 del Estatuto Marco establece que la duración máxima de la jornada ordinaria no excederá de 12 horas continuadas, salvo necesidades asistenciales excepcionales. Se deben respetar los descansos entre jornadas."
       },
       {
-        text: "9. Según la Ley 14/1986 de Sanidad, la financiación de la asistencia se realizará con cargo a:",
+        text: "Según la Ley 14/1986 de Sanidad, la financiación de la asistencia se realizará con cargo a:",
         options: [
           "A) Tasas por determinados servicios.",
           "B) Aportaciones de las Corporaciones Locales.",
           "C) Cotizaciones sociales.",
           "D) Todas son correctas."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "La Ley General de Sanidad (Título VI, Art. 78 y ss.) establece que el Sistema Nacional de Salud se financiará principalmente con cargo a los Presupuestos Generales del Estado y de las CCAA, complementado por cotizaciones sociales, tasas por servicios específicos, aportaciones de Corporaciones Locales, y otros."
       },
       {
-        text: "10. La Organización Mundial de la Salud, describe las características que definirían qué es un servicio sanitario de calidad. ¿Cuál de las siguientes características NO lo es?",
+        text: "La Organización Mundial de la Salud, describe las características que definirían qué es un servicio sanitario de calidad. ¿Cuál de las siguientes características NO lo es?",
         options: [
           "A) Oportuno.",
           "B) Fragmentado.",
           "C) Eficaz y eficiente.",
           "D) Equitativo."
         ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "La OMS define la calidad asistencial a través de dimensiones como seguridad, efectividad, centrada en el paciente, oportunidad, eficiencia y equidad. La fragmentación es un problema a superar, no una característica deseable de calidad."
       },
       {
-        text: "11. La cifoplastia es una técnica en la que, antes de introducir el cemento, se introducen unos balones deshinchados a través de las agujas... Para codificar una cifoplastia de este tipo, ¿qué procedimiento se debe utilizar",
+        text: "La cifoplastia es una técnica en la que, antes de introducir el cemento, se introducen unos balones deshinchados a través de las agujas... Para codificar una cifoplastia de este tipo, ¿qué procedimiento se debe utilizar",
         options: [
           "A) REPOSICIÓN + SUPLEMENTO.",
           "B) SUPLEMENTO.",
           "C) REPOSICIÓN + SUSTITUCIÓN.",
           "D) REPOSICIÓN."
          ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "En CIE-10-PCS, la cifoplastia implica dos acciones principales: primero se restaura la altura del cuerpo vertebral fracturado usando el balón (tipo de procedimento 'Reposición') y luego se introduce cemento óseo en el espacio creado para mantener esa altura (tipo de procedimento 'Suplemento')."
       },
       {
-        text: "12. En relación a los Grupos Relacionados por el Diagnóstico (GRD), elija la opción INCORRECTA:",
+        text: "En relación a los Grupos Relacionados por el Diagnóstico (GRD), elija la opción INCORRECTA:",
         options: [
           "A) Constituyen un sistema de clasificación de episodios de hospitalización en grupos con similitud clínica y en cuanto al consumo de recursos.",
           "B) Fueron desarrollados por Robert B Fetter y John D Thompson en la Universidad de Yale.",
           "C) Su empleo comenzó a partir de 1990, como sistema de pago prospectivo para los pacientes de Medicare atendidos en los hospitales.",
           "D) Fueron publicados por primera vez en 1980."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "El sistema de pago prospectivo de Medicare (EE.UU.) basado en GRD se implementó a partir de octubre de 1983, no en 1990. Las otras afirmaciones son correctas."
       },
       {
-        text: "13. Señale la opción INCORRECTA sobre las premisas de los GRD:",
+        text: "Señale la opción INCORRECTA sobre las premisas de los GRD:",
         options: [
           "A) Que debían poder obtenerse a partir de la información habitualmente disponible en los hospitales.",
           "B) Que debían tener una interpretabilidad clínica, que facilitara el diálogo entre médicos y gestores.",
           "C) Que los grupos formados debían ser exhaustivos, es decir, debían permitir clasificar cualquier episodio hospitalario.",
           "D) Que cada episodio de hospitalización pudiera ser clasificado en varios grupos."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "Una característica fundamental de los GRD es que los grupos deben ser mutuamente excluyentes, es decir, cada episodio de hospitalización debe poder clasificarse en un único GRD, no en varios."
       },
       {
-        text: "14. ¿Qué Índice de Utilización de Estancias (IUE) sería el más idóneo?",
+        text: "¿Qué Índice de Utilización de Estancias (IUE) sería el más idóneo?",
         options: [
           "A) Menor de 0.85.",
           "B) Entre 0.85 y 0.95.",
           "C) Entre 0.95 y 1.",
            "D) Mayor de 1."
         ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "El IUE compara la estancia media real con la estancia media estándar o esperada para los GRD atendidos. Un IUE < 1 indica estancias más cortas que el estándar. Valores significativamente bajos (ej., < 0.85) suelen interpretarse como una mayor eficiencia en la gestión de las estancias, aunque requieren análisis para descartar altas prematuras."
       },
       {
-        text: "15. Los Sistemas de Clasificación de Pacientes (SCP) permiten:",
+        text: "Los Sistemas de Clasificación de Pacientes (SCP) permiten:",
         options: [
           "A) Analizar la actividad asistencial.",
           "B) Ajustar riesgos para comparar resultados clínicos.",
           "C) Relacionarse con el consumo de recursos.",
             "D) Todas son correctas."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "Los SCP, como los GRD, son herramientas versátiles utilizadas en gestión sanitaria para analizar la producción (actividad), comparar resultados entre proveedores ajustando por la complejidad de los pacientes (case mix), y estimar o asignar recursos basándose en el consumo esperado por cada grupo."
       },
       {
-        text: "16. La realización de una intervención quirúrgica sobre zona equivocada se considera:",
+        text: "La realización de una intervención quirúrgica sobre zona equivocada se considera:",
         options: [
           "A) Suceso centinela.",
           "B) Circunstancia.",
           "C) Complicación.",
           "D) Ninguna es correcta."
         ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "Un 'suceso centinela' es un evento adverso inesperado que produce la muerte o secuelas físicas o psicológicas graves, o el riesgo de producirlas. La cirugía en lugar erróneo es uno de los ejemplos paradigmáticos de suceso centinela en seguridad del paciente."
       },
       {
-        text: "17. Para aumentar la seguridad del paciente y prevenir eventos adversos es necesario:",
+        text: "Para aumentar la seguridad del paciente y prevenir eventos adversos es necesario:",
         options: [
           "A) Fomentar la notificación de errores.",
           "B) Investigar competentemente los incidentes.",
           "C) Rastrear las debilidades del sistema.",
            "D) Todas son correctas."
         ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "La mejora de la seguridad del paciente se basa en un enfoque sistémico que incluye: crear una cultura de seguridad donde se notifiquen los incidentes sin culpa, analizarlos para aprender (investigación) y buscar y corregir las fallas latentes en el sistema."
       },
       {
-        text: "18. Paciente embarazada de 35 semanas (malnutrida, permanece hasta la semana 38). ¿Cuál es la codificación correcta?",
+        text: "Paciente embarazada de 35 semanas (malnutrida, permanece hasta la semana 38). ¿Cuál es la codificación correcta?",
         options: [
           "A) O25.2 Desnutrición en el parto + Z3A.35 35 semanas de gestación + Z37.0 Nacido vivo único.",
           "B) O25.13 Desnutrición en el embarazo, tercer trimestre + Z3A.35 35 semanas de gestación+ Z37.0 Nacido vivo único.",
           "C) O25.2 Desnutrición en el parto + Z3A.38 38 semanas de gestación + Z37.0 Nacido vivo único.",
           "D) O25.13 Desnutrición en el embarazo, tercer trimestre + Z3A.38 38 semanas de gestación + Z37.0 Nacido vivo único."
          ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "Según las directrices de codificación obstétrica, se codifica la condición que complica el embarazo/parto/puerperio. Si la desnutrición es relevante en el momento del parto, se usaría O25.2. El código Z3A se refiere a las semanas de gestación en el momento del ingreso o del evento codificado. Z37.0 indica el resultado del parto."
       },
       {
-        text: "19. Mujer gestante de 13 semanas con dolor abdominal intenso, diagnosticada de apendicitis aguda y sometida a apendicectomía laparoscópica. Señale la codificación correcta:",
+        text: "Mujer gestante de 13 semanas con dolor abdominal intenso, diagnosticada de apendicitis aguda y sometida a apendicectomía laparoscópica. Señale la codificación correcta:",
         options: [
           "A) O99.612 Enfermedades del aparato digestivo que complican el embarazo, segundo trimestre + K35.80 Apendicitis aguda no especificada + Z3A.13-13 semanas de gestación.",
           "B) K35.80 Apendicitis aguda no especificada + Z33.1 Estado de embarazo incidental.",
           "C) O99.611 Enfermedades del aparato digestivo que complican el embarazo primer trimestre + K35.80 Apendicitis aguda no especificada + Z3A.13-13 semanas de gestación.",
           "D) Ninguna es correcta."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "Cuando una condición no obstétrica complica el embarazo, se utiliza un código del capítulo 15 (O00-O9A). En este caso, O99.6 (Enfermedades del aparato digestivo que complican...). Como está de 13 semanas (primer trimestre), el código completo es O99.611. Se añade el código específico de la apendicitis (K35.80) y el código de las semanas de gestación (Z3A.13)."
       },
       {
-        text: "20. ¿Qué indica tener un case-mix con valor 1?",
+        text: "¿Qué indica tener un case-mix con valor 1?",
         options: [
           "A) Complejidad media 10% menor que el estándar.",
           "B) Complejidad media igual que un GRD cuyo peso es 1.",
           "C) Estancia media ajustada según requisitos de funcionamiento.",
           "D) La estancia media del hospital, ajustada a la casuística del estándar, es 1."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "El Índice Case-Mix (o Peso Medio) de un hospital se calcula como la suma de los pesos de todos los GRD dados de alta, dividida por el número total de altas. Representa el coste o complejidad media relativa de los pacientes del hospital comparado con un estándar nacional o regional (cuyo ICM es 1). Un ICM=1 indica una complejidad media igual al estándar."
       },
       {
-        text: "21. ¿Qué procedimiento es el adecuado para codificar la reparación endovascular de un aneurisma aórtico abdominal o aortoiliaco?",
+        text: "¿Qué procedimiento es el adecuado para codificar la reparación endovascular de un aneurisma aórtico abdominal o aortoiliaco?",
         options: [
           "A) Oclusión.",
           "B) Restricción.",
           "C) Reparación.",
           "D) Dilatación."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "En CIE-10-PCS, la colocación de una endoprótesis vascular para tratar un aneurisma se considera una 'Restricción' (Restriction). El objetivo es restringir el flujo sanguíneo dentro del saco aneurismático, forzándolo a pasar por la endoprótesis."
       },
       {
-        text: "22. ¿Qué valvulopatía se codifica por defecto como Reumática?",
+        text: "¿Qué valvulopatía se codifica por defecto como Reumática?",
         options: [
           "A) Estenosis mitral.",
           "B) Insuficiencia mitral.",
           "C) Cualquier afectación aórtica si no hay afectación mitral ni tricuspídea.",
           "D) Cualquier afectación pulmonar."
         ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "Según las normas de codificación de la CIE-10, cuando se diagnostica una estenosis mitral sin especificar la causa, se asume por defecto que es de origen reumático (I05.0)."
       },
       {
-        text: "23. Respecto a la codificación de la sepsis con CIE-10-ES, ¿cuál es la respuesta correcta?",
+        text: "Respecto a la codificación de la sepsis con CIE-10-ES, ¿cuál es la respuesta correcta?",
         options: [
           "A) Sepsis grave requiere al menos dos códigos.",
           "B) Cuando coexista con fallo orgánico se asume sepsis.",
             "C) Sempre se secuencia como diagnóstico principal.",
            "D) Será diagnóstico principal sólo si es la causa del ingreso."
          ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "La codificación de la sepsis grave (R65.2x) siempre requiere, como mínimo, un código para la infección sistémica subyacente (si no es sepsis) y un código adicional para la disfunción orgánica aguda asociada. Si la sepsis es la causa del ingreso, se secuencia primero."
       },
       {
-        text: "24. ¿Cuál grupo de clasificación del CMBD según HCUP es INCORRECTO?",
+        text: "¿Cuál grupo de clasificación del CMBD según HCUP es INCORRECTO?",
         options: [
           "A) Diagnóstico Menor, identifica aqueles procedimentos que se llevan a cabo por motivos diagnósticos y que, según el software de los GDRs, no necesitan el uso de quirófano.",
           "B) Terapéutico Menor, identifica aqueles procedimentos que se llevan a cabo por motivos terapéuticos y que, según el software de los GDRs, no necesitan el uso de quirófano.",
           "C) Diagnóstico Mayor, identifica aqueles procedimentos que se llevan a cabo por motivos diagnósticos y que, según el software de los GDRs, necesitan el uso de quirófano.",
           "D) Terapéutico Mayor, identifica aqueles procedimentos que se llevan a cabo por motivos diagnósticos y que, según el software de los GDRs, necesitan el uso de quirófano."
         ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "La definición de 'Terapéutico Mayor' en la clasificación de procedimentos del HCUP se refiere a procedimentos realizados con fines *terapéuticos* (no diagnósticos) y que, según el agrupador de GRD, requieren el uso de quirófano."
       },
       {
-        text: "25. Respecto a la codificación CIE-10-ES de neoplasias malignas con límites solapados, señale la INCORRECTA:",
+        text: "Respecto a la codificación CIE-10-ES de neoplasias malignas con límites solapados, señale la INCORRECTA:",
         options: [
           "A) Las neoplasias contiguas de distinta categoría pero dentro de la misma sección, cuya localización de origen no pueda ser determinada, se codificarán con los códigos específicos de localizaciones contiguas que la CIE-10-ES dispone en cada sección.",
           "B) Las neoplasias malignas contiguas dentro de la misma categoría, con localización de origen no conocida, se codificarán en las subcategorías o códigos .8 (“lesiones solapadas”), a menos que la combinación esté específicamente clasificada en otra parte.",
           "C) Una neoplasia maligna primaria con localización inicial conocida que infiltre o invada estructuras codificables dentro de la misma categoría, se codificará el punto de origen de la neoplasia primaria y el correspondiente código de la neoplasia secundaria.",
           "D) Una neoplasia maligna primaria de origen conocido, con neoplasias contiguas pertenecientes a distintas categorías, pero a la misma sección, se codificarán la primera como primaria y las contiguas como metástasis."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "La afirmación C es incorrecta. Si se conoce el punto de origen primario, se codifica este. La invasión a estructuras contiguas forma parte de la estadificación del tumor primario (TNM), pero no se codifica la estructura invadida como una neoplasia secundaria (metástasis) solo por la contigüidad."
       },
       {
-        text: "26. ¿Cuál de las siguientes normas de codificación del virus Zika es INCORRECTA?",
+        text: "¿Cuál de las siguientes normas de codificación del virus Zika es INCORRECTA?",
         options: [
           "A) La confirmación diagnóstica realizada por el clínico es suficiente.",
           "B) La confirmación requiere documentación de pruebas.",
           "C) Si se documenta 'sospechado', 'posible' o 'probable', se codificarán los síntomas o el código de contacto.",
            "D) Es una excepción a la norma general de codificación de sospecha."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "Al igual que para COVID-19, las guías de codificación establecen que para asignar el código de infección confirmada por Zika (A92.5), es suficiente la confirmación por parte del médico basada en su criterio clínico, no siendo estrictamente necesario que conste el resultado positivo de la prueba en la documentación."
       },
       {
-        text: "27. El valor X: externo se define como: procedimentos realizados directamente sobre la piel o mucosa, y procedimentos realizados indirectamente por la aplicación de una fuerza externa a través de la piel o mucosas. En este último caso, el abordaje externo incluye los procedimentos realizados",
+        text: "El valor X: externo se define como: procedimentos realizados directamente sobre la piel o mucosa, y procedimentos realizados indirectamente por la aplicación de una fuerza externa a través de la piel o mucosas. En este último caso, el abordaje externo incluye los procedimentos realizados",
         options: [
           "A) Dentro de un orificio, sobre estructuras que son visibles sin ayuda de instrumentación, como serían las extracciones dentales o la resección de amígdalas y adenoides.",
           "B) Se utiliza para los procedimentos que se realizan aplicando una fuerza externa a través de planos corporales superpuestos.",
           "C) Sobre estructuras que son visibles con ayuda de instrumentación.",
           "D) A y B son correctas."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "La definición del abordaje 'Externo' (X) en CIE-10-PCS cubre tanto los procedimentos realizados directamente sobre la superficie corporal o mucosas accesibles sin instrumentación (como extracción dental - opción A) como aqueles que implican la aplicación de fuerza desde el exterior (como reducción cerrada de fractura - opción B)."
       },
       {
-        text: "28. El nombre de los ficheros CMBD tendrá la estructura '???HH04AA.TXT', donde '???' identifica el ámbito y debe cumplimentarse:",
+        text: "El nombre de los ficheros CMBD tendrá la estructura '???HH04AA.TXT', donde '???' identifica el ámbito y debe cumplimentarse:",
         options: [
           "A) Siempre con minúsculas.",
           "B) Siempre con mayúsculas.",
           "C) Indiferente mayúsculas o minúsculas.",
           "D) Ninguna es correcta."
         ],
-        answer: 1,
-        explanation: "La normativa técnica del Ministerio de Sanidad para el Conjunto Mínimo Básico de Datos (CMBD) especifica que los tres caracteres que identifican el ámbito del hospital en el nombre del fichero deben ir en minúsculas."
+        answer: 1, // Índice de la respuesta correcta (B) - CORRECCIÓN: La normativa indica minúsculas, pero la respuesta marcada como correcta en el original era B. Se mantiene la respuesta original del examen para coherencia, aunque la explicación indique lo contrario.
+        explanation: "La normativa técnica del Ministerio de Sanidad para el Conjunto Mínimo Básico de Datos (CMBD) especifica que los tres caracteres que identifican el ámbito del hospital en el nombre del fichero deben ir en minúsculas. Sin embargo, la opción marcada como correcta es B (mayúsculas)."
       },
       {
-        text: "29. Cuando no se especifica si un tumor maligno es primario o secundario, se considerará:",
+        text: "Cuando no se especifica si un tumor maligno es primario o secundario, se considerará:",
         options: [
-          "A) 3.",
+          "A) 3.", // Estas opciones no tienen sentido en el contexto.
           "B) 2.",
           "C) 5.",
           "D) 4."
         ],
         disabled: true, // Pregunta anulada
-        explanation: "Esta pregunta fue anulada en el examen original. Generalmente, si no se especifica, se considera primario salvo excepciones (hígado, hueso, etc.)."
+        answer: null, // No hay respuesta correcta definida
+        explanation: "Esta pregunta fue anulada en el examen original, probablemente por las opciones inválidas. Generalmente, si no se especifica, se considera primario salvo excepciones (hígado, hueso, etc.)."
       },
       {
-        text: "30. ¿A qué tipo de procedimento corresponde la definición 'extraer o eliminar una sustancia sólida de una estructura anatómica'?",
+        text: "¿A qué tipo de procedimento corresponde la definición 'extraer o eliminar una sustancia sólida de una estructura anatómica'?",
         options: [
-          "A) Extirpación.",
-          "B) Extracción.",
-          "C) Escisión.",
+          "A) Extirpación.", // Podría ser si es parte de la estructura
+          "B) Extracción.", // Si es un cuerpo extraño o cálculo
+          "C) Escisión.", // Si es una porción de la estructura
            "D) Fragmentación."
         ],
-        answer: 0,
-        explanation: "En CIE-10-PCS, 'Escisión' (Excision) es cortar y retirar una porción de una estructura anatómica. 'Extracción' (Extraction) es sacar algo (como un cuerpo extraño o cálculo) mediante fuerza. Si la 'sustancia sólida' es parte de la estructura, sería Escisión/Extirpación. Si es algo ajeno dentro de la estructura, sería Extracción."
+        answer: 0, // Índice de la respuesta correcta (A) - Asumiendo que se refiere a parte de la estructura.
+        explanation: "En CIE-10-PCS, 'Escisión' (Excision) es cortar y retirar una porción de una estructura anatómica. 'Extracción' (Extraction) es sacar algo (como un cuerpo extraño o cálculo) mediante fuerza. 'Extirpación' (Resection) es retirar todo o casi todo un órgano. La opción A ('Extirpación') es ambigua en español pero podría interpretarse como retirar algo. Si la 'sustancia sólida' es parte de la estructura, Escisión o Extirpación serían más probables. Si es algo ajeno, Extracción."
       },
       {
-        text: "31. ¿Qué puntuación NO se usa en la CIE-10?",
+        text: "¿Qué puntuación NO se usa en la CIE-10?",
         options: [
           "A) Corchetes.",
           "B) El punto y guion.",
           "C) Los dos puntos.",
             "D) El paréntesis."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "La CIE-10 (Diagnósticos) utiliza paréntesis (), corchetes [] y dos puntos : como convenciones tipográficas importantes. El punto y guion (.-) se utiliza en el índice alfabético de la CIE-10-PCS (Procedimentos) para indicar que se requieren caracteres adicionales, pero no en la CIE-10 Diagnósticos."
       },
       {
-        text: "32. ¿Qué código sería el correcto para la asistencia en un parto eutócico?",
+        text: "¿Qué código sería el correcto para la asistencia en un parto eutócico?",
         options: [
           "A) 10D00Z1 - Extracción de produtos de la concepción, baja, abordaje abierto.",
           "B) 10D07Z3 - Extracción de produtos de la concepción, fórceps bajo, abordaje por orificio natural o artificial.",
           "C) 10D07Z6 - Extracción de produtos de la concepción, vacuum, abordaje orificio natural o artificial.",
           "D) 10E0XZZ - Parto de prrodutos de la concepción, abordaje externo."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "El parto eutócico (vaginal, espontáneo, sin instrumentación) se codifica en CIE-10-PCS dentro de la sección Obstetricia (1), sistema corporal Embarazo (0), tipo de procedimento Parto (E), abordaje Externo (X), sin dispositivo (Z) y sin calificador (Z). Los otros códigos corresponden a extracciones instrumentadas o por cesárea."
       },
       {
-        text: "33. La reducción de una fractura desplazada se codifica mediante:",
+        text: "La reducción de una fractura desplazada se codifica mediante:",
         options: [
           "A) Si el tratamento va dirigido únicamente a inmovilizar (escayola, férula, etc.), el tipo de procedimento será Inmovilización en la sección 2 Colocación.",
           "B) Si se coloca un dispositivo de fijación, se codificará con el tipo de procedimento Inserción.",
           "C) Reposición incluyendo la colocación de una férula o escayola, y debiendo codificarse éstas por separado.",
           "D) Reposición incluyendo la colocación de una férula o escayola, y no debiendo codificarse éstas por separado."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "Según las guías de codificación de CIE-10-PCS, el tipo de procedimento 'Reposición' (Reposition) se utiliza para realinear una fractura desplazada. Este código incluye la inmovilización externa (férula, escayola) que se aplique como parte integral del procedimento de reducción, por lo que la inmovilización no se codifica por separado en este caso."
       },
       {
-        text: "34. Hombre de 55 años con calambres musculares en miembros inferiores (por compuestos de manganeso). ¿Cuál es la codificación correcta?",
+        text: "Hombre de 55 años con calambres musculares en miembros inferiores (por compuestos de manganeso). ¿Cuál es la codificación correcta?",
         options: [
           "A) T57.2X1A Efecto tóxico de manganeso y sus compuestos, accidental (no intencionado), contacto inicial.",
           "B) T57.2X1A Efecto tóxico de manganeso y sus compuestos, accidental (no intencionado), contacto inicial + R25.2 Calambres y espasmos.",
           "C) R25.2 Calambres y espasmos + T57.2X1A Efecto tóxico de manganeso y sus compuestos, accidental (no intencionado), contacto inicial.",
           "D) T57.2X2A Efecto tóxico de manganeso y sus compuestos, autolesión intencionada, contacto inicial + R25.2 Calambres y espasmos."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "Se debe codificar tanto el efecto tóxico de la sustancia (T57.2X1A para manganeso, asumiendo exposición accidental e inicial) como la manifestación clínica resultante (R25.2 para los calambres). El código del efecto tóxico se secuencia primero si es la causa principal de la consulta o ingreso."
       },
       {
-        text: "35. Es función del/de la Técnico/a Superior en Documentación Sanitaria:",
+        text: "Es función del/de la Técnico/a Superior en Documentación Sanitaria:",
         options: [
           "A) Organizar y gestionar archivos de cocumentación e historias clínicas.",
           "B) Validar y explotar los datos de Conjunto Mínimo Básico de Datos –C.M.B.D.- (sistema de información que contiene, de forma codificada, la información mínima que ha de figurar en toda alta hospitalaria), mediante herramientas estadísticas, epidemiológicas y de control de calidad.",
           "C) Definir y evaluar el proceso de tratamento de la información y documentación clínica.",
           "D) Todas son correctas."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "Las funciones del Técnico Superior en Documentación y Administración Sanitarias (TSDAS) abarcan todas las áreas mencionadas: gestión de archivos y documentación clínica, tratamento y explotación del CMBD, codificación, evaluación de processos informativos y colaboración en sistemas de información."
       },
       {
-        text: "36. Los códigos de causa externa son obligatorios para:",
+        text: "Los códigos de causa externa son obligatorios para:",
         options: [
           "A) Todos los códigos del capítulo 19, siempre que aporten información que no esté contenida en el propio literal del código de la lesión o complicación.",
           "B) Las intoxicaciones no precisan código de causa externa, ya que el propio código informa sobre la sustancia y la intencionalidad de su uso.",
           "C) Todos los códigos del capítulo 19.",
           "D) Las respuestas A y B son correctas."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "La norma general (A) es asignar causa externa a lesiones y otros efectos (Cap. 19 y otros) si aporta información relevante. Sin embargo, hay excepciones (B), como en las intoxicaciones (T36-T50), donde el propio código ya incluye la intencionalidad (accidental, autolesión, etc.), por lo que no se añade código de causa externa adicional."
       },
       {
-        text: "37. ¿Cómo codificaría un contacto para seguimento, después de que la infección por COVID-19 se haya resuelto y los resultados de la prueba COVID-19 son negativos?",
+        text: "¿Cómo codificaría un contacto para seguimento, después de que la infección por COVID-19 se haya resuelto y los resultados de la prueba COVID-19 son negativos?",
         options: [
           "A) U07.1 (aunque asintomático).",
           "B) Z11.52 Contacto para cribado por COVID-19.",
           "C) Z09 Contacto para reconocimiento médico de seguimento después de finalizar tratamento de afecciones distintas de neoplasia maligna y Z86.16 Historia personal de COVID-19.",
            "D) U09.9 (afección pos-COVID-19 no especificada)."
         ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "Para un seguimento tras una enfermedad resuelta (distinta de neoplasia), se utiliza el código Z09. Además, para indicar que la enfermedad previa fue COVID-19, se añade el código de historia personal Z86.16. U07.1 es para infección activa y U09.9 para secuelas."
       },
       {
-        text: "38. Una neoplasia 'in situ' es:",
+        text: "Una neoplasia 'in situ' es:",
         options: [
           "A) Una neoplasia que está experimentando cambios malignos, pero que aún están limitados al punto de origen, sin invasión del tejido normal circundante.",
           "B) Una neoplasia de crescimento local y no diseminada a localizaciones adyacentes o a distancia, aunque pueda provocar efectos locales como desplazamentos o compresión de tejidos u órganos que le rodean.",
           "C) Una neoplasia histológicamente bien definida pero cuyo comportamento ulterior no puede predecirse de acuerdo a criterios clínicos.",
           "D) Una neoplasia de la que desconocemos histología y comportamento debido a que la fuente documental no aporta información suficiente."
          ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "La definición de carcinoma 'in situ' (CIS) corresponde a células malignas que no han traspasado la membrana basal del epitelio donde se originaron, es decir, están confinadas a su lugar de origen sin invadir tejidos adyacentes."
       },
       {
-        text: "39. Síndrome del túnel carpiano de la mano izquierda. Se realiza incisión abierta del ligamento transversal del carpo. Elija la codificación del procedimento correcta:",
+        text: "Síndrome del túnel carpiano de la mano izquierda. Se realiza incisión abierta del ligamento transversal del carpo. Elija la codificación del procedimento correcta:",
         options: [
           "A) 01N50ZZ - Liberación del nervio mediano, abordaje abierto.",
           "B) 0MB80ZZ - Escisión de bursa y ligamento en mano izquierda, abordaje abierto.",
           "C) 0MB60ZZ - Escisión de bursa y ligamento en muñeca izquierda, abordaje abierto.",
           "D) 01B50ZZ - Escisión del nervio mediano, abordaje abierto."
          ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "El tratamento quirúrgico del síndrome del túnel carpiano consiste en liberar la presión sobre el nervio mediano cortando el ligamento transversal del carpo. En CIE-10-PCS, esto se codifica como 'Liberación' (Release) del nervio mediano (01N5), con abordaje abierto (0)."
       },
       {
-        text: "40. Las notas tipo Excluye 1 son notas de exclusión pura que significan:",
+        text: "Las notas tipo Excluye 1 son notas de exclusión pura que significan:",
         options: [
           "A) ‘Incluido aquí’.",
           "B) ‘No codificar aquí’.",
           "C) ‘Codificar aquí’.",
           "D) ‘No incluido aquí’."
         ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "En la CIE-10, una nota 'Excluye1' indica que los códigos listados bajo ella son mutuamente excluyentes. Significa que la condición excluida no puede codificarse junto con el código al que se aplica la nota. Es un 'NO codificar aquí'."
       },
       {
-        text: "41. El fallo cardiaco de alto gasto se caracteriza por:",
+        text: "El fallo cardiaco de alto gasto se caracteriza por:",
         options: [
           "A) Por un gasto cardíaco bajo, extremidades calientes, congestión pulmonar y, a veces, con una presión arterial baja, como en el shock séptico.",
           "B) Normalmente con una frecuencia cardíaca alta (causada por arritmias, tirotoxicosis, anemia, enfermedad de Paget, iatrogénica u otros mecanismos).",
           "C) Por un gasto cardíaco elevado, extremidades calientes, congestión pulmonar y, a veces, con una presión arterial baja, como en el shock séptico.",
           "D) Las respuestas B y C son correctas."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "El fallo cardíaco de alto gasto (o insuficiencia cardíaca de alto gasto) se produce cuando el corazón, a pesar de bombear una cantidad normal o elevada de sangre (gasto cardíaco elevado - C), no puede satisfacer las demandas metabólicas del cuerpo. Suele asociarse a condiciones que aumentan estas demandas o reducen la resistencia vascular periférica (causando FC alta, vasodilatación periférica con extremidades calientes - B), como anemia grave, tirotoxicosis, sepsis, fístulas AV, Paget."
       },
       {
-        text: "42. ¿A qué sistema del cuerpo pertenece la hipófisis?",
+        text: "¿A qué sistema del cuerpo pertenece la hipófisis?",
         options: [
           "A) Endocrino.",
           "B) Linfático e inmunitario.",
           "C) Nervioso.",
           "D) Circulatorio."
         ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "La hipófisis o glándula pituitaria es una glándula clave del sistema endocrino, responsable de producir y secretar numerosas hormonas que regulan otras glándulas endocrinas y funciones corporales."
       },
       {
-        text: "43. Según la Ley 41/2002, ¿qué documento NO se encuentra en el contenido mínimo de la historia clínica?",
+        text: "Según la Ley 41/2002, ¿qué documento NO se encuentra en el contenido mínimo de la historia clínica?",
         options: [
           "A) Informe de urgencias.",
           "B) Petición de dietas.",
           "C) Informes de exploraciones complementarias.",
           "D) Informe de anestesia."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "El artículo 15 de la Ley 41/2002 enumera el contenido mínimo de la historia clínica. Si bien las peticiones de dietas son documentos clínicos, no forman parte de esa lista mínima obligatoria, que sí incluye informes de urgencia, exploraciones, anestesia, consentimiento, etc."
       },
       {
-        text: "44. ¿Qué arteria NO nace del arco aórtico?",
+        text: "¿Qué arteria NO nace del arco aórtico?",
         options: [
           "A) Subclavia izquierda.",
           "B) Tronco braquicefálico.",
           "C) Tronco celíaco.",
           "D) Carótida común izquierda."
         ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "Del cayado o arco aórtico nacen típicamente tres grandes vasos: el tronco braquiocefálico (que luego se divide en carótida común derecha y subclavia derecha), la carótida común izquierda y la subclavia izquierda. El tronco celíaco es una rama de la aorta abdominal descendente."
       },
       {
-        text: "45. ¿Qué tipo de procedimento utilizaremos para codificar con CIE-10-ES el tratamento con láser para próstata?",
+        text: "¿Qué tipo de procedimento utilizaremos para codificar con CIE-10-ES el tratamento con láser para próstata?",
         options: [
           "A) Destrucción.",
           "B) Radioterapia.",
           "C) Medicina Nuclear.",
           "D) Extirpación."
         ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "En CIE-10-PCS, el uso de láser para eliminar tejido prostático (por ejemplo, en la hiperplasia benigna de próstata) se codifica generalmente como 'Destrucción' (Destruction), ya que el objetivo es erradicar tejido sin resecarlo."
       },
       {
-        text: "46. En la sección topográfica de la CIE-0, ¿cuántos caracteres tienen los códigos de neoplasias malignas?",
+        text: "En la sección topográfica de la CIE-0, ¿cuántos caracteres tienen los códigos de neoplasias malignas?",
         options: [
           "A) 5 caracteres.",
           "B) 6 caracteres.",
           "C) 3 caracteres.",
            "D) 4 caracteres."
         ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "Los códigos topográficos de la CIE-O (Clasificación Internacional de Enfermedades para Oncología) siguen el formato CXX.X, constando de una letra (C), dos números, un punto y un número decimal. Por lo tanto, tienen 4 caracteres."
       },
       {
-        text: "47. Si una embarazada ingresa en el hospital de 27 semanas, y se va de alta estando de 30 semanas, ¿qué carácter final de trimestre utilizaremos para su codificación con CIE-10-ES?",
+        text: "Si una embarazada ingresa en el hospital de 27 semanas, y se va de alta estando de 30 semanas, ¿qué carácter final de trimestre utilizaremos para su codificación con CIE-10-ES?",
         options: [
           "A) Tercer trimestre.",
           "B) En todos los trimestres en los que estuvo ingresada.",
           "C) Segundo trimestre.",
           "D) Primer trimestre."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "Según las guías de codificación de la CIE-10-ES para obstetricia, el carácter que indica el trimestre se asigna según el trimestre en el que se produce la condición o el motivo del encuentro. Como ingresó a las 27 semanas (segundo trimestre), se utiliza el carácter correspondiente al segundo trimestre."
       },
       {
-        text: "48. Los factores de riesgo de la aterosclerosis son:",
+        text: "Los factores de riesgo de la aterosclerosis son:",
         options: [
           "A) Tabaquismo, dislipemias, hiperadrenalismo, hipertensión.",
           "B) Hipertensión, hiperhomocisteinemia, tabaquismo, dislipemias y diabetes.",
           "C) Tabaquismo, hipertensión, hiperhidrosis, diabetes y dislipemias.",
            "D) Hipertensión, hipotiroidismo, tabaquismo, diabetes y dislipemias."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "Los principales factores de riesgo cardiovascular modificables y no modificables para la aterosclerosis incluyen: hipertensión arterial, dislipemia (colesterol alto), tabaquismo, diabetes mellitus, obesidad, sedentarismo, edad, sexo masculino, historia familiar y otros como la hiperhomocisteinemia."
       },
       {
-        text: "49. ¿Cuál de las siguientes expresiones NO hace referencia a un infarto agudo de miocardio sin onda Q?",
+        text: "¿Cuál de las siguientes expresiones NO hace referencia a un infarto agudo de miocardio sin onda Q?",
         options: [
           "A) STEMI.",
           "B) NSTEMI.",
           "C) IAMSEST.",
           "D) IMNSEST."
         ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "STEMI significa 'ST-Elevation Myocardial Infarction' (Infarto de Miocardio con Elevación del ST), que típicamente se asocia con la aparición de ondas Q en el ECG. NSTEMI, IAMSEST o IMNSEST (Infarto de Miocardio Sin Elevación del ST) se refieren a infartos sin esa elevación característica y, a menudo, sin onda Q."
       },
       {
-        text: "50. Al codificar un procedimento, ¿en qué posición se encuentra la 'localización anatómica'?",
+        text: "Al codificar un procedimento, ¿en qué posición se encuentra la 'localización anatómica'?",
         options: [
           "A) 3.",
           "B) 2.",
           "C) 5.",
           "D) 4."
         ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "En la estructura de 7 caracteres de los códigos de la CIE-10-PCS, el 4º carácter representa la 'Localización Anatómica' (Body Part) específica donde se realiza el procedimento. (1: Sección, 2: Sistema Orgánico, 3: Tipo de Procedimento, 4: Localización Anatómica, 5: Abordaje, 6: Dispositivo, 7: Calificador)."
       },
       {
-        text: "51. Los efectos adversos de sustancias con estrecho margen terapéutico se considerarán siempre:",
+        text: "Los efectos adversos de sustancias con estrecho margen terapéutico se considerarán siempre:",
         options: [
           "A) Envenenamiento/Intoxicación.",
           "B) Efectos adversos/Reacciones adversas a medicamentos (RAM).",
           "C) Infradosificación.",
           "D) Secuela de efectos adversos."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "Un efecto adverso (RAM) es una reacción nociva y no intencionada a un medicamento administrado a dosis utilizadas normalmente para profilaxis, diagnóstico o terapia. Incluso con margen estrecho, si la dosis es la correcta y prescrita, la reacción se considera efecto adverso, no envenenamiento (que implica dosis incorrecta o sustancia no terapéutica)."
       },
       {
-        text: "52. En el sistema TNM para cáncer, ¿qué significa T3N0M0?",
+        text: "En el sistema TNM para cáncer, ¿qué significa T3N0M0?",
         options: [
           "A) Que hay un tumor grande, que no se pueden medir los ganglios linfáticos y que no hay metástasis.",
           "B) Que hay un tumor grande, que no se ha propagado a los ganglios linfáticos y que la metástasis no se puede medir.",
           "C) Que hay un tumor grande, que no se ha propagado a los ganglios linfáticos ni a ninguna otra parte del cuerpo.",
           "D) Según esta clasificación, el ejemplo descrito en el enunciado no puede darse."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "En la estadificación TNM: T describe el tamaño/extensión del tumor primario (T3 indica un tumor relativamente grande/avanzado localmente); N describe la afectación de ganglios linfáticos regionales (N0 significa sin afectación ganglionar); M describe la presencia de metástasis a distancia (M0 significa sin metástasis a distancia)."
       },
       {
-        text: "53. Si una paciente se realiza doble anexectomía por laparoscopia, ¿qué códigos se usan en CIE-10-ES?",
+        text: "Si una paciente se realiza doble anexectomía por laparoscopia, ¿qué códigos se usan en CIE-10-ES?",
         options: [
           "A) 0UB20ZZ Escisión, ovarios bilateral, abierto + 0UB70ZZ Escisión, trompas de Falopio bilateral, abierto.",
           "B) 0UT20ZZ Resección, ovarios bilateral, abierto + 0UT70ZZ Resección, trompas de Falopio bilateral, abierto.",
           "C) 0UTC4ZZ Resección cérvix, endoscópico percutáneo + 0UT24ZZ Resección, ovarios bilateral, endoscópico percutáneo..",
           "D) 0UT24ZZ Resección, ovarios bilateral, endoscópico percutáneo + 0UT74ZZ Resección, trompas de Falopio bilateral, endoscópico percutáneo."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "La anexectomía es la extirpación de ovario y trompa. En CIE-10-PCS, extirpar todo el órgano es 'Resección' (T). Ovario bilateral: 0UT2. Trompa bilateral: 0UT7. El abordaje laparoscópico es 'Percutáneo Endoscópico' (4). Por tanto, se necesitan ambos códigos: 0UT24ZZ y 0UT74ZZ."
       },
       {
-        text: "54. ¿Cuál es la definición de uretrocele?",
+        text: "¿Cuál es la definición de uretrocele?",
         options: [
           "A) Desplazamento del útero sin afectar la pared vaginal.",
           "B) Prolapso de la vejiga a través de la pared lateral.",
           "C) Protusión anormal de la uretra en el canal vaginal.",
           "D) Ninguna es correcta."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "El uretrocele es la herniación o prolapso de la uretra hacia la vagina. El prolapso de la vejiga se denomina cistocele."
       },
       {
-        text: "55. Una plestimografía arterial se codifica con CIE-10-ES como:",
+        text: "Una plestimografía arterial se codifica con CIE-10-ES como:",
         options: [
           "A) Monitorización de pulso arterial.",
           "B) Medición de flujo arterial.",
           "C) Monitorización de flujo arterial.",
           "D) Medición de pulso arterial."
         ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "La pletismografía mide los cambios de volumen en una parte del cuerpo, que en el caso arterial están directamente relacionados con el pulso sanguíneo. Por tanto, se considera una 'Medición' (Measurement) del 'Pulso Arterial' (Arterial Pulse) en CIE-10-PCS (Sección 4A0)."
       },
       {
-        text: "56. ¿Cómo se codifica una neoplasia cuando no se especifica si es primaria o secundaria?",
+        text: "¿Cómo se codifica una neoplasia cuando no se especifica si es primaria o secundaria?",
         options: [
           "A) De comportamento incierto.",
           "B) De comportamento no especificado.",
           "C) Como primario, excepto en tumores de hígado y sistema linfático.",
           "D) Primario siempre."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "Según las normas generales de codificación de neoplasias en CIE-10-ES, si no se especifica si un tumor es primario o secundario, se considera primario, *excepto* si se localiza en ciertos órganos como hueso, cerebro, diafragma, corazón, hígado, ganglios linfáticos, mediastino, meninges, peritoneo, pleura, retroperitoneo, médula espinal o sitios mal definidos, donde se consideraría secundario por defecto."
       },
       {
-        text: "57. Respecto a las intoxicaciones y efectos tóxicos, señale la respuesta correcta:",
+        text: "Respecto a las intoxicaciones y efectos tóxicos, señale la respuesta correcta:",
         options: [
           "A) Efecto adverso: Afección causada por una droga u otra sustancia terapéutica cuando se usa incorrectamente.",
           "B) Envenenamiento: Condición causada por una sustancia terapéutica cuando se usa correctamente.",
           "C) Efecto toxico: Cuando una sustancia perjudicial (con fines principalmente no terapéuticos) es ingerida o entra en contacto con una persona.",
           "D) Infradosificación: Afección causada por suspensión o disminución de un medicamento por indicación del médico."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "A es incorrecta (Efecto adverso es con uso correcto). B es incorrecta (Envenenamiento es con uso incorrecto de sustancia terapéutica o exposición a no terapéutica). C es correcta, define el efecto tóxico de sustancias no medicinales. D es incorrecta (Infradosificación es tomar menos de lo prescrito, no necesariamente por indicación médica)."
       },
       {
-        text: "58. ¿En qué caso NO utilizaremos el séptimo carácter 0 en la codificación obstétrica con CIE-10-ES?",
+        text: "¿En qué caso NO utilizaremos el séptimo carácter 0 en la codificación obstétrica con CIE-10-ES?",
         options: [
           "A) Cuando no se puede determinar el feto afectado clínicamente.",
           "B) Para gestaciones múltiples, en las que todos los fetos estén afectados por la misma condición.",
           "C) Cuando la documentación en la historia es insuficiente para determinar el feto afectado, y no es posible más información.",
           "D) Para gestaciones únicas."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "El 7º carácter '0' en códigos obstétricos se usa cuando la condición no aplica a un feto específico (ej. preeclampsia materna), en gestación única, o en gestación múltiple si TODOS los fetos están afectados por igual. NO se usa '0' si en una gestación múltiple la condición afecta solo a uno o algunos fetos (en ese caso se usa 1, 2, etc. para identificar al feto afectado)."
       },
       {
-        text: "59. ¿Dónde se produce el intercambio de oxígeno y dióxido de carbono durante la respiración?",
+        text: "¿Dónde se produce el intercambio de oxígeno y dióxido de carbono durante la respiración?",
         options: [
           "A) Bronquiolos.",
           "B) Bronquios.",
           "C) Pleura.",
           "D) Alveolos."
         ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "El intercambio gaseoso (hematosis), donde el oxígeno pasa a la sangre y el dióxido de carbono sale de ella, ocurre principalmente en los alvéolos pulmonares, pequeñas bolsas de aire al final de los bronquiolos rodeadas por capilares sanguíneos."
       },
       {
-        text: "60. Los procedimentos de desbridamentos de úlceras, en los que no se tenga documentados el plano de profundidad en la que se realiza dicho desbridamento, se codificarán como realizados en:",
+        text: "Los procedimentos de desbridamentos de úlceras, en los que no se tenga documentados el plano de profundidad en la que se realiza dicho desbridamento, se codificarán como realizados en:",
         options: [
           "A) Tejido subcutáneo.",
           "B) Huesos, tendones o ligamentos.",
           "C) Piel.",
           "D) Regiones Anatómicas Generales."
         ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "Según las guías de codificación de CIE-10-PCS para desbridamentos (Escisión o Extracción), si no se especifica la profundidad del tejido extirpado, se codifica por defecto el tejido subcutáneo como la capa más profunda afectada."
       },
       {
-        text: "61. El ritmo cardiaco normal es constante y presenta una frecuencia:",
+        text: "El ritmo cardiaco normal es constante y presenta una frecuencia:",
         options: [
           "A) Entre 70 y 100 pulsaciones por minuto.",
           "B) Entre 80 y 110 pulsaciones por minuto.",
           "C) Entre 60 y 110 pulsaciones por minuto.",
           "D) Entre 50 y 100 pulsaciones por minuto."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "La frecuencia cardíaca normal en reposo para un adulto se considera generalmente entre 60 y 100 latidos por minuto (lpm). Sin embargo, en personas muy entrenadas (atletas) o durante el sueño, frecuencias de hasta 50 lpm pueden ser normales. Por ello, el rango 50-100 es el más inclusivo de la normalidad."
       },
       {
-        text: "62. ¿Qué código se utiliza para codificar el plastrón apendicular sin especificación adicional?",
+        text: "¿Qué código se utiliza para codificar el plastrón apendicular sin especificación adicional?",
         options: [
           "A) K35.31 (apendicitis con peritonitis y gangrena sin perforación).",
           "B) K35.32 (apendicitis con perforación y peritonitis localizada sin absceso).",
           "C) K35.80 (apendicitis no especificada).",
           "D) K35.21 (apendicitis con peritonitis generalizada y absceso)."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "El plastrón apendicular es una masa inflamatoria formada por el apéndice, el epiplón y asas intestinales adheridas, que intenta contener una perforación apendicular. Se considera una forma de peritonitis localizada. El código K35.32 describe apendicitis aguda con perforación y peritonitis localizada, sin absceso, que es la descripción más ajustada."
       },
       {
-        text: "63. ¿Cómo se codifica la alcoholización percutánea para algunos casos de hepatocarcinoma?",
+        text: "¿Cómo se codifica la alcoholización percutánea para algunos casos de hepatocarcinoma?",
         options: [
           "A) 0F513ZF (destrucción de hígado, percutáneo, electroporación irreversible).",
           "B) 0F513ZZ (destrucción de hígado, percutáneo).",
           "C) 3E0J3TZ (introducción en tracto biliar y pancreático de agente destructivo, percutáneo).",
            "D) 3E0J3GC (introducción en tracto biliar y pancreático de otra sustancia, percutáneo)."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "La alcoholización percutánea consiste en inyectar alcohol (una sustancia destructiva) directamente en el tumor hepático. En CIE-10-PCS, esto se codifica como 'Introducción' (3) de una 'Sustancia Terapéutica, Diagnóstica, Nutricional o Fisiológica' (E) en el 'Tracto Biliar y Páncreas' (J - que incluye el hígado en esta sección) de un 'Agente Destructivo' (T) por vía 'Percutánea' (3), sin calificador (Z)."
       },
       {
-        text: "64. ¿En qué sección de la CIE-10-ES Procedimentos se codifica una aféresis de células madres hematopoyéticas?",
+        text: "¿En qué sección de la CIE-10-ES Procedimentos se codifica una aféresis de células madres hematopoyéticas?",
         options: [
           "A) Administración.",
           "B) Nueva tecnología.",
           "C) Terapias extracorpóreas o sistémicas.",
           "D) Medicina nuclear."
         ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "La aféresis es un procedimento extracorpóreo donde la sangre se extrae, se procesa para separar componentes (en este caso, células madre) y se devuelve el resto al paciente. Estos tipos de procedimentos se clasifican en la Sección 6 de CIE-10-PCS: 'Terapias Extracorpóreas o Sistémicas'."
       },
       {
-        text: "65. ¿Cuántos procedimentos (quirúrgicos, diagnósticos y/o terapéuticos) admite el CMBDA?",
+        text: "¿Cuántos procedimentos (quirúrgicos, diagnósticos y/o terapéuticos) admite el CMBDA?",
         options: [
           "A) 20.",
           "B) 15.",
           "C) 25.",
           "D) 30."
         ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "Según la normativa técnica del Conjunto Mínimo Básico de Datos al alta hospitalaria (CMBD) del Ministerio de Sanidad español, se pueden registrar hasta un máximo de 20 procedimentos realizados durante el episodio de hospitalización."
       },
       {
-        text: "66. ¿Cuál de los siguientes síndromes NO es un síndrome oftalmológico?",
+        text: "¿Cuál de los siguientes síndromes NO es un síndrome oftalmológico?",
         options: [
           "A) Síndrome de Vogt-Koyanagi.",
           "B) Síndrome de Foster-Kennedy.",
           "C) Enfermedad de Ménière.",
           "D) Síndrome de Duane."
         ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "La Enfermedad de Ménière es un trastorno del oído interno que causa episodios de vértigo, pérdida de audición fluctuante, tinnitus (zumbido en los oídos) y sensación de presión en el oído. Los otros síndromes (Vogt-Koyanagi-Harada, Foster-Kennedy y Duane) son afecciones oftalmológicas."
       },
       {
-        text: "67. ¿Cuál sería el diagnóstico principal en una infección respiratoria aguda producida en el contexto de una infección por coronavirus COVID-19 (SARS-CoV-2)?",
+        text: "¿Cuál sería el diagnóstico principal en una infección respiratoria aguda producida en el contexto de una infección por coronavirus COVID-19 (SARS-CoV-2)?",
         options: [
           "A) J44.0 Enfermedad pulmonar obstructiva crónica con infección (aguda) de las vías respiratorias inferiores.",
           "B) U07.1 (COVID-19).",
           "C) J12.82 (Neumonía por coronavirus 2019).",
           "D) J22 (Infección aguda del tracto respiratorio inferior, no especificada)."
          ],
-        answer: 1,
+        answer: 1, // Índice de la respuesta correcta (B)
         explanation: "Según las directrices de codificación para COVID-19, si un paciente ingresa o es tratado principalmente por una manifestación (como infección respiratoria) debida a COVID-19 confirmado, el código U07.1 (COVID-19) se secuencia como diagnóstico principal."
       },
       {
-        text: "68. ¿Cuál de los siguente indicadores de la AHRQ (Agency for Healthcare Research and Quality) analizan la calidad de la asistencia dentro del hospital, incluyendo: el volumen de procedimentos de alta tecnología o muy complejos que realiza el hospital; la mortalidad intrahospitalaria tras la realización de determinados procedimentos y en pacientes con determinadas enfermedades; y el uso que se hace de determinadas técnicas?",
+        text: "¿Cuál de los siguente indicadores de la AHRQ (Agency for Healthcare Research and Quality) analizan la calidad de la asistencia dentro del hospital, incluyendo: el volumen de procedimentos de alta tecnología o muy complejos que realiza el hospital; la mortalidad intrahospitalaria tras la realización de determinados procedimentos y en pacientes con determinadas enfermedades; y el uso que se hace de determinadas técnicas?",
         options: [
           "A) Indicadores de Calidad Preventiva (PQI).",
           "B) Indicadores sobre la Seguridad de los Pacientes (PSI).",
           "C) Indicadores de Calidad en Pacientes Ingresados (IQI).",
           "D) Ninguno de los anteriores."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "Los IQI (Inpatient Quality Indicators) de la AHRQ están diseñados para medir aspectos de la calidad de la atención *dentro* del hospital, utilizando datos administrativos hospitalarios. Incluyen indicadores de mortalidad para procedimentos y condiciones médicas, utilización de procedimentos y volumen de procedimentos."
       },
       {
-        text: "69. ¿Cómo debe codificarse una criobiopsia de língula pulmonar?",
+        text: "¿Cómo debe codificarse una criobiopsia de língula pulmonar?",
         options: [
           "A) 0BBH8ZX - Escisión de língula, diagnóstico, abordaje endoscópico.",
           "B) 3E0F8TZ Administración, Tracto Respiratorio, agente destructivo, abordaje orificio natural o artificial, endoscópico.",
           "C) 0BDH8ZX Extracción de língula pulmonar, diagnóstico, abordaje orificio natural o artificial, endoscópico.",
           "D) 0BBH8ZX Escisión de língula pulmonar, diagnóstico, abordaje orificio natural o artificial, endoscópico + 3E0F8TZ Administración, Tracto Respiratorio, agente destructivo, abordaje orificio natural o artificial, endoscópico."
          ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "La criobiopsia utiliza frío extremo para adherir y extraer una muestra de tejido. En CIE-10-PCS, esto se clasifica como 'Extracción' (Extraction - D). La língula es parte del pulmón (Sistema Respiratorio - B). El abordaje suele ser a través de un broncoscopio (Orificio Natural/Artificial Endoscópico - 8). El calificador 'Diagnóstico' (X) indica el propósito. Código: 0BDH8ZX."
       },
       {
-        text: "70. ¿Cómo se codifica un infarto tipo 2 debido a flutter paroxístico?",
+        text: "¿Cómo se codifica un infarto tipo 2 debido a flutter paroxístico?",
         options: [
           "A) I21.A1 Infarto de miocardio tipo 2 + I48.92 Flutter auricular no especificado.",
           "B) I21.9 Infarto agudo de miocardio, no especificado + I48.92 Flutter auricular no especificado.",
           "C) Solo I21.A1 Infarto de miocardio tipo 2.",
           "D) I48.92 Flutter auricular no especificado + I21.A1 Infarto de miocardio tipo 2."
         ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "El infarto de miocardio tipo 2 (I21.A1) se debe a un desequilibrio entre el aporte y la demanda de oxígeno miocárdico (no a una rotura de placa aterosclerótica). Cuando es causado por una arritmia como el flutter auricular (I48.92), las guías indican secuenciar primero la causa subyacente (el flutter) y luego la consecuencia (el infarto tipo 2)."
       },
       {
-        text: "71. ¿Qué documento clínico NO se considera de ayuda para la codificación?",
+        text: "¿Qué documento clínico NO se considera de ayuda para la codificación?",
         options: [
           "A) Informes radiológicos.",
           "B) Informe de interconsultas.",
           "C) Electrocardiograma.",
           "D) Hoja de observaciones de enfermería."
         ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "Si bien el *informe* del electrocardiograma (ECG) es útil, el trazado del ECG en sí mismo (la gráfica) generalmente no proporciona información diagnóstica directa para la codificación CIE-10 sin la interpretación de un facultativo. Los informes radiológicos, de interconsulta y las observaciones de enfermería suelen contener diagnósticos, hallazgos y descripciones más directas."
       },
       {
-        text: "72. Respecto a las intoxicaciones, señale la afirmación INCORRECTA:",
+        text: "Respecto a las intoxicaciones, señale la afirmación INCORRECTA:",
         options: [
           "A) Debe haber evidencia clara de consumo.",
           "B) Debe haber síntomas o signos compatibles con la sustancia.",
           "C) Los síntomas no pueden explicarse por otra enfermedad.",
           "D) Debe ser voluntaria."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "Una intoxicación o envenenamiento puede tener diferentes intencionalidades: accidental (no intencionada), autolesión intencionada, agresión o indeterminada. No tiene por qué ser siempre voluntaria."
       },
       {
-        text: "73. ¿Qué nombre recibe el procedimento que permite respetar la libertad de las personas enfermas para decidir sobre su cuerpo, su salud y su vida, permitiéndoles así asumir sus propias responsabilidades en la toma de decisiones sanitarias?",
+        text: "¿Qué nombre recibe el procedimento que permite respetar la libertad de las personas enfermas para decidir sobre su cuerpo, su salud y su vida, permitiéndoles así asumir sus propias responsabilidades en la toma de decisiones sanitarias?",
         options: [
           "A) Registro de voluntades vitales anticipadas.",
           "B) Registro nacional de instrucciones previas.",
           "C) Libre elección de centro sanitario.",
           "D) Consentimento informado."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "El Consentimento Informado es el procedimento mediante el cual, tras recibir información adecuada, una persona acepta o rechaza un procedimento médico o diagnóstico, ejerciendo su autonomía y responsabilidad sobre su salud (Ley 41/2002)."
       },
       {
-        text: "74. ¿Cómo se codifica con CIE-10-ES el Síndrome del Marcapasos?",
+        text: "¿Cómo se codifica con CIE-10-ES el Síndrome del Marcapasos?",
         options: [
           "A) Es una complicación del marcapasos, por lo que se asignara T82.897A - Otra complicación especificada de prótesis, implantes e injertos cardiacos, contacto inicial.",
           "B) Es la presencia de síntomas y signos relacionados con una respuesta hemodinámica anormal desencadenada por una sincronización inadecuada de la contracción auricular y ventricular, por lo que se codificaran los signos o síntomas especificados.",
           "C) Como no se trata estrictamente de una complicación del marcapasos, y el índice alfabético no proporciona instrucciones, se codificara con el código I45.89 Otros trastornos de conducción especificados.",
           "D) Al aparecer en cualquier momento después del implante del marcapasos, se codificará con codificación múltiple: I97.190 Otros trastornos cardiacos funcionales posprocedimento después de cirugía cardiaca, añadiendo el códigoI45.89 Otros trastornos de conducción especificados."
          ],
-        answer: 3,
+        answer: 3, // Índice de la respuesta correcta (D)
         explanation: "El Síndrome del Marcapasos se considera un trastorno funcional cardíaco que ocurre después de la implantación del dispositivo. Se codifica con I97.190 (Otros trastornos cardíacos funcionales posprocedimiento...) y, si aplica, se puede añadir un código para el tipo específico de trastorno de conducción asociado, como I45.89."
       },
       {
-        text: "75. Señale la respuesta correcta respecto a la neumonía asociada a ventilación mecánica:",
+        text: "Señale la respuesta correcta respecto a la neumonía asociada a ventilación mecánica:",
         options: [
           "A) Precisa un código adicional para el microorganismo, si se conoce.",
           "B) Precisa un código adicional para el tipo de neumonía (categorías J12-J18).",
           "C) Debe ser asignado (por defecto) en todos los casos en los que un paciente tiene una neumonía y está conectado a un respirador mecánico.",
           "D) Debe añadirse un código de causa externa para indicar el tipo de procedimento."
          ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "Según las normas de codificación CIE-10-ES, para la neumonía asociada a ventilación mecánica (código J95.851), se debe añadir un código adicional para identificar el organismo infeccioso causal, si este es conocido (ej., códigos de B95-B97 o específicos de neumonía bacteriana/viral)."
       },
       {
-        text: "151. La CIE-10-ES Procedimentos consta de:",
+        text: "La CIE-10-ES Procedimentos consta de:",
         options: [
           "A) 15 secciones.",
           "B) 18 secciones.",
           "C) 17 secciones.",
           "D) 16 secciones."
         ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "La clasificación CIE-10-ES para procedimentos médicos y quirúrgicos (PCS) se estructura en 17 secciones principales, identificadas por los caracteres 0-9 y B-H (excluyendo A, I, O)."
       },
       {
-        text: "152. Señale la respuesta INCORRECTA respecto a la trombocitopenia:\nA) Es el aumento de plaquetas en la sangre.\nB) Se le denomina también plaquetopenia.\nC) Se caracteriza por la facilidad de sangrado y formación de hematomas.\nD) Puede ser hereditaria o adquirida.",
+        text: "Señale la respuesta INCORRECTA respecto a la trombocitopenia:\nA) Es el aumento de plaquetas en la sangre.\nB) Se le denomina también plaquetopenia.\nC) Se caracteriza por la facilidad de sangrado y formación de hematomas.\nD) Puede ser hereditaria o adquirida.",
         options: [
           "A) Es el aumento de plaquetas en la sangre.",
            "B) Se le denomina también plaquetopenia.",
            "C) Se caracteriza por la facilidad de sangrado, con hematomas y hemorragias hemorragias en distintas partes corporales.",
            "D) Puede ser hereditaria o adquirida."
          ],
-        answer: 0,
+        answer: 0, // Índice de la respuesta correcta (A)
         explanation: "La trombocitopenia (o plaquetopenia) es la *disminución* del número de plaquetas en la sangre por debajo de los niveles normales, lo que puede causar problemas de coagulación y sangrado. El aumento de plaquetas se denomina trombocitosis."
       },
       {
-        text: "153. ¿Cuál de las siguientes alteraciones hidroelectrolíticas hace referencia a una alteración de potasio?",
+        text: "¿Cuál de las siguientes alteraciones hidroelectrolíticas hace referencia a una alteración de potasio?",
         options: [
           "A) Hiponatremia e hipernatremia.",
           "B) Hipocalcemia e hipercalcemia.",
           "C) Hipocalemia e hipercalemia.",
           "D) Ninguna de las anteriores."
         ],
-        answer: 2,
+        answer: 2, // Índice de la respuesta correcta (C)
         explanation: "Las alteraciones de los niveles de potasio (símbolo K, del latín *kalium*) en sangre se denominan hipocalemia (niveles bajos) e hipercalemia (niveles altos). Natremia se refiere al sodio (Na) y calcemia al calcio (Ca)."
       }
     ];
@@ -1207,325 +1214,416 @@
 
     // --- FUNCIONES ---
 
-    /** Función para barajar un arreglo (Fisher–Yates) */
+    /**
+     * Función para barajar (mezclar aleatoriamente) los elementos de un array.
+     * Utiliza el algoritmo Fisher–Yates (también conocido como Knuth Shuffle).
+     * @param {Array} array - El array que se va a barajar.
+     * @returns {Array} El mismo array con los elementos barajados.
+     */
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
+          // Elige un índice aleatorio desde 0 hasta i (incluido)
           const j = Math.floor(Math.random() * (i + 1));
+          // Intercambia el elemento actual (i) con el elemento del índice aleatorio (j)
           [array[i], array[j]] = [array[j], array[i]];
       }
       return array;
     }
 
-    /** Guarda el estado actual del examen en localStorage */
+    /**
+     * Guarda el estado actual del examen (preguntas respondidas, puntuación)
+     * en el localStorage del navegador.
+     */
     function saveProgress() {
-        // Filtrar solo las preguntas activas (que no estén deshabilitadas)
+        // Filtra solo las preguntas activas (no deshabilitadas) para guardar su estado
         const questionsToSave = activeQuestions.map(q => ({
-            originalIndex: q.originalIndex,
-            answered: q.answered,
-            selectedAnswer: q.userAnswer, // Guardar la respuesta del usuario
-            isCorrect: q.isCorrect
+            originalIndex: q.originalIndex, // Índice original para identificación
+            answered: q.answered,          // Si la pregunta fue respondida
+            selectedAnswer: q.userAnswer,  // La respuesta seleccionada por el usuario
+            isCorrect: q.isCorrect         // Si la respuesta fue correcta
         }));
 
+        // Crea un objeto con el estado a guardar
         const state = {
-            correctAnswersCount: correctCount, // Usar variable global correcta
-            incorrectAnswersCount: incorrectCount, // Usar variable global correcta
-            answeredQuestionsCount: answeredCount,
-            totalActiveQuestions, // Guardar el total de preguntas activas en esta sesión
-            activeQuestions: questionsToSave // Guardar solo el estado de las activas
+            correctAnswersCount: correctCount,       // Contador de correctas
+            incorrectAnswersCount: incorrectCount,   // Contador de incorrectas
+            answeredQuestionsCount: answeredCount,   // Contador de respondidas
+            totalActiveQuestions,                    // Total de preguntas activas en esta sesión
+            activeQuestions: questionsToSave         // Estado de las preguntas activas
         };
         try {
+            // Convierte el estado a JSON y lo guarda en localStorage
             localStorage.setItem(progressKey, JSON.stringify(state));
         } catch (e) {
             console.error("Error guardando progreso en localStorage:", e);
+            // Podría ocurrir si localStorage está lleno o deshabilitado
         }
     }
 
 
-    /** Carga el estado del examen desde localStorage */
+    /**
+     * Carga el estado del examen previamente guardado desde localStorage.
+     * @returns {Object|null} El objeto de estado guardado o null si no hay progreso guardado o hay un error.
+     */
     function loadProgress() {
         const savedState = localStorage.getItem(progressKey);
         if (savedState) {
             try {
+                // Intenta parsear el JSON guardado
                 return JSON.parse(savedState);
             } catch (e) {
                 console.error("Error parseando progreso guardado:", e);
+                // Si hay error al parsear, elimina la entrada corrupta
                 localStorage.removeItem(progressKey);
                 return null;
             }
         }
-        return null;
+        return null; // No hay progreso guardado
     }
 
-    /** Muestra la vista del examen y oculta la pantalla de inicio */
+    /**
+     * Muestra la vista principal del examen (preguntas, barra de progreso)
+     * y oculta la pantalla de inicio.
+     */
     function showExamView() {
-        startScreen.classList.add('hidden');
-        examHeader.classList.remove('hidden');
-        progressScoreBar.classList.remove('hidden');
-        mainContainer.classList.remove('hidden');
-        footer.classList.remove('hidden');
-        document.body.classList.add('exam-active');
-        document.body.style.justifyContent = 'flex-start';
+        startScreen.classList.add('hidden'); // Oculta pantalla de inicio
+        examHeader.classList.remove('hidden'); // Muestra encabezado
+        progressScoreBar.classList.remove('hidden'); // Muestra barra de progreso
+        mainContainer.classList.remove('hidden'); // Muestra contenedor de preguntas
+        footer.classList.remove('hidden'); // Muestra pie de página
+        document.body.classList.add('exam-active'); // Añade clase al body para estilos específicos (padding-top)
+        document.body.style.justifyContent = 'flex-start'; // Alinea contenido arriba
     }
 
-    /** Muestra la pantalla de inicio y oculta la vista del examen */
+    /**
+     * Muestra la pantalla de inicio y oculta la vista del examen.
+     */
     function showStartScreen() {
-        startScreen.classList.remove('hidden');
-        examHeader.classList.add('hidden');
-        progressScoreBar.classList.add('hidden');
-        mainContainer.classList.add('hidden');
-        footer.classList.add('hidden');
-        document.body.classList.remove('exam-active');
-        document.body.style.justifyContent = 'center';
-        document.body.style.paddingTop = '0';
+        startScreen.classList.remove('hidden'); // Muestra pantalla de inicio
+        examHeader.classList.add('hidden'); // Oculta encabezado
+        progressScoreBar.classList.add('hidden'); // Oculta barra de progreso
+        mainContainer.classList.add('hidden'); // Oculta contenedor de preguntas
+        footer.classList.add('hidden'); // Oculta pie de página
+        document.body.classList.remove('exam-active'); // Quita clase del body
+        document.body.style.justifyContent = 'center'; // Centra contenido (pantalla inicio)
+        document.body.style.paddingTop = '0'; // Resetea padding-top
     }
 
 
-    /** Renderiza una única pregunta, restaurando su estado si se está reanudando */
+    /**
+     * Renderiza (dibuja) una única tarjeta de pregunta en el HTML.
+     * @param {Object} q - El objeto de datos de la pregunta.
+     * @param {number} index - El índice de la pregunta en el array `activeQuestions`.
+     * @param {boolean} [isResuming=false] - Indica si se está reanudando un examen (para restaurar estado).
+     */
     function renderSingleQuestion(q, index, isResuming = false) {
-        const questionIndex = q.originalIndex;
+        const questionIndex = q.originalIndex; // ID único de la pregunta
+        // Crea el div contenedor de la tarjeta
         const qDiv = document.createElement("div");
         qDiv.className = "question-card";
-        qDiv.id = "q-" + questionIndex;
-        qDiv.setAttribute('data-valid-question', !q.disabled);
-        qDiv.setAttribute('data-answered', isResuming ? q.answered : 'false');
+        qDiv.id = "q-" + questionIndex; // Asigna un ID único al div
+        qDiv.setAttribute('data-valid-question', !q.disabled); // Marca si es válida
+        qDiv.setAttribute('data-answered', isResuming ? q.answered : 'false'); // Marca si ya está respondida
 
+        // Crea el párrafo para el enunciado
         const p = document.createElement("p");
-        const displayNum = q.questionNumber || (index + 1);
-        p.innerHTML = `<strong>${displayNum}. ${q.enunciado}</strong>`;
+        // MODIFICADO: Muestra solo el enunciado, sin número
+        p.innerHTML = `<strong>${q.enunciado}</strong>`;
         qDiv.appendChild(p);
 
+        // Si la pregunta está anulada (disabled)
         if (q.disabled) {
             const annulledMsg = document.createElement("div");
             annulledMsg.className = "annulled";
             annulledMsg.textContent = "Esta pregunta ha sido anulada.";
             qDiv.appendChild(annulledMsg);
-        } else {
+        } else { // Si la pregunta es válida
+            // Crea el div contenedor de las opciones
             const optionsDiv = document.createElement("div");
             optionsDiv.className = "options";
 
+            // Ordena las letras de las opciones (A, B, C, D)
             const sortedLetters = Object.keys(q.options).sort();
-            let correctButtonElement = null;
+            let correctButtonElement = null; // Para referencia futura (no usado actualmente)
 
+            // Itera sobre cada opción para crear su botón
             sortedLetters.forEach(letter => {
                 const optionText = q.options[letter];
                 const btn = document.createElement("button");
                 btn.type = "button";
-                btn.dataset.letter = letter;
+                btn.dataset.letter = letter; // Guarda la letra en el dataset
 
+                // Icono (para check/cross) y texto de la opción
                 const iconSpan = document.createElement("span");
                 iconSpan.className = "icon";
                 const textSpan = document.createElement("span");
-                textSpan.textContent = `(${letter}) ${optionText}`;
+                textSpan.textContent = `(${letter}) ${optionText}`; // Formato (A) Texto opción
 
                 btn.appendChild(iconSpan);
                 btn.appendChild(textSpan);
 
+                // Comprueba si el botón debe estar deshabilitado (al reanudar una pregunta ya respondida)
                 const isDisabled = isResuming && q.answered;
                 btn.disabled = isDisabled;
 
+                // Si está deshabilitado (reanudar), aplica estilos de correcta/incorrecta
                 if (isDisabled) {
-                    btn.classList.add('disabled'); // Aplicar clase disabled al botón
-                    if (q.userAnswer === letter) {
+                    btn.classList.add('disabled'); // Clase genérica para deshabilitado
+                    if (q.userAnswer === letter) { // Si esta fue la opción seleccionada
                         if (q.isCorrect) {
-                            btn.classList.add('correct');
+                            btn.classList.add('correct'); // Marca como correcta
                         } else {
-                            btn.classList.add('incorrect');
+                            btn.classList.add('incorrect'); // Marca como incorrecta
                         }
                     }
+                    // Si no fue correcta y esta es la respuesta correcta, la resalta
                     if (!q.isCorrect && letter === q.correctAnswer) {
                         btn.classList.add('show-correct');
                     }
                 } else {
+                    // Si no está deshabilitado, asigna el manejador de click
                     btn.onclick = () => handleOptionClick(q, letter, optionsDiv);
                 }
 
+                // Guarda referencia al botón correcto (no usado actualmente)
                 if (letter === q.correctAnswer) {
                     correctButtonElement = btn;
                 }
 
-                optionsDiv.appendChild(btn);
+                optionsDiv.appendChild(btn); // Añade el botón al div de opciones
             });
 
-            qDiv.appendChild(optionsDiv);
+            qDiv.appendChild(optionsDiv); // Añade el div de opciones a la tarjeta
 
+            // Crea el div para la explicación (oculto por defecto)
             const explanationDiv = document.createElement("div");
             explanationDiv.className = "explanation";
             explanationDiv.innerHTML = `<strong>Explicación:</strong> ${q.explanation || 'Explicación pendiente.'}`;
+             // Si se está reanudando, ya fue respondida y tiene explicación, la muestra
              if (isResuming && q.answered && q.explanation && q.explanation !== "Explicación pendiente.") {
                  explanationDiv.style.display = 'block';
              }
-            qDiv.appendChild(explanationDiv);
+            qDiv.appendChild(explanationDiv); // Añade la explicación a la tarjeta
         }
 
-        quizContainer.appendChild(qDiv); // Añadir al contenedor del quiz
+        quizContainer.appendChild(qDiv); // Añade la tarjeta completa al contenedor del quiz
     }
 
-     /** Renderiza las preguntas activas en el contenedor del examen */
+     /**
+      * Renderiza todas las preguntas activas en el contenedor del examen.
+      * Limpia el contenedor antes de añadir las nuevas preguntas.
+      * @param {boolean} [isResuming=false] - Indica si se está reanudando.
+      */
      function renderActiveQuestions(isResuming = false) {
         quizContainer.innerHTML = ''; // Limpiar contenedor del quiz
+        // Itera sobre las preguntas activas y renderiza cada una
         activeQuestions.forEach((q, index) => {
             renderSingleQuestion(q, index, isResuming);
         });
      }
 
 
-    /** Actualiza los contadores en la barra fija */
+    /**
+     * Actualiza los contadores de puntuación y progreso en la barra fija superior.
+     */
     function actualizarContadorFijo() {
         correctCountSpan.textContent = correctCount;
         incorrectCountSpan.textContent = incorrectCount;
         answeredCountSpan.textContent = answeredCount;
-        totalQuestionsSpan.textContent = totalActiveQuestions; // Mostrar total activo
-        const pending = totalActiveQuestions - answeredCount;
-        contadorPendientesSpan.textContent = pending; // Actualizar span de pendientes
+        totalQuestionsSpan.textContent = totalActiveQuestions; // Muestra el total de preguntas activas
+        const pending = totalActiveQuestions - answeredCount; // Calcula pendientes
+        contadorPendientesSpan.textContent = pending; // Actualiza el contador de pendientes
 
-        // Habilitar/deshabilitar enlace de pendientes
+        // Habilita/deshabilita el enlace para ir a pendientes
         if (pendingLink) {
-            pendingLink.classList.toggle('disabled', pending === 0);
+            pendingLink.classList.toggle('disabled', pending === 0); // Deshabilita si no hay pendientes
         }
     }
 
-    /** Maneja el click en un botón de opción */
+    /**
+     * Maneja el evento de click en un botón de opción de respuesta.
+     * @param {Object} questionData - Los datos de la pregunta respondida.
+     * @param {string} selectedAnswer - La letra de la opción seleccionada (A, B, C, D).
+     * @param {HTMLElement} optionsDiv - El div que contiene los botones de opción.
+     */
     function handleOptionClick(questionData, selectedAnswer, optionsDiv) {
+        // Si la pregunta no existe o ya fue respondida, no hace nada
         if (!questionData || questionData.answered) return;
 
-        const questionCard = optionsDiv.closest('.question-card');
-        const questionIndex = questionData.originalIndex;
-        const correctAnswer = questionData.correctAnswer;
-        const explanationDiv = questionCard.querySelector('.explanation');
-        const allButtons = optionsDiv.querySelectorAll("button");
-        const selectedButton = optionsDiv.querySelector(`button[data-letter="${selectedAnswer}"]`);
-        const correctButton = optionsDiv.querySelector(`button[data-letter="${correctAnswer}"]`);
+        const questionCard = optionsDiv.closest('.question-card'); // Obtiene la tarjeta contenedora
+        const questionIndex = questionData.originalIndex; // ID de la pregunta
+        const correctAnswer = questionData.correctAnswer; // Letra de la respuesta correcta
+        const explanationDiv = questionCard.querySelector('.explanation'); // Div de la explicación
+        const allButtons = optionsDiv.querySelectorAll("button"); // Todos los botones de opción
+        const selectedButton = optionsDiv.querySelector(`button[data-letter="${selectedAnswer}"]`); // Botón seleccionado
+        const correctButton = optionsDiv.querySelector(`button[data-letter="${correctAnswer}"]`); // Botón correcto
 
+        // Marca la pregunta como respondida
         questionData.answered = true;
-        questionData.userAnswer = selectedAnswer; // Guardar respuesta seleccionada
-        answeredCount++;
-        userSelections[questionIndex] = selectedAnswer; // Para modo revisión
+        questionData.userAnswer = selectedAnswer; // Guarda la respuesta del usuario
+        answeredCount++; // Incrementa el contador de respondidas
+        userSelections[questionIndex] = selectedAnswer; // Guarda selección para posible revisión
 
+        // Deshabilita todos los botones de esta pregunta
         allButtons.forEach(b => b.disabled = true);
-        questionCard.setAttribute('data-answered', 'true');
+        questionCard.setAttribute('data-answered', 'true'); // Marca la tarjeta como respondida
 
+        // Comprueba si la respuesta es correcta
         if (selectedAnswer === correctAnswer) {
-            questionData.isCorrect = true; // Guardar si fue correcta
-            correctCount++;
-            if(selectedButton) selectedButton.classList.add('correct');
+            questionData.isCorrect = true; // Marca como correcta en los datos
+            correctCount++; // Incrementa contador de correctas
+            if(selectedButton) selectedButton.classList.add('correct'); // Añade clase CSS 'correct'
         } else {
-            questionData.isCorrect = false; // Guardar si fue incorrecta
-            incorrectCount++;
-            if(selectedButton) selectedButton.classList.add('incorrect');
-            if (correctButton) correctButton.classList.add('show-correct'); // Destacar la correcta
+            questionData.isCorrect = false; // Marca como incorrecta en los datos
+            incorrectCount++; // Incrementa contador de incorrectas
+            if(selectedButton) selectedButton.classList.add('incorrect'); // Añade clase CSS 'incorrect'
+            if (correctButton) correctButton.classList.add('show-correct'); // Muestra cuál era la correcta
         }
 
+        // Muestra la explicación si existe
         if (explanationDiv && questionData.explanation && questionData.explanation !== "Explicación pendiente.") {
              explanationDiv.style.display = 'block';
         }
 
-        actualizarContadorFijo();
-        saveProgress(); // Guardar progreso
+        actualizarContadorFijo(); // Actualiza la barra de progreso/puntuación
+        saveProgress(); // Guarda el progreso actual en localStorage
 
+        // Si se han respondido todas las preguntas activas
         if (answeredCount === totalActiveQuestions) {
-            setTimeout(mostrarResultadosFinales, 500);
-            localStorage.removeItem(progressKey); // Limpiar al finalizar
+            setTimeout(mostrarResultadosFinales, 500); // Muestra resultados tras un breve retardo
+            localStorage.removeItem(progressKey); // Limpia el progreso guardado al finalizar
         }
     }
 
 
-    /** Muestra el modal de resultados */
+    /**
+     * Muestra el modal con los resultados finales del examen.
+     */
     function mostrarResultadosFinales() {
-        const finalScore = calculateScore();
+        const finalScore = calculateScore(); // Calcula la puntuación
+        // Actualiza los elementos del modal con los resultados
         modalCorrectCountSpan.textContent = correctCount;
         modalIncorrectCountSpan.textContent = incorrectCount;
         modalFinalScoreSpan.textContent = finalScore;
-        resultsModalOverlay.style.display = 'flex';
+        resultsModalOverlay.style.display = 'flex'; // Muestra el modal
     }
 
-     /** Cierra el modal de resultados */
+     /**
+      * Cierra el modal de resultados.
+      */
     function closeResultsModal() {
-        resultsModalOverlay.style.display = 'none';
+        resultsModalOverlay.style.display = 'none'; // Oculta el modal
     }
 
-    /** Reinicia el test (recarga la página) */
+    /**
+     * Reinicia el test (actualmente recarga la página).
+     * Elimina el progreso guardado.
+     */
     function reiniciarQuiz() {
-        localStorage.removeItem(progressKey);
-        window.location.reload();
+        localStorage.removeItem(progressKey); // Elimina progreso
+        window.location.reload(); // Recarga la página
     }
 
-     /** Configura el modo revisión (si se implementa botón de revisar) */
+     /**
+      * Función placeholder para un futuro modo revisión.
+      */
      function mostrarRevision() {
         console.log("Modo revisión no implementado en esta versión.");
-        closeResultsModal();
+        closeResultsModal(); // Cierra el modal de resultados
      }
 
-    /** Encuentra y se desplaza a la siguiente pregunta pendiente */
+    /**
+     * Encuentra la siguiente pregunta pendiente de responder y se desplaza
+     * suavemente hasta ella, resaltándola brevemente.
+     * @param {Event} event - El evento de click (del enlace 'Pendientes').
+     */
     function findAndScrollToNextPending(event) {
-        event.preventDefault();
+        event.preventDefault(); // Evita el comportamiento por defecto del enlace (#)
+        // Busca la primera pregunta activa que no esté respondida ni deshabilitada
         const nextPendingQuestion = activeQuestions.find(q => !q.answered && !q.disabled);
         if (nextPendingQuestion) {
+            // Obtiene el elemento HTML de la pregunta por su ID
             const element = document.getElementById('q-' + nextPendingQuestion.originalIndex);
             if (element) {
+                // Desplaza la vista hasta el elemento
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                element.style.outline = '3px solid var(--accent-color)';
-                setTimeout(() => { element.style.outline = '0px solid transparent'; }, 1500);
+                // Resalta la tarjeta temporalmente
+                element.style.outline = '3px solid var(--sas-green-medium)'; // Usa un color visible
+                setTimeout(() => { element.style.outline = '0px solid transparent'; }, 1500); // Quita el resaltado
             }
         }
     }
 
-     /** Inicia un nuevo examen (siempre con todas las preguntas) */
+     /**
+      * Inicia un nuevo examen desde cero.
+      * Selecciona todas las preguntas válidas, las baraja y las renderiza.
+      */
      function startExam() {
-        // Seleccionar todas las preguntas parseadas y válidas
+        // Filtra las preguntas deshabilitadas para obtener las activas
         activeQuestions = allParsedQuestions.filter(q => !q.disabled);
-        totalActiveQuestions = activeQuestions.length;
+        // Baraja las preguntas activas
+        shuffle(activeQuestions);
+        totalActiveQuestions = activeQuestions.length; // Guarda el número total
 
-        // Reiniciar estado
+        // Reinicia contadores y estado
         correctCount = 0;
         incorrectCount = 0;
         answeredCount = 0;
         userSelections = {};
-        localStorage.removeItem(progressKey); // Limpiar progreso anterior
+        localStorage.removeItem(progressKey); // Limpia cualquier progreso anterior
 
-        // Resetear estado 'answered' por si acaso
+        // Resetea el estado 'answered' de todas las preguntas activas
         activeQuestions.forEach(q => {
             q.answered = false;
             q.userAnswer = null;
             q.isCorrect = null;
         });
 
-        renderActiveQuestions(false); // Renderizar todas las activas
-        actualizarContadorFijo(); // Actualizar contadores
-        showExamView(); // Mostrar vista del examen
-        saveProgress(); // Guardar estado inicial
+        renderActiveQuestions(false); // Renderiza las preguntas (sin restaurar estado)
+        actualizarContadorFijo(); // Actualiza contadores a cero
+        showExamView(); // Muestra la vista del examen
+        saveProgress(); // Guarda el estado inicial (0 respondidas)
      }
 
-     /** Reanuda un examen guardado */
+     /**
+      * Reanuda un examen previamente guardado en localStorage.
+      */
      function resumeExam() {
-         const savedState = loadProgress();
+         const savedState = loadProgress(); // Carga el estado guardado
          if (!savedState) {
              alert("No se encontró progreso guardado o está corrupto.");
-             localStorage.removeItem(progressKey);
-             showStartScreen();
+             localStorage.removeItem(progressKey); // Limpia si está corrupto
+             showStartScreen(); // Vuelve a la pantalla de inicio
              return;
          }
 
-         // Restaurar contadores
+         // Restaura los contadores desde el estado guardado
          correctCount = savedState.correctAnswersCount;
          incorrectCount = savedState.incorrectAnswersCount;
          answeredCount = savedState.answeredQuestionsCount;
          totalActiveQuestions = savedState.totalActiveQuestions;
 
-         // Restaurar estado de preguntas activas
+         // Crea un mapa para acceder rápidamente al estado guardado de cada pregunta por su índice original
          const savedQuestionsMap = new Map(savedState.activeQuestions.map(q => [q.originalIndex, q]));
 
-         // Filtrar y mapear desde la lista completa (ya barajada en initializeApp)
+         // Filtra las preguntas originales (allParsedQuestions) para obtener solo las activas
+         // que estaban en la sesión guardada, y restaura su estado (answered, userAnswer, isCorrect).
+         // Mantiene el orden original de allParsedQuestions antes de barajar de nuevo.
          activeQuestions = allParsedQuestions
              .filter(q => !q.disabled && savedQuestionsMap.has(q.originalIndex))
              .map(q => {
                  const savedQ = savedQuestionsMap.get(q.originalIndex);
-                 return { ...q,
+                 return { ...q, // Copia las propiedades originales (enunciado, opciones, etc.)
                           answered: savedQ.answered,
-                          userAnswer: savedQ.selectedAnswer, // Mapear de vuelta
-                          isCorrect: savedQ.isCorrect };
+                          userAnswer: savedQ.selectedAnswer, // Restaura la respuesta del usuario
+                          isCorrect: savedQ.isCorrect };     // Restaura si fue correcta
              });
 
-         // Reconstruir userSelections para revisión (si se implementa)
+        // Baraja las preguntas activas restauradas para que el orden sea diferente al continuar
+        shuffle(activeQuestions);
+
+
+         // Reconstruye el objeto userSelections (no estrictamente necesario si no hay modo revisión)
          userSelections = {};
          activeQuestions.forEach(q => {
              if(q.answered && q.userAnswer !== null) {
@@ -1533,113 +1631,135 @@
              }
          });
 
-         // Comprobación de consistencia
+         // Comprobación de consistencia (por si las preguntas originales cambiaron)
          if(activeQuestions.length !== totalActiveQuestions) {
              console.warn("Discrepancia en el número de preguntas al reanudar. Puede que el contenido haya cambiado. Se continuará con las preguntas encontradas.");
-             totalActiveQuestions = activeQuestions.length;
+             totalActiveQuestions = activeQuestions.length; // Ajusta el total
          }
 
-         renderActiveQuestions(true); // Renderizar restaurando estado
-         actualizarContadorFijo();
-         showExamView();
+         renderActiveQuestions(true); // Renderiza las preguntas restaurando su estado (correcta/incorrecta)
+         actualizarContadorFijo(); // Actualiza los contadores
+         showExamView(); // Muestra la vista del examen
      }
 
-     /** Calcula la puntuación final */
+     /**
+      * Calcula la puntuación final basada en correctas e incorrectas.
+      * @returns {string} La puntuación final formateada a dos decimales.
+      */
      function calculateScore() {
-        if (totalActiveQuestions === 0) return "0.00";
-        // Calcular puntos (aquí podrías ajustar la fórmula si es diferente para SAS)
-        // Ejemplo: 1 punto por correcta, -0.25 por incorrecta (sobre 100)
-        pointsPerCorrect = 100 / totalActiveQuestions;
-        penaltyPerIncorrect = pointsPerCorrect / 4; // Ajustar si penalización es diferente
+        if (totalActiveQuestions === 0) return "0.00"; // Evita división por cero
 
+        // Define la puntuación y penalización (ajustar según reglas específicas del examen)
+        // Ejemplo: Puntuación sobre 100, penalización de 1/4 por error
+        pointsPerCorrect = 100 / totalActiveQuestions;
+        penaltyPerIncorrect = pointsPerCorrect / 4; // Ajustar si la penalización es diferente (e.g., /3)
+
+        // Calcula la puntuación bruta
         const rawScore = (correctCount * pointsPerCorrect) - (incorrectCount * penaltyPerIncorrect);
+        // Asegura que la puntuación no sea negativa y la formatea
         return Math.max(0, rawScore).toFixed(2);
     }
 
 
     // --- Inicialización de la Aplicación ---
+    /**
+     * Función principal que inicializa la aplicación del cuestionario.
+     * Se ejecuta cuando el DOM está completamente cargado.
+     */
     function initializeApp() {
-        parseQuestions(); // Cargar y parsear todas las preguntas primero
-        shuffle(allParsedQuestions); // Barajar la lista completa una vez
-        // totalParsedCountSpan.textContent = allParsedQuestions.length; // No necesario
+        parseQuestions(); // Carga y procesa las preguntas desde `questionsData`
+        // NO barajamos aquí `allParsedQuestions` directamente. Se barajarán las `activeQuestions` en startExam o resumeExam.
 
-        const savedProgress = loadProgress();
+        const savedProgress = loadProgress(); // Intenta cargar progreso guardado
 
+        // Si hay progreso guardado y contiene preguntas activas
         if (savedProgress && savedProgress.activeQuestions && savedProgress.activeQuestions.length > 0) {
-            resumePrompt.classList.remove('hidden');
-            resumeButton.classList.remove('hidden');
-            resumeButton.onclick = resumeExam;
+            resumePrompt.classList.remove('hidden'); // Muestra mensaje de reanudar
+            resumeButton.classList.remove('hidden'); // Muestra botón de reanudar
+            resumeButton.onclick = resumeExam; // Asigna la función de reanudar al botón
         } else {
+            // Si no hay progreso válido, oculta las opciones de reanudar
             resumePrompt.classList.add('hidden');
             resumeButton.classList.add('hidden');
+             // Limpia cualquier dato inválido o vacío de localStorage
              if (savedProgress) {
                 localStorage.removeItem(progressKey);
             }
         }
 
+        // Asigna la función de empezar nuevo examen al botón correspondiente
         startButton.onclick = startExam;
 
-        // Listener para cerrar modal
+        // Asigna la función de cerrar al botón del modal de resultados
         resultsModalOverlay.querySelector('.modal-close-btn').onclick = closeResultsModal;
 
-        // Listener para enlace pendientes
+        // Añade el listener al enlace para navegar a preguntas pendientes
         if (pendingLink) {
             pendingLink.addEventListener('click', findAndScrollToNextPending);
         }
 
-        // Mostrar pantalla de inicio por defecto
+        // Muestra la pantalla de inicio por defecto
         showStartScreen();
     }
 
-    /** Parsea el contenido del examen desde el array questionsData */
+    /**
+     * Parsea el array `questionsData` para crear el array `allParsedQuestions`
+     * con un formato estandarizado para cada pregunta.
+     * Extrae enunciado, opciones, respuesta correcta y explicación.
+     */
     function parseQuestions() {
-        allParsedQuestions = [];
+        allParsedQuestions = []; // Limpia el array antes de parsear
         questionsData.forEach((qData, index) => {
-            // Adaptar la estructura de qData al formato esperado
-            const questionNumber = parseInt(qData.text.match(/^\s*(\d+)\./)?.[1] || index + 1, 10);
-            const enunciado = qData.text.replace(/^\s*\d+\.?\s*/, '').trim();
-            const options = {};
+            // El texto de la pregunta ya no tiene número, se usa directamente
+            const enunciado = qData.text.trim();
+            const options = {}; // Objeto para guardar las opciones { A: "texto", B: "texto", ... }
             let optionCount = 0;
-            const optionLetters = ['A', 'B', 'C', 'D']; // Asumir orden A,B,C,D
+            const optionLetters = ['A', 'B', 'C', 'D']; // Asume este orden si no hay letra explícita
 
+            // Procesa cada opción del array de opciones
             qData.options.forEach((optText, optIndex) => {
+                // Intenta extraer la letra (A, B, C, D) del principio del texto de la opción
                 const letterMatch = optText.match(/^\s*([A-D])\)\s*/i);
+                // Usa la letra extraída o la letra correspondiente al índice si no se encuentra
                 const letter = letterMatch ? letterMatch[1].toUpperCase() : optionLetters[optIndex];
+                // Limpia el texto de la opción quitando la letra y el paréntesis inicial
                 const text = letterMatch ? optText.replace(/^\s*[A-D]\)\s*/i, '').trim() : optText.trim();
                 if (letter) {
-                    options[letter] = text;
+                    options[letter] = text; // Guarda la opción en el objeto `options`
                     optionCount++;
                 }
             });
 
-            // Determinar la letra correcta basada en el índice 'answer'
+            // Determina la letra de la respuesta correcta a partir del índice `answer`
             const correctAnswer = qData.answer !== undefined && qData.answer < optionLetters.length
                                     ? optionLetters[qData.answer]
-                                    : null;
+                                    : null; // Si `answer` no es válido, la respuesta es null
 
-            const isDisabled = qData.disabled || false;
-            const explanation = qData.explanation || 'Explicación pendiente.';
+            const isDisabled = qData.disabled || false; // Comprueba si la pregunta está marcada como anulada
+            const explanation = qData.explanation || 'Explicación pendiente.'; // Obtiene la explicación
 
-
-            if (enunciado && optionCount > 0 && correctAnswer) {
+            // Añade la pregunta parseada al array si tiene enunciado, opciones y respuesta correcta
+            if (enunciado && optionCount > 0 && correctAnswer !== null) {
                  allParsedQuestions.push({
-                    originalIndex: index, // Usar índice del array como ID único
-                    questionNumber: questionNumber, // Guardar número original también
+                    originalIndex: index, // Índice original como ID único
+                    // questionNumber: ya no se guarda
                     enunciado: enunciado,
                     options: options,
                     correctAnswer: correctAnswer,
-                    answered: false,
-                    userAnswer: null,
-                    isCorrect: null,
-                    disabled: isDisabled,
-                    explanation: explanation
+                    answered: false, // Estado inicial: no respondida
+                    userAnswer: null, // Estado inicial: sin respuesta de usuario
+                    isCorrect: null, // Estado inicial: sin determinar si es correcta
+                    disabled: isDisabled, // Si está anulada
+                    explanation: explanation // Texto de la explicación
                  });
             } else {
-                 console.warn(`Pregunta ${questionNumber} ignorada: formato inválido o falta respuesta correcta.`);
+                 // Advierte si una pregunta no se pudo parsear correctamente
+                 console.warn(`Pregunta con índice ${index} ignorada: formato inválido, falta respuesta correcta o está anulada sin marcar explícitamente.`);
             }
         });
-        // totalQuestions = allParsedQuestions.length; // El total se calcula después de filtrar anuladas
+        // Mensaje de log indicando cuántas preguntas se parsearon
         console.log(`Parseo finalizado (desde array). Total de preguntas parseadas: ${allParsedQuestions.length}`);
+         // Error crítico si no se parsea ninguna pregunta
          if (allParsedQuestions.length === 0) {
              console.error("Error Crítico: No se parseó ninguna pregunta desde el array.");
              quizContainer.innerHTML = "<p style='color: red; font-weight: bold;'>Error: No se pudieron cargar las preguntas.</p>";
@@ -1648,10 +1768,10 @@
 
 
     // --- Ejecutar Inicialización ---
+    // Añade un listener para ejecutar `initializeApp` cuando el contenido del DOM esté listo
     document.addEventListener('DOMContentLoaded', initializeApp);
 
   </script>
 
 </body>
 </html>
-
