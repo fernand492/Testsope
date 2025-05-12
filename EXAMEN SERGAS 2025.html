@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba SERGAS - Selección y Progreso</title>
+    <style>
+        /* Estilos generales del cuerpo */
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            scroll-behavior: smooth;
+        }
+
+        /* Variables CSS */
+        :root {
+            --sergas-blue: #002D72;
+            --sergas-light-blue: #e0e8f5;
+            --correct-color: #4CAF50;
+            --incorrect-color: #F44336;
+            --pending-color: #FFC107;
+            --text-color: #333;
+            --bg-color: #fff;
+            --border-color: #ddd;
+            --button-bg: var(--sergas-blue);
+            --button-text: #fff;
+            --button-hover-bg: #001f50;
+            --secondary-button-bg: #6c757d;
+            --secondary-button-hover-bg: #5a6268;
+        }
+
+        /* Contenedor principal */
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative; /* Para posicionar botones si es necesario */
+        }
+
+        /* Título */
+        h1 {
+            color: var(--sergas-blue);
+            text-align: center;
+            border-bottom: 2px solid var(--sergas-blue);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        /* --- Pantalla de Configuración --- */
+        #setup-screen {
+            text-align: center;
+            padding: 30px 15px;
+        }
+        #setup-screen h2 {
+            color: var(--text-color);
+            margin-bottom: 25px;
+        }
+        .setup-options button, .continue-options button, #reset-all-button, #back-to-menu-button, .results-actions button {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 12px 20px;
+            margin: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+            display: inline-block;
+        }
+        .setup-options button:hover, .continue-options button:hover, #reset-all-button:hover, #back-to-menu-button:hover, .results-actions button:hover {
+            background-color: var(--button-hover-bg);
+        }
+         #reset-all-button {
+             background-color: var(--incorrect-color);
+             margin-top: 20px;
+         }
+         #reset-all-button:hover {
+              background-color: #c4302b;
+         }
+         /* Botón Volver al Menú durante el quiz */
+         #back-to-menu-button {
+            background-color: var(--secondary-button-bg);
+            margin-top: 15px; /* Espacio arriba */
+            margin-bottom: 10px; /* Espacio abajo */
+            display: block; /* Ocupa su propia línea */
+            margin-left: auto; /* Centrado (si el contenedor es flex o grid) o ajustar */
+            margin-right: auto;
+            width: fit-content; /* Ajustar ancho al contenido */
+         }
+         #back-to-menu-button:hover {
+             background-color: var(--secondary-button-hover-bg);
+         }
+
+
+        /* Ocultar elementos inicialmente */
+        #quiz-content {
+            display: none; /* Ocultar el contenido del quiz al inicio */
+        }
+
+
+        /* --- Barra de Progreso --- */
+        .progress-bar-container {
+            display: flex;
+            height: 30px;
+            background-color: var(--border-color);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .progress-bar-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+            transition: width 0.5s ease-in-out;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 5px;
+        }
+        .progress-correct { background-color: var(--correct-color); }
+        .progress-incorrect { background-color: var(--incorrect-color); }
+        .progress-pending {
+            background-color: var(--pending-color);
+            cursor: pointer;
+        }
+        .progress-pending:hover { filter: brightness(110%); }
+
+        /* --- Bloques de Preguntas --- */
+        .question-block {
+            background-color: var(--sergas-light-blue);
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--sergas-blue);
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .question-block.answered { background-color: #fff; }
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-color);
+            font-size: 1em;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 8px;
+            padding: 12px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            font-size: 0.95em;
+        }
+        .options input[type="radio"] { display: none; }
+        @media (hover: hover) {
+            .question-block:not(.answered) .options label:hover {
+                background-color: #eef;
+                border-color: var(--sergas-blue);
+            }
+        }
+        .options input[type="radio"]:checked + span { font-weight: bold; }
+        .question-block.answered .options label { cursor: default; }
+        .question-block.answered .options label.correct-answer {
+            background-color: #dff0d8;
+            border-color: var(--correct-color);
+            font-weight: bold;
+            color: #3c763d;
+        }
+        .question-block.answered .options label.incorrect-selection {
+            background-color: #f2dede;
+            border-color: var(--incorrect-color);
+            color: #a94442;
+            text-decoration: line-through;
+        }
+        @media (hover: hover) {
+            .question-block.answered:hover .options label.correct-answer {
+                box-shadow: 0 0 5px 2px var(--correct-color);
+            }
+        }
+
+         /* --- Resumen de Resultados --- */
+         #results-summary {
+             margin-top: 30px;
+             padding: 20px;
+             border: 2px solid var(--sergas-blue);
+             border-radius: 8px;
+             background-color: var(--sergas-light-blue);
+             text-align: center;
+         }
+         #results-summary h3 {
+             margin-top: 0;
+             color: var(--sergas-blue);
+         }
+         #results-summary p {
+             font-size: 1.1em;
+             margin: 10px 0;
+         }
+         #results-summary .score-correct { color: var(--correct-color); font-weight: bold;}
+         #results-summary .score-incorrect { color: var(--incorrect-color); font-weight: bold;}
+         #results-summary .score-percentage { font-weight: bold; }
+         .results-actions button {
+             margin-top: 15px;
+             background-color: var(--secondary-button-bg);
+         }
+          .results-actions button:hover {
+             background-color: var(--secondary-button-hover-bg);
+         }
+
+
+        /* --- Responsividad --- */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h1 { font-size: 1.5em; }
+            .progress-bar-segment { font-size: 0.7em; }
+            .question-text { font-size: 0.95em; }
+            .options label { font-size: 0.9em; padding: 10px; }
+            .setup-options button, .continue-options button, #reset-all-button, #back-to-menu-button, .results-actions button { font-size: 0.9em; padding: 10px 15px; }
+            #results-summary { padding: 15px; }
+            #results-summary p { font-size: 1em; }
+        }
+         @media (max-width: 400px) {
+             h1 { font-size: 1.3em; }
+              .progress-bar-segment { font-size: 0.65em; }
+             .question-text { font-size: 0.9em; }
+             .options label { font-size: 0.85em; }
+             .setup-options button, .continue-options button, #reset-all-button, #back-to-menu-button, .results-actions button { font-size: 0.85em; padding: 8px 12px; }
+         }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Prueba SERGAS</h1>
+
+        <div id="setup-screen">
+            <h2>Elige el número de preguntas:</h2>
+            <div class="setup-options">
+                <button data-count="20">20 Preguntas</button>
+                <button data-count="50">50 Preguntas</button>
+                <button data-count="70">70 Preguntas</button>
+                <button data-count="all">Todas (110)</button>
+            </div>
+             <div id="continue-options" class="continue-options" style="margin-top: 20px; display: none;">
+                <h2>O continúa un test anterior:</h2>
+            </div>
+             <button id="reset-all-button">Reiniciar Todo el Progreso</button>
+        </div>
+
+        <div id="quiz-content">
+            <button id="back-to-menu-button">Volver al Menú</button>
+
+            <div class="progress-bar-container">
+                <div id="progress-correct" class="progress-bar-segment progress-correct" style="width: 0%;">0</div>
+                <div id="progress-incorrect" class="progress-bar-segment progress-incorrect" style="width: 0%;">0</div>
+                <div id="progress-pending" class="progress-bar-segment progress-pending" style="width: 100%;">Pendientes: 0</div>
+            </div>
+            <div id="quiz-container">
+                </div>
+             <div id="results-summary" style="display: none;">
+                 </div>
+        </div>
+    </div>
+
+    <script>
+        // Array con los datos de TODAS las preguntas (110) - ¡Recuerda verificar las correctas!
+        const questionsData = [
+            // ... (Las 110 preguntas van aquí - OMITIDO POR BREVEDAD, pero está en el contexto anterior)
+             // Preguntas 1-100
+            { id: 1, question: "1. En la codificación de diagnósticos con la CIE—10—ES, con referencia a los modificadores esenciales, señale la correcta:", options: { A: "Son términos que se modifican continuamente.", B: "Los números tienen prioridad sobre los caracteres alfabéticos.", C: "No aparecen números dentro de los modificadores esenciales.", D: "Aportan información adicional sin modificar la asignación del código." }, correctAnswer: "B" },
+            { id: 2, question: "2. La Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales, consta de:", options: { A: "Noventa artículos.", B: "Noventa y cinco artículos.", C: "Noventa y siete artículos.", D: "Noventa y nueve artículos." }, correctAnswer: "C" },
+            { id: 3, question: "3. Según la Ley 41/2002, de 14 de noviembre, ¿qué se entiende por necesidad terapéutica?:", options: { A: "La facultad de los facultativos para llevar a cabo las intervenciones clínicas indispensables cuando existe riesgo para la salud pública.", B: "La obligación de informar al paciente sobre los posibles procedimientos de pronóstico, diagnóstico y terapéuticos.", C: "La obligación de los profesionales de informar a los pacientes cuando aplican una técnica o procedimiento concreto.", D: "La facultad del médico para actuar profesionalmente sin informar antes al paciente, cuidando por razones objetivas el conocimiento de su propia situación pueda perjudicar su salud de manera grave." }, correctAnswer: "D" },
+            { id: 4, question: "4. Según el CMBD se considera que un paciente genera una estancia cuándo:", options: { A: "El paciente está de 8 a 19 horas y le hacen al menos una prueba diagnóstica.", B: "El paciente está al menos 23 horas, en cualquier tramo horario.", C: "El paciente pernocta y está el tiempo que correspondería al suministro de una comida principal (almuerzo o cena).", D: "Ninguna es correcta." }, correctAnswer: "C" },
+            { id: 5, question: "5. ¿Cuál de los siguientes literales no se corresponde con la definición de indización?", options: { A: "Indizar consiste en la identificación del diagnóstico principal, los diagnósticos secundarios y los procedimientos realizados durante un episodio asistencial.", B: "Para indizar se requiere la lectura de toda la documentación clínica, ya que no hay ningún documento fundamental de consulta para la correcta codificación de un episodio.", C: "Para indizar, además del informe clínico de alta, pueden ser consultados otros documentos que complementen la información y añadan una mayor especificidad tanto en diagnósticos como en procedimientos para la correcta codificación de un episodio.", D: "Para realizar una buena indización, el documento fundamental de consulta es el Informe Clínico de Alta del episodio asistencial." }, correctAnswer: "B" },
+            { id: 6, question: "6. ¿Qué entendemos por perfil de búsqueda?", options: { A: "Es el resultado de elaborar el conjunto de datos que identifican la solicitud de información, transcribiéndolos al lenguaje que utiliza el sistema documental.", B: "Es el conjunto de actividades mediante las cuales se prepara la documentación para que pueda ser recuperada selectivamente.", C: "Es el perfil de la historia clínica obtenido a partir de la indización de una serie de datos de cada episodio.", D: "A y B son correctas." }, correctAnswer: "A" },
+            { id: 7, question: "7. El derecho de las personas interesadas a recibir los datos personales que le incumban en un formato estructurado de uso común y lectura mecánica se denomina, según la Ley Orgánica 3/2018 de Protección de Datos Personales y garantía de los derechos digitales:", options: { A: "Derecho de supresión.", B: "Derecho de oposición.", C: "Derecho de rectificación.", D: "Derecho a la portabilidad de los datos." }, correctAnswer: "D" },
+            { id: 8, question: "8. Según la Ley 5/2015, de 26 de junio, de derechos y garantías de la dignidad de las personas enfermas terminales, se define la ortotanasia como:", options: { A: "La intervención deliberada para poner fin a la vida de un paciente sin perspectiva de cura.", B: "El acto de acelerar deliberadamente la muerte de un enfermo sin que medie expresa voluntad por su parte.", C: "El conjunto coordinado de intervenciones sanitarias dirigidas a la mejora de la calidad de vida de los pacientes y de sus familias.", D: "La buena muerte, en el sentido de la muerte en el momento biológico adecuado." }, correctAnswer: "D" },
+            { id: 9, question: "9. Un paciente se presenta para biopsia de pulmón transbronquial. Se realizó la biopsia transbronquial de la lesión en el lóbulo superior del pulmón izquierdo, usando un forceps alligator (instrumento de corte) bajo guía radiológica. Indique la respuesta correcta:", options: { A: "OBDG4ZX Extracción de lóbulo superior pulmón, izquierdo, diagnóstico, abordaje endoscópico percutáneo.", B: "0BBL8ZX Escisión de pulmón, izquierdo, diagnóstico, abordaje orificio natural o artificial, endoscópico.", C: "0BBG8ZX Escisión de lóbulo superior pulmón, izquierdo, diagnóstico, abordaje orificio natural o artificial, endoscópico.", D: "0BDG8ZX Extracción de lóbulo superior pulmón, izquierdo, diagnóstico, abordaje orificio natural o artificial, endoscópico." }, correctAnswer: "C" },
+            { id: 10, question: "10. Amputación total del miembro inferior izquierdo por desarticulación de la cadera:", options: { A: "0Y6D0Z1 Amputación del muslo, izquierdo, alta, abordaje abierto.", B: "0Y6J0Z1 amputación de pierna, izquierda, alta, abordaje abierto.", C: "0Y680ZZ Amputación de región femoral, izquierda, abordaje abierto.", D: "0Y630ZZ Amputación de interpelviabdominal, izquierda, abordaje abierto." }, correctAnswer: "A" },
+            { id: 11, question: "11. Con respecto a la Clasificación Internacional de Enfermedades CIAP-2, la versión española se publicó en el año:", options: { A: "1998.", B: "1999.", C: "1997.", D: "2000." }, correctAnswer: "B" },
+            { id: 12, question: "12.¿Qué otro nombre recibe la hernia crural?", options: { A: "Hernia escrotal.", B: "Hernia inguinal.", C: "Hernia femoral.", D: "Hernia diafragmática." }, correctAnswer: "C" },
+            { id: 13, question: "13. Paciente embarazada de 35 semanas que ingresa por desnutrición. Permanece ingresada para tratamiento de su malnutrición, hasta que tiene lugar el parto, en la semana 36. El resultado del parto es un nacido único vivo. ¿Cuál es la codificación de diagnósticos correcta según la CIE—10—ES?.", options: { A: "025.2 Desnutrición en el parto + 060.14X0 Trabajo de parto prematuro en el tercer trimestre con parto prematuro del tercer trimestre, no aplicable o no especificado + Z3A.35 35 semanas de gestación + Z37.0 Nacido vivo único.", B: "025.13 Desnutrición en el embarazo, tercer trimestre + Z3A.35 35 semanas de gestación + Z37.0 Nacido vivo único.", C: "025.2 Desnutrición en el parto + 060.14X0 Trabajo de parto prematuro en el tercer trimestre con parto prematuro del tercer trimestre, no aplicable o no especificado + Z3A.36 36 semanas de gestación + Z37.0 Nacido vivo único.", D: "025.13 Desnutrición en el embarazo, tercer trimestre + Z3A.36 36 semanas de gestación + Z37.0 Nacido vivo único." }, correctAnswer: "C" },
+            { id: 14, question: "14. Según la Orden de 20 de noviembre de 2018 por la que se regula la digitalización de la documentación clínica en soporte papel que forma parte de la historia clínica, señale cuál de estas respuestas no es uno de los principios que deben garantizarse en la generación de documentos electrónicos a partir de soportes no electrónicos:", options: { A: "Trazabilidad.", B: "Diversidad.", C: "Integridad.", D: "Autenticidad." }, correctAnswer: "B" },
+            { id: 15, question: "15. Según la redacción vigente del artículo 46 de la Ley 20/2011, de 21 de julio, del Registro Civil, las direcciones de hospitales, clínicas y establecimientos sanitarios tendrán que comunicar a la Oficina del Registro Civil que corresponda cada uno de los nacimientos que hayan tenido lugar en el centro sanitario, excepto aquellos casos que exijan personarse ante el encargado del Registro Civil, en un plazo de:", options: { A: "Setenta y dos horas desde el nacimiento.", B: "Noventa y seis horas desde el nacimiento.", C: "Siete días naturales.", D: "Diez días hábiles." }, correctAnswer: "A" },
+            { id: 16, question: "16. Paciente con estenosis del baipás fémoro—poplíteo izquierdo (PTFE-politetrafluoroetileno expandido). Se realiza angioplastia percutánea con balón Armada de 5x40. Se codifica en CIE-10—ES PROCEDIMIENTOS con el tipo de procedimiento:", options: { A: "Dilatación.", B: "Inserción.", C: "Extirpación.", D: "Revisión." }, correctAnswer: "A" },
+            { id: 17, question: "17. A efectos de la Ley 3/2001, del 28 de mayo, reguladora del consentimiento informado y de la historia clínica, modificada por la Ley 3/2005, del 7 de marzo, cuando un paciente esté circunstancialmente incapacitado para la toma de decisiones, por criterio del médico responsable de la asistencia, y el consentimiento por sustitución corresponda a sus familiares o las personas vinculadas de hecho a él, ¿cuál de las mencionadas a continuación tendrá preferencia sobre las demás?:", options: { A: "Quien tenga la condición legal de pareja de hecho.", B: "Los familiares de grado más próximo.", C: "Los familiares que ejerzan de cuidadores.", D: "Los familiares más próximos de mayor edad." }, correctAnswer: "A" },
+            { id: 18, question: "18. ¿Cuál de las siguientes circunstancias de un parto sería incompatible con la asignación en CIE-10-ES DIAGNÓSTICOS del código O80 Admisión para el parto a término no complicado?:", options: { A: "Realización de una esterilización electiva.", B: "Realización de una episiotomía que se sutura.", C: "Recién nacido único mortinato.", D: "Presentación occipital del feto." }, correctAnswer: "C" },
+            { id: 19, question: "19. Señala cuál de los siguientes es un derecho de los usuarios del Sistema Público de Galicia, según la Ley 12/2013, de 9 de diciembre, de garantías de prestaciones sanitarias:", options: { A: "Derecho a la libre elección de médico de familia, pediatra y profesional de enfermería, así como de hospital o complejo hospitalario.", B: "Derecho a disponer de una tercera opinión médica y derecho a manifestar las instrucciones previas.", C: "Derecho a la información sobre los derechos y los deberes en relación con los profesionales sanitarios.", D: "Todas son ciertas." }, correctAnswer: "D" },
+            { id: 20, question: "20. En relación a los códigos Z de diagnósticos de CIE10ES, ¿cuál de estas afirmaciones es falsa?:", options: { A: "Si un paciente presenta durante el ingreso una infección por SARM (Staphylococcus aureus resistente a meticilina) y además es portador de dicho germen (Z22.322) debemos asignar ambos códigos. Este criterio sólo es aplicable a la infección por SARM.", B: "Los códigos Z de Historia son de dos tipos: historia personal e historia familiar.", C: "Los códigos Z de Observación se utilizan en circunstancias muy limitadas, cuando una persona está en observación por sospecha de una enfermedad que finalmente se descarta.", D: "Los códigos Z de Cuidados Posteriores no deben utilizarse si el tratamiento se dirige a una enfermedad actual y aguda. Bajo ningún concepto estos códigos de cuidados posteriores pueden ser diagnóstico principal." }, correctAnswer: "D" },
+            { id: 21, question: "21. Respecto a la estructura y organización de los procedimientos de la CIE10ES, señale la afirmación falsa:", options: { A: "Cada posición de un código de procedimiento puede incluir uno de los 34 posibles valores: los números del 0 al 9 y todas las letras del alfabeto (excepto la I y la O, para no ser confundidas con el 1 y el 0).", B: "Todos los códigos de CIE—10—ES Procedimientos tienen una longitud de siete caracteres con valores alfanuméricos. Cada uno de estos caracteres ocupa una posición que representa un aspecto concreto del procedimiento realizado.", C: "Consta de 17 secciones representadas por los números del 0 al 9 y por las letras B, C, D, F, G, H, X. La sección Médico—Quirúrgica contiene la gran mayoría de los procedimientos que se realizan habitualmente en el ámbito de hospitalización.", D: "Esta clasificación ha tratado de mantener la consistencia en el significado de las posiciones y de los valores, en todas las secciones el significado de cada posición es idéntico." }, correctAnswer: "D" },
+            { id: 22, question: "22. ¿Qué entendemos por indización del episodio asistencial?", options: { A: "Consiste en la identificación del diagnóstico principal y los procedimientos realizados durante el episodio asistencial.", B: "Consiste en la identificación del diagnóstico principal, los diagnósticos secundarios y los procedimientos realizados durante un episodio asistencial.", C: "Consiste en la identificación del diagnóstico principal y los diagnósticos secundarios durante el episodio asistencial.", D: "Consiste en la identificación del diagnóstico principal, los diagnósticos secundarios y los procedimientos realizados en parte del episodio asistencial." }, correctAnswer: "B" },
+            { id: 23, question: "23. La Ley 3/2001, de 28 de mayo, reguladora del consentimiento informado y de la historia clínica modificada, por la Ley 3/2005, del 7 de marzo, es de aplicación a todo tipo de asistencia sanitaria que se preste en la Comunidad Autónoma de Galicia:", options: { A: "En los centros y establecimientos sanitarios públicos y en los concertados con el Servicio Gallego de Salud.", B: "Solo en los centros y establecimientos sanitarios públicos.", C: "En los centros y establecimientos sanitarios públicos o privados pero no en los concertados con el Servicio Gallego de Salud.", D: "En los centros y establecimientos sanitarios públicos o privados, sean o no concertados con el Servicio Gallego de Salud." }, correctAnswer: "D" },
+            { id: 24, question: "24. Según el artículo 9.4 de la Ley 41/2002, 14 de noviembre, en el caso de un paciente de 17 años de edad, que establece, cuando se trate de una actuación de grave riesgo para la vida o salud del menor, según el criterio del facultativo:", options: { A: "El consentimiento informado lo prestará el propio menor, una vez oída y tenida en cuenta la opinión de sus padres.", B: "El consentimiento informado lo prestará el propio menor, sin necesidad de oír a sus padres.", C: "El consentimiento informado lo prestará el representante legal del menor, una vez oída y tenida en cuenta la opinión del mismo.", D: "Será tenido en cuenta siempre el dictamen de la Junta Técnico—Asistencial del centro hospitalario." }, correctAnswer: "C" },
+            { id: 25, question: "25. Recién nacido de 35+2 semanas de gestación, que ingresa en el servicio de Neonatos con peso bajo para la edad gestacional, de 1650 gramos. La codificación correcta según CIE—10—ES DIAGNÓSTICOS sería:", options: { A: "P07.38 Recién nacido pretérmino, edad gestacional de 35 semanas completas + P07.16 Recién nacido con otro tipo de bajo peso al nacer, 1500—1749 gramos.", B: "P07.38 Recién nacido pretérmino, edad gestacional de 35 semanas completas + P05.06 Recién nacido de bajo peso para la edad gestacional, 1500—1749 gramos.", C: "P05.06 Recién nacido de bajo peso para la edad gestacional, 1500—1749 gramos + P07.38 Recién nacido pretérmino, edad gestacional de 35 semanas completas.", D: "P07.16 Recién nacido con otro tipo de bajo peso al nacer, 1500—1749 gramos + P07.38 Recién nacido pretérmino, edad gestacional de 35 semanas completas." }, correctAnswer: "B" },
+            { id: 26, question: "26. ¿Cuál de los siguientes no es un atributo estructural fundamental en CIE—10ES Procedimientos?", options: { A: "Estructura multiaxial.", B: "Exhaustividad.", C: "Lateralidad.", D: "Expansibilidad." }, correctAnswer: "C" },
+            { id: 27, question: "27. ¿Qué entidad ha desarrollado la (CIE) ICD-10—CM?", options: { A: "El Centro Nacional de Estadísticas de Salud (NCHS) de EEUU.", B: "American Hospital Association.", C: "The ICD—10 Coordination and Maintenance Committee (C&M).", D: "Ninguna de las respuestas anteriores es correcta." }, correctAnswer: "A" },
+            { id: 28, question: "28. Se define la Hospitalización de Día como:", options: { A: "La atención especializada en régimen de internamiento físico en una cama de hospital de duración entre 24 y 48 horas.", B: "La asistencia sanitaria de complejidad hospitalaria prestada en el domicilio del paciente por un profesional sanitario de atención hospitalaria en régimen de internamiento domiciliario.", C: "La asistencia sanitaria en la que se presta atención al paciente en el hospital mediante procedimientos, técnicas y tratamientos complejos en régimen ambulatorio.", D: "La asistencia domiciliaria integrada con los sistemas de información corporativos que facilita el acceso telemático del paciente a diversos servicios asistenciales y permite el control asistencial del paciente en su domicilio." }, correctAnswer: "C" },
+            { id: 29, question: "29. Se trata de un paciente trasplantado renal que ingresa por enfermedad renal crónica terminal por disfunción crónica del injerto, en hemodiálisis, con cardiopatía hipertensiva. Indique la codificación correcta:", options: { A: "T86.12 fracaso de trasplante renal + N18.6 enfermedad renal en estadio terminal + Z99.2 dependencia de diálisis renal + I11.0 enfermedad cardíaca con insuficiencia cardíaca + I50.9 insuficiencia cardíaca no especificada.", B: "T86.12 fracaso de trasplante renal + N18.6 enfermedad renal en estadio terminal + Z99.2 dependencia de diálisis renal + I11.9 enfermedad cardíaca hipertensiva sin insuficiencia cardíaca.", C: "T86.12 fracaso de trasplante renal + I13.11 enfermedad cardíaca y renal crónica hipertensiva sin insuficiencia cardíaca con enfermedad renal crónica en estadio 5 o con enfermedad renal en estadio terminal + N18.6 enfermedad renal en estadio terminal + Z99.2 dependencia de diálisis renal.", D: "I13.11 enfermedad cardíaca y renal crónica hipertensiva sin insuficiencia cardíaca con enfermedad renal crónica en estadio 5 o con enfermedad renal en estadio terminal + N18.6 enfermedad renal en estadio terminal + Z99.2 dependencia de diálisis renal + Z94.0 estado de trasplante renal." }, correctAnswer: "C" },
+            { id: 30, question: "30. Respecto a la codificación de la Diabetes Mellitus (DM), señale la respuesta incorrecta:", options: { A: "La diabetes LADA o diabetes mellitus autoinmune latente del adulto, es un tipo de diabetes mellitus con características autoinmunes, similar a la diabetes tipo 1 con comienzo en edad adulta. También es conocida como diabetes tipo 1.5. Este tipo de diabetes debe clasificarse también en la categoría E13 Otro tipo de diabetes mellitus especificada.", B: "El código E13 sirve para codificar también la diabetes mellitus pospancreatectomía o la diabetes mellitus tras procedimiento.", C: "La Diabetes MODY o diabetes del adulto con inicio en la juventud o en la infancia, constituye un tipo particular de diabetes mellitus de inicio en la juventud y comportamiento similar a la diabetes tipo 2. Se clasifica en la categoría E13 Otro tipo de diabetes mellitus especificada.", D: "La Diabetes Mellitus esteroidea, debido al consumo de corticoesteroides, se codifica dentro de la categoría E13 Otro tipo de diabetes mellitus especificada, añadiendo a continuación el código del efecto adverso de medicamento correctamente administrado." }, correctAnswer: "A" },
+            { id: 31, question: "31. Con referencia a la insuficiencia respiratoria, señale la incorrecta:", options: { A: "Existen instrucciones concretas para la codificación de la insuficiencia respiratoria del recién nacido.", B: "Solo se codificará la insuficiencia respiratoria cuando esté perfectamente documentada por el clínico.", C: "En función del tiempo de instauración, se clasifica en insuficiencia respiratoria parcial o insuficiencia respiratoria global.", D: "Los criterios gasométricos deben considerarse únicamente como apoyo al diagnóstico clínico." }, correctAnswer: "C" },
+            { id: 32, question: "32. Según la Ley Orgánica 3/2021, de 24 de marzo, de regulación de la eutanasia, indica cuál de las siguientes afirmaciones es incorrecta:", options: { A: "Las denegaciones de la prestación de ayuda para morir deberán realizarse siempre por escrito y de manera motivada por el médico responsable.", B: "La denegación deberá realizarse en el plazo máximo de diez días naturales desde la primera solicitud.", C: "La prestación de ayuda para morir estará incluida en la cartera común de servicios del Sistema Nacional de Salud y será de financiación pública.", D: "Ante la denegación de la prestación de ayuda para morir, la persona que hubiera presentado la misma podrá presentar en el plazo máximo de diez días naturales una reclamación ante la Comisión de Garantía y Evaluación competente." }, correctAnswer: "D" },
+            { id: 33, question: "33. La fractura de Tillaux está causada por la avulsión del ligamento:", options: { A: "Tibiofibular anteroinferior.", B: "Tibiocalcáneo posteroinferior.", C: "Peroneoastragalino anterior.", D: "Peroneoastragalino posterior." }, correctAnswer: "A" },
+            { id: 34, question: "34. No son objetivos del CMBD:", options: { A: "Facilitar la realización de estadísticas del sector salud a nivel estatal.", B: "Conocer la demanda asistencial y la morbilidad atendida en los dispositivos de atención primaria.", C: "Favorecer la realización de estudios de investigación clínica, epidemiológica y de evaluación de servicios sanitarios y de resultados de salud.", D: "Todos son objetivos del CMBD." }, correctAnswer: "B" },
+            { id: 35, question: "35. Conociendo las normas para la asignación del marcador de diagnóstico presente al ingreso (POA: Present on Admission), indique cuál de las siguientes respuestas es incorrecta:", options: { A: "El marcador “POA\" se asigna al diagnóstico principal (D.P.) y diagnósticos secundarios (D.S.) y también a los códigos de causas externas de lesiones y envenenamientos.", B: "Presente al ingreso (POA) se define como presente en el momento en el que se produce la orden de ingreso.", C: "Las afecciones que se desarrollan durante un contacto ambulatorio, incluyendo servicios de urgencias o cirugía ambulatoria, son consideradas como presentes al ingreso.", D: "Las afecciones que se desarrollan durante un contacto ambulatorio, incluyendo servicios de urgencias o cirugía ambulatoria, no son consideradas como presentes al ingreso." }, correctAnswer: "D" },
+            { id: 36, question: "36. De los siguientes síntomas, ¿cuál no es propio de una esquizofrenia?:", options: { A: "Ideas delirantes.", B: "Las alucinaciones mantenidas a lo largo del tiempo.", C: "Pensamiento ordenado.", D: "La afectividad embotada." }, correctAnswer: "C" },
+            { id: 37, question: "37. ¿A qué llamamos análisis documental?", options: { A: "Un análisis sistemático de todos los posibles nombres necesarios para definir claramente a una familia conceptual o lingüística.", B: "Un análisis alfabético de términos, no necesariamente sistemáticos o comprensivos, usados en una rama particular de la ciencia.", C: "El conjunto de actividades mediante las cuales se prepara la documentación para que pueda ser recuperada selectivamente.", D: "Ninguna es correcta." }, correctAnswer: "C" },
+            { id: 38, question: "38. El trasplante de córnea se codifica cómo?", options: { A: "Sustitución.", B: "Trasplante.", C: "Reposición.", D: "Reimplantación." }, correctAnswer: "B" },
+            { id: 39, question: "39. ¿En qué capítulo de la CIE—10-ES está la \"Fibrosis Pulmonar’?:", options: { A: "Capítulo 9. Enfermedades del Aparato Respiratorio.", B: "Capítulo 15. Enfermedades del Aparato Respiratorio.", C: "Capítulo 6. Enfermedades del Aparato Respiratorio.", D: "Capítulo J0. Enfermedades del Aparato Respiratorio." }, correctAnswer: "A" },
+            { id: 40, question: "40. ¿Qué es el acmé de una enfermedad?:", options: { A: "El tiempo transcurrido desde el contacto con el agente etiológico hasta que se manifiesta la enfermedad.", B: "Es el período inicial de la recuperación de una enfermedad.", C: "Síntomas iniciales habitualmente inespecíficos.", D: "El período en que la enfermedad se encuentra en su punto más álgido." }, correctAnswer: "D" },
+            { id: 41, question: "41. Se realiza histerectomía vaginal total con la utilización del dispositivo VNOTES. Según la CIE-10-ES PROCEDIMIENTOS. ¿Qué valor es el adecuado para reflejar el abordaje en la posición 5 del código del procedimiento?:", options: { A: "F.", B: "8.", C: "7.", D: "4." }, correctAnswer: "A" },
+            { id: 42, question: "42. ¿Cuál de las siguientes se considera cómo una muerte certificable a la hora de realizar un certificado médico de defunción?:", options: { A: "La muerte sospechosa de criminalidad.", B: "La muerte como consecuencia de la prestación de ayuda a morir.", C: "La muerte secundaria a un accidente.", D: "La muerte sospechosa de suicidio." }, correctAnswer: "B" },
+            { id: 43, question: "43. Las clasificaciones de enfermedades se agrupan según los siguientes elementos:", options: { A: "Categorización, jerarquía y criterio.", B: "Categorización y jerarquía.", C: "Categorización y criterio.", D: "Etiología, criterio y categorización." }, correctAnswer: "A" },
+            { id: 44, question: "44. La realización de procedimientos terapéuticos o diagnósticos de baja complejidad y mínimamente invasivos, con bajo riesgo de hemorragia, que se practican bajo anestesia local y que no requieren cuidados postoperatorios, en pacientes que no precisan ingreso, reciben el nombre de:", options: { A: "Cirugía Mayor Ambulatoria.", B: "Hospital de Día.", C: "Cirugía Menor Ambulatoria.", D: "Hospitalización a Domicilio." }, correctAnswer: "C" },
+            { id: 45, question: "45. En el CMBDH (hospitalización), según el RD 69/2015, no se recogerán las estancias igual a cero días, cuando el motivo de alta sea:", options: { A: "Traslado", B: "Alta voluntaria.", C: "Éxitus.", D: "Orden judicial." }, correctAnswer: "A" },
+            { id: 46, question: "46. Paciente con fracturas múltiples de costillas del lado derecho, contacto inicial por fractura cerrada, utilizaremos el código S22.41XA. ¿Cuál es el marcador de posición en este caso 7?:", options: { A: "El sexto carácter.", B: "El séptimo carácter.", C: "El cuarto carácter.", D: "El primer carácter." }, correctAnswer: "B" },
+            { id: 47, question: "47. Dentro de la sintomatología que puede aparecer en un cuadro de litiasis biliar, no se encontraría:", options: { A: "El dolor en el epicondrio izquierdo.", B: "El meteorismo.", C: "La dispepsia biliar.", D: "La intolerancia a las grasas." }, correctAnswer: "A" },
+            { id: 48, question: "48. Respecto a los abordajes en los procedimientos de CIE10ES, el valor 8, orificio natural o artificial endoscópico, se define como:", options: { A: "Introducción de un instrumento a través de un orificio externo natural o artificial para alcanzar el sitio del procedimiento, e introducción por punción o incisión menor, de instrumentación a través de la piel o mucosas y cualquier otra capa del cuerpo necesaria, para ayudar en la realización del procedimiento.", B: "Introducción de un instrumento a través de una perforación o incisión menor en la piel, mucosas u otras capas corporales necesarias, para alcanzar el lugar del procedimiento.", C: "Introducción de un instrumento a través de una perforación o incisión menor en la piel, mucosas u otras capas corporales necesarias, para alcanzar y visualizar el lugar del procedimiento.", D: "Introducir un instrumento a través de un orificio externo natural o artificial, para alcanzar y visualizar el lugar del procedimiento." }, correctAnswer: "D" },
+            { id: 49, question: "49. Para acceder a la herramienta para realizar explotaciones estadísticas de datos clínicos en el Servicio Gallego de Salud, se utiliza la aplicación:", options: { A: "CETIR.", B: "GIPI.", C: "ATENEA.", D: "Ninguna es correcta." }, correctAnswer: "A" },
+            { id: 50, question: "50. Para formar parte de la Unidad Técnica de la CIE—10—ES, se considera requisito imprescindible:", options: { A: "Experiencia en codificación clínica de al menos 5 años, experiencia docente en codificación, en la coordinación de equipos de codificación clínica, y en evaluaciones del CMBD realizadas por organismos oficiales.", B: "Experiencia en codificación clínica de al menos 2 años, experiencia docente en codificación, en la coordinación de equipos de codificación clínica, y en evaluaciones del CMBD realizadas por organismos oficiales.", C: "Experiencia en codificación clínica de al menos 6 años, experiencia docente en codificación, en la coordinación de equipos de codificación clínica, y en evaluaciones del CMBD.", D: "Experiencia en codificación clínica de al menos 3 años, experiencia docente en codificación, en la coordinación de equipos de codificación clínica, y en evaluaciones del CMBD realizadas por organismos oficiales." }, correctAnswer: "D" },
+            { id: 51, question: "51. ¿Cuáles de los siguientes procesos forman parte de la recuperación de la información?", options: { A: "La construcción del perfil de búsqueda.", B: "La selección de la información.", C: "La evaluación de la eficacia de la búsqueda.", D: "Todas son correctas." }, correctAnswer: "D" },
+            { id: 52, question: "52. Paciente que ingresa con el diagnóstico de aneurisma de arteria esplénica dependiente de rama del polo distal inferior. Se realiza embolización transcatéter selectiva distal de la rama con mezcla de pegamento quirúrgico N—butilo-2—cianoacrilato (NBCA) y lipiodol en proporción de 1:3. La angiografía de control muestra la oclusión completa supraselectiva del segmento arterial intermedio sin llenado del pseudoaneurisma. ¿Cuál es el código de procedimiento correcto?", options: { A: "04L43DZ Oclusión de arteria esplénica, con dispositivo intraluminal, abordaje percutáneo.", B: "04V43ZZ Restricción de arteria esplénica, abordaje percutáneo.", C: "04L43ZZ Oclusión de arteria esplénica, abordaje percutáneo.", D: "04V43DZ Restricción de arteria esplénica, con dispositivo intraluminal, abordaje percutáneo." }, correctAnswer: "A" },
+            { id: 53, question: "53. Según el Decreto 29/2009, de 5 de febrero, por el que se regula el uso y acceso a la historia clínica electrónica, los principios generales a tener en cuenta son:", options: { A: "Principio de vinculación asistencial, principio de proporcionalidad y principio de autonomía.", B: "Principio de proporcionalidad, principio de igualdad y principio de autonomía.", C: "Principio de autonomía y principio de igualdad.", D: "Principio de igualdad y principio de universalidad." }, correctAnswer: "A" },
+            { id: 54, question: "54.La esterilización quirúrgica mediante la técnica de Pomeroy es considerada en CIE—10—ES PROCEDIMIENTOS como un procedimiento de:", options: { A: "Oclusión.", B: "Escisión.", C: "Resección.", D: "Inserción." }, correctAnswer: "A" },
+            { id: 55, question: "55. Para la cumplimentación de la variable Centro Sanitario, incluida en el RD 69/2015, Registro de Actividad de Atención Sanitaria Especializada (RAE—CMBD), para los centros sanitarios de atención especializada ambulatoria, ¿cuál de los siguientes códigos se utiliza?", options: { A: "Código del Catálogo Nacional de Hospitales.", B: "Código INE de Comunidad Autónoma.", C: "Código del Registro General de Centros y Establecimientos Sanitarios.", D: "Código ISO." }, correctAnswer: "C" },
+            { id: 56, question: "56. Respecto a la codificación de las quemaduras y corrosiones, señale la respuesta incorrecta:", options: { A: "Los códigos de quemaduras se aplican a las quemaduras térmicas que proceden de una fuente de calor o de frío extremo, incluidas las quemaduras solares. Los códigos de quemadura también se aplican a quemaduras debidas a electricidad, radiación y aquellas provocadas por el hielo.", B: "Las corrosiones son quemaduras por productos químicos. La normativa es común para quemaduras y corrosiones.", C: "Las quemaduras agudas y corrosiones se clasifican por su profundidad, su extensión y la causa externa.", D: "Las quemaduras de los ojos y de los órganos internos se clasifican por su localización, pero no por grados." }, correctAnswer: "A" },
+            { id: 57, question: "57. Indique la respuesta correcta. La herramienta corporativa para el acceso y distribución de la información analítica del Sistema Público de Salud:", options: { A: "Está basada en la herramienta comercial Bussines Objects.", B: "Está basada en estadística descriptiva.", C: "Está basada en aplicaciones gráficas y de autoedición.", D: "Ninguna es correcta." }, correctAnswer: "A" },
+            { id: 58, question: "58. Indique la codificación correcta: Paciente que ingresa por una sepsis grave con shock séptico secundaria a neumonía por COVID19, con fallo renal agudo:", options: { A: "U07.1 COVID19 + A41.9 Sepsis, microorganismo no especificado + R65.20 Sepsis grave sin shock séptico + J12.82 Neumonía por enfermedad de coronavirus 2019 + N17.9 Fallo renal agudo, no especificado.", B: "U07.1 COVID19 + A41.9 Sepsis, microorganismo no especificado + R65.21 Sepsis grave con shock séptico + N17.9 Fallo renal agudo, no especificado.", C: "U07.1 COVID19 + A41.9 Sepsis, microorganismo no especificado + R65.21 Sepsis grave con shock séptico + J12.82 Neumonía por enfermedad de coronavirus 2019 + N17.9 Fallo renal agudo, no especificado.", D: "U07.1 COVID19 + R65.21 Sepsis grave con shock séptico + J12.82 Neumonía por enfermedad de coronavirus 2019 + N17.9 Fallo renal agudo, no especificado." }, correctAnswer: "C" },
+            { id: 59, question: "59. Según la Ley 12/2013, de 9 de diciembre, de garantías de prestaciones sanitarias de Galicia, el Servicio Gallego de Salud facilitará información general sobre los tiempos de acceso a las prestaciones:", options: { A: "Mensualmente.", B: "Trimestralmente.", C: "Semestralmente.", D: "Anualmente." }, correctAnswer: "C" },
+            { id: 60, question: "60. Conforme el Real Decreto 69/2015, la recogida de datos de actividad de cirugía menor ambulatoria en los centros de atención pública, ¿se iniciará?", options: { A: "El 1 de enero de 2019.", B: "El 1 de enero de 2016.", C: "El 1 de enero de 2020.", D: "No está recogido en esta norma." }, correctAnswer: "A" },
+            { id: 61, question: "61. La familia APR—GRD que se utiliza en la agrupación de pacientes en el CMBD actual, es:", options: { A: "V32.0.", B: "AP—GRD V36.0.", C: "WONCA.", D: "Ninguna respuesta es correcta." }, correctAnswer: "D" },
+            { id: 62, question: "62. Según la estrategia de calidad 2024-2028 del Servicio Gallego de Salud, los valores son:", options: { A: "Compromiso con los pacientes, responsabilidad con la sociedad, gestión del conocimiento, colaboración, participación y apoyo.", B: "Compromiso con los pacientes y con la sociedad.", C: "Compromiso y responsabilidad con los pacientes, gestión de la información, colaboración, participación y apoyo.", D: "Conseguir una organización excelente." }, correctAnswer: "A" },
+            { id: 63, question: "63. ¿Qué es un catéter pigtail en hemodinámica?:", options: { A: "Es un catéter de diagnóstico diseñado especificamente para acceder al ostium de la arteria coronaria derecha durante procedimientos de cateterismo cardíaco.", B: "Tipo de catéter con diseño específico para estabilizarse en la arteria coronaria y facilitar el acceso a las ramas coronarias.", C: "Es el tipo de balón utilizado en angioplastia coronaria.", D: "Catéter con una punta en espiral diseñada para evitar daños en el ventrículo durante la ventriculografía." }, correctAnswer: "D" },
+            { id: 64, question: "64. Indique cuál de las siguientes afirmaciones respecto al lenguaje documental es falsa:", options: { A: "Es un lenguaje normalizado.", B: "Es unívoco.", C: "Es un lenguaje natural.", D: "Es un lenguaje controlado." }, correctAnswer: "C" },
+            { id: 65, question: "65. Los tesauros son un tipo de lenguaje documental:", options: { A: "Libre y precoordinado.", B: "Controlado y precoordinado.", C: "Controlado y postcoordinado.", D: "Ninguna es correcta." }, correctAnswer: "C" },
+            { id: 66, question: "66. Los códigos de manifestación incluidos en corchetes, en el Índice Alfabético de Enfermedades de la CIE-10 —ES:", options: { A: "Siempre son diagnóstico principal.", B: "Nunca son diagnóstico principal.", C: "Hacen referencia al capítulo J.", D: "Se usan para describir epónimos y siglas." }, correctAnswer: "B" },
+            { id: 67, question: "67. ¿Cuál de los siguientes sistemas de certificación de calidad es exclusivo de Sanidad?", options: { A: "Joint Commission International.", B: "EFQM.", C: "ISO.", D: "A y B son ciertas." }, correctAnswer: "A" },
+            { id: 68, question: "68. La responsabilidad de la gestión de las camas hospitalarias le corresponde:", options: { A: "A la Dirección de Enfermería.", B: "Al Servicio de Admisión y Documentación Clínica.", C: "A la Subdirección de Sistemas y Tecnologías de la Información.", D: "A la Subdirección de Humanización y Atención a la Ciudadanía." }, correctAnswer: "B" },
+            { id: 69, question: "69. Señale la respuesta correcta en la CIE—10-ES:", options: { A: "La instrucción \"Incluye\" aparece inmediatamente debajo del literal de los códigos de tres caracteres para definir mejor el contenido de la categoría.", B: "Las abreviaturas NCOC y NEOM solo aparecen en la lista tabular.", C: "La instrucción \"Excluye1” significa “no incluido aquí\".", D: "Los paréntesis solo se utilizan en el Índice Alfabético de Enfermedades." }, correctAnswer: "C" },
+            { id: 70, question: "70. ¿Qué número de Categoría Diagnóstica Mayor de los AP-GRD se corresponde con Enfermedades y Trastornos del Ojo?", options: { A: "3.", B: "4.", C: "2.", D: "7." }, correctAnswer: "C" },
+            { id: 71, question: "71. ¿Qué es el índice CASEMIX basado en la duración de estancias?", options: { A: "Razón entre la estancia media ajustada por funcionamiento (EMAF) y la estancia media estándar.", B: "Razón entre la estancia media ajustada por casuística (EMAC) y la estancia media estándar.", C: "Razón entre la EMAC, estancia media ajustada por casuística y la EMAF, estancia media ajustada por funcionamiento.", D: "Razón entre el número de outsiders de un GRD determinado y el número total de episodios de ese GRD." }, correctAnswer: "B" },
+            { id: 72, question: "72. La unidad fundamental del riñón es la:", options: { A: "Corteza renal.", B: "Nefrona.", C: "Cáliz renal.", D: "Papila." }, correctAnswer: "B" },
+            { id: 73, question: "73. Con respecto a los APR—GRDs, indique la respuesta correcta:", options: { A: "Para cada APR—GRD base se determinan 4 subclases de gravedad de enfermedad o 4 subclases de riesgo de mortalidad.", B: "La subclase 2 de Riesgo de Mortalidad indica un nivel moderado.", C: "Se diseñan a consecuencia del paso de CIE9MC a CIE10ES.", D: "La subclase 1 de Gravedad de Enfermedad indica un nivel extremo." }, correctAnswer: "A" },
+            { id: 74, question: "74. En relación al Catálogo de Tipos Documentales Normalizados del Servicio Gallego de Salud, indique la respuesta correcta:", options: { A: "El profesional incorpora el documento según su propio criterio.", B: "Según la legislación vigente, se creó en el año 2016, con carácter definitivo.", C: "Se puede consultar en É—Saúde.", D: "Todas las respuestas anteriores son falsas." }, correctAnswer: "D" },
+            { id: 75, question: "75. Los resultados esperados tras la implantación del Registro de Atención Especializada son:", options: { A: "Profundización en el análisis de resultados sobre consumo de tiempos de espera y costes de los procesos atendidos.", B: "Las CCAA no podrán disponer de datos y estadísticas sobre el flujo de pacientes entre territorios.", C: "Homogenización de toda la actividad del sector hospitalario, de hospitalización y ambulatorio, público y privado.", D: "Todas son correctas." }, correctAnswer: "C" },
+            { id: 76, question: "76. La Organización Mundial de la Salud (OMS) define al Sistema de Información Sanitaria (SIS) como:", options: { A: "El registro administrativo que contiene un conjunto de variables clínicas, demográficas y administrativas que resumen lo acontecido a un usuario en un episodio asistencial.", B: "La estructura para la recogida, procesamiento, análisis y tratamiento de la información necesaria para la organización y la actividad de los servicios sanitarios, así como para la investigación y la docencia.", C: "El soporte de cualquier tipo o clase que contiene el conjunto de datos de dotación, recursos y actividad de hospitales y centros sanitarios, tanto públicos como privados.", D: "La información sobre los diferentes elementos que intervienen en el campo de la protección de la salud, incluyendo información estructural, funcional y económica de las diferentes prestaciones." }, correctAnswer: "B" },
+            { id: 77, question: "77. Señale qué emplea la CIE-10-ES para incluir palabras complementarias que pueden estar presentes o ausentes en la expresión que describe una enfermedad sin afectar al código asignado:", options: { A: "[ ], corchetes.", B: "( ), paréntesis.", C: ":, dos puntos.", D: "—, guión." }, correctAnswer: "B" },
+            { id: 78, question: "78. El índice de rentabilidad tiene un valor óptimo entre:", options: { A: "1 y 3.", B: "1 y 5.", C: "1 y 4.", D: "5 y 10." }, correctAnswer: "A" },
+            { id: 79, question: "79. En relación a la Hospitalización a Domicilio, indica cuál de las siguientes afirmaciones es incorrecta:", options: { A: "La Hospitalización a Domicilio está especialmente indicada para pacientes que viven solos.", B: "La derivación de un paciente a Hospitalización a Domicilio puede ser realizada desde Atención Primaria y centros residenciales.", C: "Según el artículo 51 de la Ley 8/2008, de 10 de julio, de salud de Galicia, la Hospitalización a Domicilio se enmarca dentro del ámbito de la Atención Especializada.", D: "El ingreso en el servicio de Hospitalización a Domicilio debe ser voluntario." }, correctAnswer: "A" },
+            { id: 80, question: "80. El órgano, dependiente del Ministerio de Sanidad, que desarrolla las actividades necesarias para el funcionamiento del Sistema de Información Sanitaria establecido en el artículo 53 de la Ley 16/2003, de 28 de mayo, de cohesión y calidad del Sistema Nacional de Salud, es:", options: { A: "El Instituto de Salud Carlos III.", B: "El Instituto Nacional de Salud y Hábitos Saludables.", C: "El Instituto Nacional de Seguridad y Salud Pública.", D: "El Instituto de Información Sanitaria." }, correctAnswer: "D" },
+            { id: 81, question: "81. De las siguientes relaciones indicar la falsa o incorrecta:", options: { A: "La gota se caracteriza por la existencia de tofos e hiperuricemia.", B: "La anorexia nerviosa se caracteriza por que la persona tiene aversión a los alimentos.", C: "La causa más frecuente de hipoglucemia es la falta de insulina.", D: "La diabetes insípida cursa con poliuria y polidipsia." }, correctAnswer: "C" },
+            { id: 82, question: "82. La derivación de pacientes entre distintas CCAA se realiza a través del programa:", options: { A: "SIGILE.", B: "SIFCO.", C: "CIVITAS.", D: "IANUS." }, correctAnswer: "B" },
+            { id: 83, question: "83. La lista tabular de enfermedades (LT), de la CIE-10-ES:", options: { A: "Es un listado alfanumérico de códigos dividido en 21 capítulos y ordenados por criterios anatómicos.", B: "Es un listado alfabético de códigos dividido en 22 capítulos y ordenados por criterios anatómicos y estructurales.", C: "Es un listado alfanumérico de códigos dividido en 22 capítulos y ordenados por criterios anatómicos o nosológicos.", D: "Es un listado alfanumérico de códigos dividido en 21 capítulos y ordenados por criterios anatómicos o nosológicos." }, correctAnswer: "C" },
+            { id: 84, question: "84. ¿Qué indica el cuarto carácter de la categoría N80 Endometriosis?:", options: { A: "Lateralidad.", B: "Tipos.", C: "Localización.", D: "Etiología." }, correctAnswer: "C" },
+            { id: 85, question: "85. En la Clasificación Internacional de Enfermedades, el criterio principal por el que se organizan las enfermedades es:", options: { A: "Multifactorial.", B: "Las consecuencias.", C: "Alfabético.", D: "Etiológico." }, correctAnswer: "D" },
+            { id: 86, question: "86. Según la Ley 12/2013, de 9 de diciembre, de garantías de prestaciones sanitarias, el plazo para la resolución de la solicitud de la segunda opinión médica contabilizado a partir de la solicitud, es:", options: { A: "15 días hábiles.", B: "10 días naturales.", C: "15 días naturales.", D: "10 días hábiles." }, correctAnswer: "D" },
+            { id: 87, question: "87. En el RAE-CMBD (Registro de Atención Especializada del Conjunto Mínimo Básico de Datos del Ministerio), se contempla la variable tipo de Contacto\". ¿Cuál de las siguientes modalidades asistenciales no está incluida en dicha variable?", options: { A: "Procedimientos Ambulatorios de Especial Complejidad.", B: "Hospital de Día Médico.", C: "Consultas de Atención Especializada.", D: "Urgencias." }, correctAnswer: "C" },
+            { id: 88, question: "88. En relación al consentimiento de las personas menores de edad en la Ley 5/2015, de 26 de junio, de derechos y garantías de la dignidad de las personas enfermas terminales, elige la afirmación correcta:", options: { A: "Cuando las personas menores de edad no sean capaces, intelectual ni emocionalmente, de comprender el alcance de la intervención, el consentimiento será prestado por los representantes legales del o de la menor, después de haber escuchado su opinión, si tiene 11 años cumplidos.", B: "Las personas menores emancipadas o con 14 años cumplidos prestarán por sí mismas el consentimiento. Los progenitores, tutores o representantes legales serán informados, y su opinión será tenida en cuenta para la toma de la decisión correspondiente.", C: "Las personas menores emancipadas o con 16 años tendrán derecho a revocar el consentimiento informado y las intervenciones propuestas, en los mismos términos que lo dispuesto en esta ley para las personas adultas.", D: "Las personas menores de edad no tienen derecho a recibir información sobre su enfermedad ni sobre las propuestas terapéuticas." }, correctAnswer: "C" },
+            { id: 89, question: "89. Según el Decreto 29/2009, de 5 de febrero, por el que se regula el uso y acceso a la historia clínica electrónica, señale la respuesta correcta:", options: { A: "Se gestionará mediante el sistema de información corporativo denominado IANUS.", B: "La elaboración de la historia clínica electrónica, en los aspectos relacionados con la asistencia directa al paciente, es responsabilidad del centro en que trabaje el profesional.", C: "Los profesionales tienen el deber de acceso y el derecho de acceder.", D: "Cada departamento, por sus especiales necesidades, podrá utilizar las herramientas informáticas que estime apropiadas, para el buen desarrollo de su actividad." }, correctAnswer: "A" },
+            { id: 90, question: "90. ¿Cuál es la definición legal de Historia Clínica?", options: { A: "La unidad asistencial documental con organización propia, dotada de los recursos para conocer el estado de salud y la evolución clínica de un paciente.", B: "El soporte de cualquier tipo o clase que contiene un conjunto de datos e información de atención médicas sobre un paciente.", C: "El conjunto de documentos emitidos por un médico que recopila todos los datos, sin importar su formato, tipo o clase, para obtener o ampliar conocimientos sobre la salud y el estado físico de una persona, o cómo preservarla, cuidarla, mejorarla o recuperarla.", D: "El conjunto de documentos que contiene datos, evaluaciones e información de cualquier tipo sobre la situación y evolución clínica de un paciente a lo largo de su atención asistencial." }, correctAnswer: "D" },
+            { id: 91, question: "91. En lo referente a los procedimientos que implican a la médula ósea, señale la respuesta incorrecta:", options: { A: "El trasplante de precursores hematopoyéticos, conocido genéricamente como trasplante de médula ósea, debe ser codificado con el tipo de procedimiento transfusión.", B: "Introducir médula ósea autóloga/no autóloga, células de islotes pancreáticos o células madre, se codifica en la sección administración.", C: "La biopsia de médula ósea se codifica con el tipo de procedimiento escisión y con el calificador diagnóstico.", D: "Si solo se realiza una aspiración para obtener médula líquida no se codifica como extracción, sino como drenaje X diagnóstico." }, correctAnswer: "C" },
+            { id: 92, question: "92. Señale la definición de infarto de miocardio tipo 4b:", options: { A: "Infarto de miocardio relacionado con intervención coronaria percutánea (PCI).", B: "Infarto de miocardio debido a reestenosis mayor o igual a 50% tras una PCI inicial satisfactoria.", C: "Infarto de miocardio relacionado con injerto de bypass de arteria coronaria.", D: "Infarto de miocardio relacionado con trombosis de stent." }, correctAnswer: "D" },
+            { id: 93, question: "93. ¿Cuál de los siguientes no es un motivo de salida del registro de pacientes en espera quirúrgica?:", options: { A: "Un facultativo, a través de un informe médico, establece una contraindicación permanente o que no se necesita el tratamiento que motivó su inclusión.", B: "El paciente resuelve su problema por iniciativa propia en otros centros.", C: "El paciente, antes de ser programado, acude a urgencias y es atendido por el mismo proceso por el que estaba en espera, resolviendo el motivo de inclusión.", D: "El paciente retrasa la atención sin causa justificada." }, correctAnswer: "C" },
+            { id: 94, question: "94. ¿Cuál es la codificación CIE10ES de procedimiento correcta de la quimioembolización de un hepatocarcinoma?", options: { A: "Sólo hace falta un código: 04533ZZ Destrucción de arteria hepática, abordaje percutáneo.", B: "Sólo hace falta un código: 04L33DZ Oclusión de la arteria hepática con dispositivo intraluminal, abordaje percutáneo.", C: "Hacen falta dos códigos: 04533ZZ Destrucción de arteria hepática, abordaje percutáneo y 3E0530-(Introducción de antineoplásico en arteria periférica, abordaje percutáneo.", D: "Hacen falta dos códigos: 04L33DZ Oclusión de la arteria hepática con dispositivo intraluminal, abordaje percutáneo y 3E0530*Introducción de antineoplásico en arteria periférica, abordaje percutáneo." }, correctAnswer: "D" },
+            { id: 95, question: "95. ¿Cómo clasifica SNOMEDCT los 2 tipos de expresiones clínicas que utiliza?", options: { A: "Verdaderas y falsas.", B: "Anatómicas y fisiológicas.", C: "Precoordinadas y postcoordinadas.", D: "Médicas y quirúrgicas." }, correctAnswer: "C" },
+            { id: 96, question: "96. El sistema integrado de gestión de citas y actividad asistencial de Atención Primaria recibe el nombre de:", options: { A: "SIGAP.", B: "HIPATIA.", C: "IANUS.", D: "ATENEA." }, correctAnswer: "D" },
+            { id: 97, question: "97. La aplicación del sistema VAC (Cierre Asistido por Vacío) a nivel de fascia en herida complicada de pierna derecha, se codifica:", options: { A: "0J9N0ZZ Drenaje en tejido subcutáneo y fascia, pierna derecha, abordaje abierto.", B: "0J9N00Z Drenaje en tejido subcutáneo y fascia, pierna derecha, con dispositivo de drenaje, abordaje abierto.", C: "0Y9H00Z Drenaje en pierna, derecha, con dispositivo de drenaje, abordaje abierto.", D: "F08L5BZ Tratamiento de las actividades de la vida diaria, cuidado de herida, con agentes físicos, en sistema músculo esquelético—parte inferior de la espalda/extremidad inferior." }, correctAnswer: "B" },
+            { id: 98, question: "98. Qué otro nombre recibe la tuberosidad mayor del húmero?:", options: { A: "Troquíter.", B: "Troquín.", C: "Trocánter.", D: "Cuello quirúrgico." }, correctAnswer: "A" },
+            { id: 99, question: "99. Hombre de 55 años, ingresa por calambres musculares de miembros inferiores debido al uso de compuestos de manganeso en el trabajo. Señale la codificación correcta:", options: { A: "R25.2 Calambres y espasmos + T57.2X1A Efecto tóxico de manganeso y sus compuestos, accidental (no intencionado), contacto inicial.", B: "T57.2X1A Efecto tóxico de manganeso y sus compuestos, accidental (no intencionado), contacto inicial + R25.2 Calambres y espasmos.", C: "R25.2 Calambres y espasmos + T57.2X3A Efecto tóxico de manganeso y sus compuestos, agresión, contacto inicial.", D: "T57.2X2A Efecto tóxico de manganeso y sus compuestos, autolesión intencionada, contacto inicial + R25.2 Calambres y espasmos." }, correctAnswer: "B" },
+            { id: 100, question: "100.Según la CIE—10—ES DIAGNÓSTICOS, los códigos de la categoría Z3A deben utilizarse:", options: { A: "En embarazos con resultado abortivo.", B: "En ingresos con parto y realización de esterilización electiva.", C: "En contactos para interrupción voluntaria del embarazo.", D: "En partos extramuros con alumbramiento placentario previo al ingreso." }, correctAnswer: "B" },
+            // Preguntas de reserva 1-10
+            { id: 101, question: "Reserva 1. Según la Ley 12/2013, de 9 de diciembre, de garantías de prestaciones sanitarias, el derecho a una segunda opinión médica:", options: { A: "Solo podrá ejercerse una vez en cada proceso asistencial.", B: "Podrá ejercerse las veces que se consideren necesarias.", C: "Podrá ejercerse 2 veces en cada proceso asistencial.", D: "Ninguna es correcta." }, correctAnswer: "A" },
+            { id: 102, question: "Reserva 2. El ciclo PDCA se identifica con:", options: { A: "Ciclo de Deming.", B: "Mejora Continua.", C: "Ciclo Shewhart.", D: "Todas son correctas." }, correctAnswer: "D" },
+            { id: 103, question: "Reserva 3. La Comisión de Garantía y Evaluación de la Eutanasia de la Comunidad Autónoma de Galicia se crea a través del Decreto:", options: { A: "Decreto 145/2024, de 20 de mayo.", B: "Decreto 29/2009, de 5 de febrero.", C: "Decreto 101/2021, de 8 de julio.", D: "Decreto 75/2021, de 8 de abril." }, correctAnswer: "C" },
+            { id: 104, question: "Reserva 4. Según la estrategia gallega de seguridad y calidad asistencial 2024—2028, son líneas estratégicas:", options: { A: "Identificación de pacientes.", B: "Prevención de agresiones.", C: "Gestión de pacientes.", D: "Gestión medioambiental." }, correctAnswer: "A" },
+            { id: 105, question: "Reserva 5. Un paciente ingresa en Traumatología para microperforaciones subcondrales. El tipo de procedimiento adecuado para codificar esta técnica es:", options: { A: "Escisión.", B: "Reparación.", C: "Destrucción.", D: "Extirpación." }, correctAnswer: "B" },
+            { id: 106, question: "Reserva 6. Señale la respuesta incorrecta. En el GRD 470 \"NO AGRUPABLE\" se clasifica:", options: { A: "Un episodio de hospitalización sin tipo de alta.", B: "Un episodio de hospitalización con código de diagnóstico principal en blanco o no válido.", C: "Un episodio de hospitalización con procedimiento en blanco.", D: "Un episodio de hospitalización con error en el sexo del paciente." }, correctAnswer: "C" },
+            { id: 107, question: "Reserva 7. La continuación natural de la arteria femoral es la arteria:", options: { A: "Plantar externa.", B: "Tibial.", C: "Peronea.", D: "Poplítea." }, correctAnswer: "D" },
+            { id: 108, question: "Reserva 8. En los sistemas de recuperación de información, cuyas bases de datos están basados en la lógica booleana, cuando queremos buscar imprescindiblemente dos palabras o campos que estén en el mismo registro, utilizamos el operador:", options: { A: "AND/Y.", B: "OR/O.", C: "NOT/NO.", D: "Ninguno de estos operadores es correcto." }, correctAnswer: "A" },
+            { id: 109, question: "Reserva 9. Para facilitar la búsqueda de los valores de ciertas estructuras anatómicas, ¿en cuál de los siguientes anexos de CIE10ES procedimientos se puede consultar?", options: { A: "Anexos C y D.", B: "Anexos A y B.", C: "Anexos E y F.", D: "Anexos A y H." }, correctAnswer: "B" },
+            { id: 110, question: "Reserva 10. ¿Cuál de las siguientes opciones tiene la consideración de cama de hospitalización?:", options: { A: "Las camas de observación de Urgencias.", B: "Las incubadoras fijas.", C: "Las camas de reanimación postquirúrgica.", D: "Las camas de hemodiálisis ambulatoria." }, correctAnswer: "B" }
+        ];
+
+        let currentQuestions = []; // Array que contendrá las preguntas del test actual
+        let currentQuizKey = ''; // Clave para localStorage (ej: 'sergasQuizProgress_50')
+        let score = { correct: 0, incorrect: 0, pending: 0 }; // Puntuación actual
+
+        // Referencias a elementos del DOM
+        const setupScreen = document.getElementById('setup-screen');
+        const quizContent = document.getElementById('quiz-content');
+        const quizContainer = document.getElementById('quiz-container');
+        const pendingSegment = document.getElementById('progress-pending');
+        const setupOptionsContainer = document.querySelector('#setup-screen .setup-options');
+        const continueOptionsContainer = document.getElementById('continue-options');
+        const resetAllButton = document.getElementById('reset-all-button');
+        const backToMenuButton = document.getElementById('back-to-menu-button'); // Botón Volver al Menú
+        const resultsSummaryContainer = document.getElementById('results-summary'); // Contenedor de resultados
+
+
+        // --- Funciones de Lógica del Quiz ---
+
+        // Función para barajar un array (Algoritmo Fisher-Yates)
+        function shuffleArray(array) {
+            let shuffled = [...array]; // Crear una copia para no modificar el original
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Inicia un nuevo quiz o carga uno existente
+        function startQuiz(numQuestionsOrKey, loadFromStorage = false) {
+            let numQuestions;
+            let savedState = null;
+
+            resultsSummaryContainer.style.display = 'none'; // Ocultar resultados al iniciar/continuar
+            resultsSummaryContainer.innerHTML = ''; // Limpiar resultados anteriores
+
+            if (loadFromStorage) {
+                currentQuizKey = numQuestionsOrKey;
+                savedState = loadProgress(currentQuizKey);
+                if (!savedState || savedState.completed) { // No cargar si no existe o está completado
+                    console.error("No se pudo cargar el progreso o ya está completado para:", currentQuizKey);
+                    showSetupScreen();
+                    return;
+                }
+                 const keyParts = currentQuizKey.split('_');
+                 numQuestions = keyParts[keyParts.length -1] === 'all' ? questionsData.length : parseInt(keyParts[keyParts.length - 1], 10);
+            } else {
+                numQuestions = numQuestionsOrKey === 'all' ? questionsData.length : parseInt(numQuestionsOrKey, 10);
+                currentQuizKey = `sergasQuizProgress_${numQuestionsOrKey}`;
+                localStorage.removeItem(currentQuizKey); // Borrar progreso anterior al empezar nuevo
+            }
+
+            if (savedState) {
+                score = savedState.currentScore;
+                const questionMap = new Map(questionsData.map(q => [q.id, q]));
+                currentQuestions = savedState.questionOrder.map(id => questionMap.get(id));
+            } else {
+                const shuffledQuestions = shuffleArray(questionsData);
+                currentQuestions = shuffledQuestions.slice(0, numQuestions);
+                score = { correct: 0, incorrect: 0, pending: currentQuestions.length };
+            }
+
+            setupScreen.style.display = 'none';
+            quizContent.style.display = 'block';
+            renderQuestions();
+
+            if (savedState && savedState.answeredQuestions) {
+                 applySavedAnswers(savedState.answeredQuestions);
+            }
+
+            updateProgressBar();
+             if (!loadFromStorage) {
+                 saveProgress(); // Guardar estado inicial (orden de preguntas)
+             }
+        }
+
+
+        // Renderiza las preguntas en el DOM
+        function renderQuestions() {
+            quizContainer.innerHTML = '';
+            currentQuestions.forEach((q, index) => {
+                const questionBlock = document.createElement('div');
+                questionBlock.classList.add('question-block');
+                questionBlock.id = `question-${index}`;
+                questionBlock.dataset.originalId = q.id;
+
+                const questionText = document.createElement('div');
+                questionText.classList.add('question-text');
+                questionText.textContent = `${index + 1}. ${q.question.substring(q.question.indexOf('.') + 1).trim()}`;
+                questionBlock.appendChild(questionText);
+
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('options');
+
+                for (const key in q.options) {
+                    const label = document.createElement('label');
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `question${index}`;
+                    radio.value = key;
+                    radio.id = `q${index}_${key}`;
+                    radio.addEventListener('change', () => handleAnswer(index, key));
+
+                    const span = document.createElement('span');
+                    span.textContent = `${key}) ${q.options[key]}`;
+
+                    label.appendChild(radio);
+                    label.appendChild(span);
+                    label.htmlFor = radio.id;
+                    optionsDiv.appendChild(label);
+                }
+                questionBlock.appendChild(optionsDiv);
+                quizContainer.appendChild(questionBlock);
+            });
+        }
+
+         // Aplica los estilos a las preguntas ya respondidas al cargar progreso
+         function applySavedAnswers(answeredQuestions) {
+             Object.keys(answeredQuestions).forEach(questionIndexStr => {
+                 const questionIndex = parseInt(questionIndexStr, 10);
+                 const selectedOption = answeredQuestions[questionIndex];
+                 const questionBlock = document.getElementById(`question-${questionIndex}`);
+
+                 if (questionBlock && selectedOption) {
+                     const inputs = questionBlock.querySelectorAll('.options input[type="radio"]');
+                     const questionData = currentQuestions[questionIndex];
+
+                     questionBlock.classList.add('answered');
+
+                     inputs.forEach(input => {
+                         input.disabled = true;
+                         if (input.value === selectedOption) {
+                             input.checked = true;
+                         }
+                         const label = input.parentElement;
+                         if (input.value === questionData.correctAnswer) {
+                             label.classList.add('correct-answer');
+                         } else if (input.checked) {
+                             label.classList.add('incorrect-selection');
+                         }
+                     });
+                 }
+             });
+         }
+
+
+        // Maneja la selección de una respuesta
+        function handleAnswer(questionIndex, selectedOption) {
+            const question = currentQuestions[questionIndex];
+            const questionBlock = document.getElementById(`question-${questionIndex}`);
+            const inputs = questionBlock.querySelectorAll('.options input[type="radio"]');
+
+            if (!questionBlock.classList.contains('answered')) {
+                questionBlock.classList.add('answered');
+
+                if (selectedOption === question.correctAnswer) {
+                    score.correct++;
+                } else {
+                    score.incorrect++;
+                }
+                score.pending--;
+
+                inputs.forEach(input => {
+                    input.disabled = true;
+                    const label = input.parentElement;
+                    if (input.value === question.correctAnswer) {
+                        label.classList.add('correct-answer');
+                    } else if (input.checked) {
+                        label.classList.add('incorrect-selection');
+                    }
+                });
+
+                updateProgressBar();
+                saveProgress(questionIndex, selectedOption); // Guardar progreso
+
+                 // Comprobar si el quiz ha terminado
+                 if (score.pending === 0) {
+                     markQuizAsCompleted(); // Marcar como completado en localStorage
+                     showFinalResults(); // Mostrar resumen
+                 }
+            }
+        }
+
+         // Muestra el resumen final de resultados
+         function showFinalResults() {
+             const totalQuestions = currentQuestions.length;
+             const percentage = totalQuestions > 0 ? ((score.correct / totalQuestions) * 100).toFixed(1) : 0;
+
+             resultsSummaryContainer.innerHTML = `
+                 <h3>¡Test Completado!</h3>
+                 <p>Preguntas Totales: ${totalQuestions}</p>
+                 <p>Correctas: <span class="score-correct">${score.correct}</span></p>
+                 <p>Incorrectas: <span class="score-incorrect">${score.incorrect}</span></p>
+                 <p>Porcentaje Acierto: <span class="score-percentage">${percentage}%</span></p>
+                 <div class="results-actions">
+                     <button id="results-back-to-menu">Volver al Menú</button>
+                 </div>
+             `;
+             resultsSummaryContainer.style.display = 'block';
+
+             // Añadir event listener al nuevo botón
+             document.getElementById('results-back-to-menu').addEventListener('click', showSetupScreen);
+
+             // Opcional: Desplazar la vista hasta los resultados
+             resultsSummaryContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+         }
+
+
+        // Actualiza la barra de progreso
+        function updateProgressBar() {
+            const total = currentQuestions.length;
+            const correctPercent = total > 0 ? (score.correct / total) * 100 : 0;
+            const incorrectPercent = total > 0 ? (score.incorrect / total) * 100 : 0;
+            const pendingPercent = total > 0 ? (score.pending / total) * 100 : 0;
+
+            const correctSegment = document.getElementById('progress-correct');
+            const incorrectSegment = document.getElementById('progress-incorrect');
+
+            correctSegment.style.width = `${correctPercent}%`;
+            correctSegment.textContent = score.correct;
+            incorrectSegment.style.width = `${incorrectPercent}%`;
+            incorrectSegment.textContent = score.incorrect;
+            pendingSegment.style.width = `${pendingPercent}%`;
+            pendingSegment.textContent = `Pendientes: ${score.pending}`;
+        }
+
+        // Guarda el estado actual en localStorage
+        function saveProgress(answeredIndex = null, answer = null) {
+             let stateToSave = loadProgress(currentQuizKey) || {
+                 questionOrder: currentQuestions.map(q => q.id),
+                 answeredQuestions: {},
+                 currentScore: score,
+                 completed: false // Añadir flag de completado
+             };
+
+             if (answeredIndex !== null && answer !== null) {
+                  stateToSave.answeredQuestions[answeredIndex] = answer;
+             }
+             stateToSave.currentScore = score; // Actualizar siempre la puntuación
+
+            try {
+                localStorage.setItem(currentQuizKey, JSON.stringify(stateToSave));
+                 // No llamar a checkSavedProgress aquí para evitar parpadeo constante
+            } catch (e) {
+                console.error("Error al guardar en localStorage:", e);
+            }
+        }
+
+         // Marca el quiz actual como completado en localStorage
+         function markQuizAsCompleted() {
+             let currentState = loadProgress(currentQuizKey);
+             if (currentState) {
+                 currentState.completed = true;
+                 try {
+                     localStorage.setItem(currentQuizKey, JSON.stringify(currentState));
+                     console.log("Quiz marcado como completado:", currentQuizKey);
+                 } catch (e) {
+                     console.error("Error al marcar como completado:", e);
+                 }
+             }
+         }
+
+
+        // Carga el estado desde localStorage
+        function loadProgress(key) {
+            const savedData = localStorage.getItem(key);
+            if (savedData) {
+                try {
+                    return JSON.parse(savedData);
+                } catch (e) {
+                    console.error("Error al parsear datos de localStorage:", e);
+                    localStorage.removeItem(key);
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        // Reinicia todo el progreso guardado
+        function resetAllProgress() {
+             if (confirm("¿Estás seguro de que quieres borrar TODO el progreso guardado para todas las longitudes de test?")) {
+                 const keysToRemove = [];
+                 for (let i = 0; i < localStorage.length; i++) {
+                     if (localStorage.key(i).startsWith('sergasQuizProgress_')) {
+                         keysToRemove.push(localStorage.key(i));
+                     }
+                 }
+                 keysToRemove.forEach(key => localStorage.removeItem(key));
+                 console.log("Todo el progreso guardado ha sido eliminado.");
+                 showSetupScreen(); // Volver al menú y actualizar botones
+             }
+        }
+
+
+        // Va a la siguiente pregunta pendiente
+        function goToNextPending() {
+            const firstPending = document.querySelector('.question-block:not(.answered)');
+            if (firstPending) {
+                firstPending.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+         // Muestra la pantalla de configuración
+         function showSetupScreen() {
+             quizContent.style.display = 'none'; // Ocultar contenido del quiz
+             resultsSummaryContainer.style.display = 'none'; // Ocultar resultados si estaban visibles
+             setupScreen.style.display = 'block'; // Mostrar pantalla de setup
+             checkSavedProgress(); // Actualizar botones de continuar
+         }
+
+         // Comprueba si hay progreso guardado y muestra botones para continuar
+         function checkSavedProgress() {
+             // Limpiar contenedor de botones "Continuar"
+             while (continueOptionsContainer.firstChild && continueOptionsContainer.firstChild !== continueOptionsContainer.querySelector('h2')) {
+                  continueOptionsContainer.removeChild(continueOptionsContainer.firstChild);
+             }
+
+             const counts = [20, 50, 70, 'all'];
+             let hasSavedProgressToShow = false;
+
+             counts.forEach(count => {
+                 const key = `sergasQuizProgress_${count}`;
+                 const savedData = loadProgress(key);
+                 // Mostrar botón solo si hay datos guardados Y el test NO está completado
+                 if (savedData && Object.keys(savedData.answeredQuestions).length > 0 && !savedData.completed) {
+                     hasSavedProgressToShow = true;
+                     const button = document.createElement('button');
+                     const numQuestionsLabel = count === 'all' ? 'Todas (110)' : count;
+                     button.textContent = `Continuar Test (${numQuestionsLabel} preg.)`;
+                     button.dataset.key = key;
+                     button.addEventListener('click', (e) => {
+                         startQuiz(e.target.dataset.key, true);
+                     });
+                     continueOptionsContainer.appendChild(button);
+                 }
+             });
+              // Mostrar u ocultar la sección de botones de continuar (incluyendo el título H2)
+             continueOptionsContainer.style.display = hasSavedProgressToShow ? 'block' : 'none';
+         }
+
+
+        // --- Event Listeners ---
+        // Botones para empezar nuevo test
+        setupOptionsContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON' && e.target.dataset.count) {
+                startQuiz(e.target.dataset.count, false);
+            }
+        });
+
+        // Botón para reiniciar todo
+        resetAllButton.addEventListener('click', resetAllProgress);
+
+        // Botón para volver al menú desde el quiz
+        backToMenuButton.addEventListener('click', showSetupScreen);
+
+        // Click en el segmento de pendientes
+        pendingSegment.addEventListener('click', goToNextPending);
+
+
+        // --- Inicialización al cargar la página ---
+        showSetupScreen(); // Mostrar pantalla de configuración al inicio
+
+
+    </script>
+
+</body>
+</html>
