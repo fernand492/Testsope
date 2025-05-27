@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuestionario Interactivo Andalucía</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@fortawesome/fontawesome-free/js/all.js" defer></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .dark-mode {
+      background-color: #1f2937;
+      color: #f9fafb;
+    }
+    .correct-answer {
+      background-color: #d1fae5;
+      border: 1px solid #34d399;
+    }
+    .incorrect-answer {
+      background-color: #fee2e2;
+      border: 1px solid #ef4444;
+    }
+    .feedback-correct {
+      background-color: #10b981;
+      color: white;
+    }
+    .feedback-incorrect {
+      background-color: #ef4444;
+      color: white;
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-900">
+  <div class="max-w-5xl mx-auto">
+    <h1 class="text-4xl font-bold text-center text-gray-800 dark:text-white mb-10">
+      Cuestionario Interactivo Andalucía
+    </h1>
+
+    <div id="quiz-container" class="space-y-8"></div>
+
+    <button id="toggle-dark" class="fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg">🌙/☀️</button>
+    <button onclick="revealAllAnswers()" class="fixed bottom-20 right-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow">Mostrar respuestas</button>
+    <button onclick="resetQuiz()" class="fixed bottom-4 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow">Reiniciar</button>
+  
+</div>
+
+    <script>
+        // Array de objetos que contiene todas las preguntas y sus respuestas
+        const questions = [
+            {
+                id: 1,
+                question: "La Jefatura del Estado viene recogida en la Constitución Española en:",
+                options: ["A) El Título V.", "B) El Título VI.", "C) El Título VII.", "D) El Título II."],
+                correctAnswer: "D"
+            },
+            {
+                id: 2,
+                question: "En el artículo 1 de la Ley Orgánica 2/2007, de 19 de marzo, de reforma del Estatuto de Autonomía para Andalucía, Andalucía se reconoce como:",
+                options: ["A) Nacionalidad histórica.", "B) Entidad regional histórica.", "C) Comunidad Autónoma Regional.", "D) Territorio Regional autónomo."],
+                correctAnswer: "A"
+            },
+            {
+                id: 3,
+                question: "El IV Plan Andaluz de Salud afronta seis compromisos, indique cuál de los mencionados es el correcto:",
+                options: ["A) Disminuir la esperanza de vida en buena salud.", "B) Contribuir a los efectos del cambio climático.", "C) Situar el Sistema Sanitario Público de Andalucía al servicio de la ciudadanía con el liderazgo de sus profesionales.", "D) Aumentar las Desigualdades Sociales en Salud."],
+                correctAnswer: "C"
+            },
+            {
+                id: 4,
+                question: "Según la Ley de Salud de Andalucía, el máximo órgano de dirección y gestión del Servicio Andaluz de Salud es:",
+                options: ["A) La Dirección Gerencia.", "B) El Consejo de Administración.", "C) La Dirección General de Asistencia Sanitaria y Resultados en Salud.", "D) La Dirección General de Personal."],
+                correctAnswer: "B"
+            },
+            {
+                id: 5,
+                question: "Los responsables y encargados del tratamiento de datos, así como todas las personas que intervengan en cualquier fase de éste, estarán sujetas al deber de:",
+                options: ["A) Sigilo.", "B) Custodia.", "C) Confidencialidad.", "D) Cuidado."],
+                correctAnswer: "C"
+            },
+            {
+                id: 6,
+                question: "Se constituirá un Comité de Seguridad y Salud en todas las empresas o centros de trabajo que:",
+                options: ["A) Cuenten con 25 trabajadores.", "B) Cuenten con al menos 10 trabajadores.", "C) Cuenten con 50 o más trabajadores.", "D) Cuenten con al menos más de 100 trabajadores."],
+                correctAnswer: "C"
+            },
+            {
+                id: 7,
+                question: "La Ley 12/2007, de 26 de noviembre, para la promoción de la igualdad de género en Andalucía, tiene como objetivo:",
+                options: ["A) La consecución de la igualdad real y efectiva entre mujeres y hombres.", "B) La igualdad entre todos.", "C) La equidad.", "D) Ninguna de las respuestas anteriores es correcta."],
+                correctAnswer: "A"
+            },
+            {
+                id: 8,
+                question: "La provisión de plazas del personal estatutario se regirá, entre otros, por los principios básicos de:",
+                options: ["A) Igualdad, mérito, capacidad y publicidad en la selección, promoción y movilidad del personal de los servicios de salud.", "B) Igualdad, eficacia, mérito y capacidad.", "C) Igualdad, mérito, publicidad, promoción e inamovilidad.", "D) Todas las respuestas son falsas."],
+                correctAnswer: "A"
+            },
+            {
+                id: 9,
+                question: "¿Cómo se denomina el Sistema de Información para la Gestión del Mantenimiento y los Activos del Servicio Andaluz de Salud?",
+                options: ["A) SISCONTROL.", "B) SISMAN.", "C) eMAN.", "D) SIGMA MANSIS."],
+                correctAnswer: "D"
+            },
+            {
+                id: 10,
+                question: "Señale cómo se denomina la herramienta corporativa de la Junta de Andalucía que permite el envío y recogida de ficheros sin enviarlos por correo electrónico:",
+                options: ["A) Consigna.", "B) Agata.", "C) Redezilla.", "D) COSMOS."],
+                correctAnswer: "A"
+            },
+            {
+                id: 11,
+                question: "La información previa al consentimiento por escrito deberá incluir:",
+                options: ["A) Las consecuencias relevantes o de importancia que la intervención origina con seguridad.", "B) Los riesgos relacionados con las circunstancias personales o profesionales del paciente.", "C) Los riesgos probables en condiciones normales, conforme a la experiencia y al estado de la ciencia o directamente relacionados con el tipo de intervención.", "D) Todas las respuestas anteriores son correctas."],
+                correctAnswer: "D"
+            },
+            {
+                id: 12,
+                question: "En el trabajo en equipo podemos diferenciar entre grupos y equipos. Señale la función propia de un equipo de trabajo:",
+                options: ["A) La toma de decisiones a través de órdenes.", "B) El conjunto de personas relacionadas entre sÍ, que trabajan para conseguir objetivos comunes.", "C) Que las personas de una unidad se lleven bien entre ellas.", "D) El conjunto de personas que desarrolla su labor, respondiendo individualmente de su trabajo."],
+                correctAnswer: "B"
+            },
+            {
+                id: 13,
+                question: "En los centros sanitarios, un aspecto que condiciona negativamente el trabajo en equipo, es:",
+                options: ["A) Comunicación.", "B) Confianza.", "C) Motivación.", "D) Irresponsabilidad."],
+                correctAnswer: "D"
+            },
+            {
+                id: 14,
+                question: "¿Cuál es la actitud correcta cuando nos encontramos con un usuario prepotente?",
+                options: ["A) No discutir, mostrar interés, pedir consejo y su opinión.", "B) Discutir, tomar la decisión por el usuario.", "C) Argumentar en su contra.", "D) No mostrar interés."],
+                correctAnswer: "A"
+            },
+            {
+                id: 15,
+                question: "\"No mediante el recorte de gastos, sino aprovechando plenamente los recursos de que se dispone para actuar más y mejor\". ¿A qué principio básico del Servicio Andaluz de Salud, como organismo público, nos estamos refiriendo?",
+                options: ["A) Eficiencia.", "B) Eficacia.", "C) Equidad.", "D) Continuidad de la atención."],
+                correctAnswer: "A"
+            },
+            {
+                id: 16,
+                question: "Para preservar la intimidad a lo largo de todo acto clínico, indique la respuesta correcta:",
+                options: ["A) En la historia clínica no se incluirán datos que reflejen aspectos íntimos del paciente y no tengan relación con la naturaleza clínica del resto de la historia.", "B) No se realizarán de manera conjunta consultas con distintos pacientes.", "C) La presencia de profesionales en formación, se valorará en casos particulares.", "D) Todas las respuestas anteriores son correctas."],
+                correctAnswer: "D"
+            },
+            {
+                id: 17,
+                question: "\"La etnia, el sexo, la religión, la clase social del usuario, la orientación sexual, el estado civil o el propio aspecto físico no pueden causar diferencias en la atención, ni deben utilizarse en ningún caso como excusa para expresar un prejuicio\". El Libro de Estilo del Servicio Andaluz de Salud relaciona el párrafo anterior con el principio de:",
+                options: ["A) Universalidad.", "B) Equidad.", "C) Eficiencia.", "D) Calidad."],
+                correctAnswer: "B"
+            },
+            {
+                id: 18,
+                question: "El síndrome de mobbing puede presentar una serie de trastornos en la salud. Señale la respuesta correcta:",
+                options: ["A) Esquizofrenia.", "B) Ansiedad y/o depresión.", "C) Epilepsia.", "D) Alzheimer."],
+                correctAnswer: "B"
+            },
+            {
+                id: 19,
+                question: "Según el Plan de Agresiones a Profesionales del Sistema Sanitario Público de Andalucía, se considera como agresión a los efectos de aplicación de este Plan:",
+                options: ["A) Las que se produzca entre trabajadores de los centros sanitarios del SSPA.", "B) La presentación del usuario de las hojas de reclamaciones sin descalificaciones graves, insultos o vejaciones contra los trabajadores.", "C) Las que se produzca entre trabajadores de los centros sanitarios del SSPA y entre el personal de empresas externas.", "D) Las sufridas fuera del centro de trabajo o fuera del horario laboral siempre que sea como consecuencia o con ocasión del ejercicio de su actividad profesional."],
+                correctAnswer: "D"
+            },
+            {
+                id: 20,
+                question: "¿Qué tipo de fuego es el que, dada la situación de poca gravedad, puede ser neutralizado con los medios materiales y humanos disponibles en el lugar de trabajo y próximos al lugar del accidente?",
+                options: ["A) Emergencia final.", "B) Emergencia parcial.", "C) Emergencia general.", "D) Conato de emergencia."],
+                correctAnswer: "D"
+            },
+            {
+                id: 21,
+                question: "Ante un incendio usamos el extintor para intentar sofocar el mismo. ¿Hacia dónde debe dirigir la boquilla del extintor?",
+                options: ["A) A la parte superior de las llamas.", "B) A la base del incendio, moviendo la boquilla en zig-zag.", "C) A cualquier parte del incendio, es indiferente el lugar donde dirigiremos la boquilla.", "D) Ninguna de las respuestas anteriores es correcta."],
+                correctAnswer: "B"
+            },
+            {
+                id: 22,
+                question: "El Plan de Emergencias ante un posible incendio, tiene como finalidad:",
+                options: ["A) Que no se materialice la situación que da origen al siniestro.", "B) Si se origina el siniestro, organizar los recursos tanto humanos como técnicos, necesarios para la prevención y lucha contra el riesgo.", "C) Garantizar la evacuación de forma coordinada, así como evitar pérdidas o daños a personas y/o bienes.", "D) Todas las respuestas anteriores son correctas."],
+                correctAnswer: "D"
+            },
+            {
+                id: 23,
+                question: "Según establece el Plan de Gestión de Residuos del Servicio Andaluz de Salud, respecto a los residuos sanitarios asimilables a urbanos, señale la opción correcta:",
+                options: ["A) Son aquellos que se producen como consecuencia de la actividad asistencial que no están incluidos dentro de los considerados como residuos sanitarios peligrosos.", "B) Se encuadran en el Grupo II.", "C) Dentro de este grupo se incluyen los restos de curas y de pequeñas intervenciones quirúrgicas.", "D) Todas las opciones previas son correctas."],
+                correctAnswer: "D"
+            },
+            {
+                id: 24,
+                question: "Entre los principios de la Política de Gestión Ambiental del Servicio Andaluz de Salud, se encuentra:",
+                options: ["A) Establecer y revisar periódicamente objetivos y metas de mejora.", "B) Cumplir los requisitos legales ambientales.", "C) Impulsar la adquisición de productos y servicios energéticamente eficientes.", "D) Todas las respuestas anteriores son correctas."],
+                correctAnswer: "D"
+            },
+            {
+                id: 25,
+                question: "¿Cuál es la norma reconocida internacionalmente para los sistemas de gestión ambiental?",
+                options: ["A) ISO 14001:2015.", "B) ISO 5001.", "C) ISO 9000.", "D) ISO 14001:2020."],
+                correctAnswer: "A"
+            },
+            {
+                id: 26,
+                question: "¿Qué se entiende por \"valorización de un residuo\"?",
+                options: ["A) Todo procedimiento que permita el aprovechamiento de los recursos contenidos en los residuos sin poner en peligro la salud humana y sin utilizar métodos que puedan causar perjuicios al medio ambiente.", "B) Toda operación consistente en recoger, clasificar, agrupar o preparar residuos para su transporte.", "C) La transformación de los residuos dentro de un proceso de producción para el compostaje y biometanización.", "D) Ninguna de las respuestas anteriores es correcta."],
+                correctAnswer: "A"
+            },
+            {
+                id: 27,
+                question: "La Clasificación de Pareto, ordena los artículos en las estanterías en clase \"A\",\"B\" y \"C\". Si decimos que los artículos que más se consumen, se guardarán de forma más próxima y de fácil acceso, ¿de qué clase serían estos artículos?",
+                options: ["A) Clase \"A\".", "B) Clase \"B\".", "C) Clase \"C\".", "D) Los artículos no tienen clasificación Pareto."],
+                correctAnswer: "A"
+            },
+            {
+                id: 28,
+                question: "¿De qué color es la bolsa donde se desechan los residuos del grupo II?",
+                options: ["A) Negra.", "B) Roja.", "C) Amarilla.", "D) Marrón."],
+                correctAnswer: "D"
+            },
+            {
+                id: 29,
+                question: "Según el artículo 10 de la vigente Constitución Española, son fundamento del orden político y de la paz social todo que sigue, EXCEPTO:",
+                options: ["A) La dignidad de la persona y los derechos inviolables que le son inherentes.", "B) El libre desarrollo de la personalidad.", "C) El respeto a la ley y a los derechos de los demás.", "D) La participación de los ciudadanos en los asuntos públicos."],
+                correctAnswer: "D"
+            },
+            {
+                id: 30,
+                question: "La Jefatura del Estado viene recogida en la actual Constitución Española en:",
+                options: ["A) El Título V.", "B) El Título VI.", "C) El Título VII.", "D) El Título II."],
+                correctAnswer: "D"
+            },
+            {
+                id: 31,
+                question: "En el artículo 1 de la Ley Orgánica 2/2007, de 19 de marzo, de reforma del Estatuto de Autonomía para Andalucía, Andalucía se reconoce como:",
+                options: ["A) Nacionalidad histórica.", "B) Entidad regional histórica.", "C) Comunidad histórica regional en el marco de la unidad de la nación española.", "D) Territorio regional con autonomía."],
+                correctAnswer: "A"
+            },
+            {
+                id: 32,
+                question: "Según la Ley Orgánica 2/2007, de 19 de marzo, de reforma del Estatuto de Autonomía para Andalucía, dentro de las competencias de la Comunidad Autónoma de Andalucía en materia de salud, sanidad y farmacia, NO se recoge:",
+                options: ["A) Promover la salud laboral.", "B) Sanidad exterior.", "C) La salud animal con efecto sobre la salud humana.", "D) Sanidad alimentaria."],
+                correctAnswer: "B"
+            },
+            {
+                id: 33,
+                question: "Según el artículo 6 de la Ley 14/1986, de 25 de abril, General de Sanidad, las actuaciones de las Administraciones Públicas Sanitarias estarán orientadas:",
+                options: ["A) A la promoción de la salud.", "B) A la curación de las enfermedades y la reinserción familiar del paciente.", "C) A promover el interés individual y familiar por la salud mediante la adecuada educación sanitaria en las escuelas.", "D) Todas las respuestas anteriores son correctas."],
+                correctAnswer: "A"
+            },
+            {
+                id: 34,
+                question: "Dentro de los compromisos del IV Plan Andaluz de Salud NO se encuentra:",
+                options: ["A) Promover y proteger la salud frente al cambio climático.", "B) Promover y proteger la salud frente la globalización.", "C) Promover y proteger la salud frente a los riesgos emergentes de origen ambiental y animal.", "D) Mantener la esperanza de vida con buena salud."],
+                correctAnswer: "D"
+            },
+            {
+                id: 35,
+                question: "El Biobanco del Sistema Sanitario Público de Andalucía (SSPA) tiene una estructura organizativa única:",
+                options: ["A) Centralizada en Sevilla.", "B) Centralizada en Málaga.", "C) Centralizada en Granada.", "D) Descentralizada."],
+                correctAnswer: "D"
+            },
+            {
+                id: 36,
+                question: "En el Servicio Andaluz de Salud (SAS), la red de recursos públicos de Salud Mental NO contempla uno de los siguientes dispositivos:",
+                options: ["A) Unidades de Salud Mental Comunitaria de la Tercera Edad.", "B) Unidades de Rehabilitación de Salud Mental.", "C) Comunidades Terapéuticas de Salud Mental.", "D) Unidades de Salud Mental Infanto-Juvenil."],
+                correctAnswer: "A"
+            },
+            {
+                id: 37,
+                question: "Según el artículo 32 de la Ley 1/2014, de 24 de junio, de Transparencia Pública de Andalucía, en el ámbito de la Administración de la Junta de Andalucía y sus entidades instrumentales, el plazo máximo de resolución y notificación:",
+                options: ["A) Será de 60 días hábiles desde la recepción de la solicitud por el órgano competente para resolver, prorrogables por igual período en el caso de que el volumen o la complejidad de la información solicitada lo requiera.", "B) Será de 30 días hábiles desde la recepción de la solicitud por el órgano competente para resolver, prorrogables por igual período en el caso de que el volumen o la complejidad de la información solicitada lo requiera.", "C) Será de 20 días hábiles desde la recepción de la solicitud por el órgano competente para resolver, prorrogables por igual período en el caso de que el volumen o la complejidad de la información solicitada lo requiera.", "D) No tiene plazo máximo."],
+                correctAnswer: "C"
+            },
+            {
+                id: 38,
+                question: "En relación con los principios de protección de datos que regula la Ley Orgánica 3/2018, de 5 de diciembre, el tratamiento de los datos personales de un menor de edad únicamente podrá fundarse en su consentimiento, con las excepciones que se indican en la misma ley, cuando:",
+                options: ["A) Sea mayor de catorce años.", "B) Sea mayor de doce años.", "C) Sea mayor de dieciséis años.", "D) Sea mayor de dieciocho años."],
+                correctAnswer: "A"
+            },
+            {
+                id: 39,
+                question: "Según el artículo 35 de la ley 31/1995, de 8 de noviembre, de Prevención de Riesgos laborales, los Delegados de Prevención serán designados por y entre los representantes del personal. En una empresa de 50 a 100 trabajadores, ¿cuántos Delegados de Protección le corresponden?",
+                options: ["A) 2 Delegados de Prevención.", "B) 3 Delegados de Prevención.", "C) 4 Delegados de Prevención.", "D) 5 Delegados de Prevención."],
+                correctAnswer: "A"
+            },
+            {
+                id: 40,
+                question: "Según el artículo 2 (ámbito de aplicación) de la Ley 12/2007, de 26 de noviembre, para la promoción de la igualdad de género en Andalucía, esta ley será de aplicación en todo el ámbito territorial de la Comunidad Autónoma de Andalucía, y en particular será de aplicación (señale la respuesta INCORRECTA):",
+                options: ["A) A la Administración de la Junta de Andalucía.", "B) A las empresas de la Junta de Andalucía, a los consorcios, fundaciones y demás entidades con personalidad jurídica propia en los que sea mayoritaria la representación indirecta de la Junta de Andalucía.", "C) A las entidades que integran la Administración local.", "D) Al sistema universitario andaluz."],
+                correctAnswer: "B"
+            },
+            {
+                id: 41,
+                question: "Según se establece en el artículo 51.2 de la Ley 55/2003, de 16 de diciembre, del Estatuto Marco del personal estatutario de los servicios de salud, el personal tendrá derecho a un período mínimo de descanso ininterrumpido entre el fin de una jornada y el comienzo de la siguiente de:",
+                options: ["A) 8 horas.", "B) 24 horas.", "C) 12 horas.", "D) 36 horas."],
+                correctAnswer: "C"
+            },
+            {
+                id: 42,
+                question: "Según se establece en el artículo 5 de la Ley 55/2003, de 16 de diciembre, del Estatuto Marco del personal estatutario de los servicios de salud, el personal estatutario de los servicios de salud se clasifica:",
+                options: ["A) Entre personal estatutario sanitario, personal estatutario de gestión y servicios y personal estatutario de formación profesional.", "B) Atendiendo a la función desarrollada, al nivel del título exigido para el ingreso y al tipo de su nombramiento.", "C) Entre personal de formación universitaria y personal de formación profesional.", "D) Entre personal estatutario sanitario facultativo, personal estatutario sanitario no facultativo y personal estatutario de gestión y servicios."],
+                correctAnswer: "B"
+            },
+            {
+                id: 43,
+                question: "Según se establece en el artículo 5 de la Ley 41/2002, de 14 de noviembre, básica reguladora de la autonomía del paciente y de derechos y obligaciones en materia de información y documentación clínica, el titular del derecho a la información asistencial es:",
+                options: ["A) El Servicio de Salud correspondiente.", "B) El personal facultativo que realiza la intervención.", "C) El paciente.", "D) El personal sanitario que intervenga en el proceso."],
+                correctAnswer: "C"
+            },
+            {
+                id: 44,
+                question: "Según se establece en el artículo 5.4 de la Ley 41/2002, de 14 de noviembre, básica reguladora de la autonomía del paciente y de derechos y obligaciones en materia de información y documentación clínica, ¿qué se entiende por \"necesidad terapéutica\"?",
+                options: ["A) La facultad del médico para actuar profesionalmente sin informar antes al paciente, cuando por razones objetivas el conocimiento de su propia situación pueda perjudicar su salud de manera grave.", "B) El conjunto de técnicas clínicas necesarias para la correcta actuación profesional de cada intervención.", "C) La finalidad y la naturaleza de cada intervención, sus riesgos y sus consecuencias.", "D) Los posibles efectos adversos de su intervención."],
+                correctAnswer: "A"
+            },
+            {
+                id: 45,
+                question: "La aplicación AGESCON es:",
+                options: ["A) Una aplicación para la gestión de contraseñas.", "B) Una aplicación para la contratación administrativa.", "C) Un módulo dentro de la aplicación Gerhonte.", "D) Un módulo dentro de la aplicación SIGLO."],
+                correctAnswer: "A"
+            },
+            {
+                id: 46,
+                question: "Según se establece en el artículo 66.3 de la Ley 55/2003, de 16 de diciembre, del Estatuto Marco del personal estatutario de los servicios de salud, el personal estatutario excedente por prestación de servicios en el sector público:",
+                options: ["A) No devengará retribuciones, y el tiempo de permanencia en esta situación les será reconocido a efectos de trienios y carrera profesional, en su caso, cuando reingresen al servicio activo.", "B) Devengará retribuciones, y el tiempo de permanencia en esta situación les será reconocido a efectos de trienios y carrera profesional, en su caso, cuando reingresen al servicio activo.", "C) No devengará retribuciones, y el tiempo de permanencia en esta situación NO será reconocido a efectos de trienios y carrera profesional, en su caso, cuando reingresen al servicio activo.", "D) Devengará retribuciones, y el tiempo de permanencia en esta situación NO será reconocido a efectos de trienios y carrera profesional, en su caso, cuando reingresen al servicio activo."],
+                correctAnswer: "A"
+            },
+            {
+                id: 47,
+                question: "El artículo 43.3 de la vigente Constitución Española establece que los poderes públicos fomentarán:",
+                options: ["A) La educación.", "B) La educación y la cultura.", "C) La educación, la cultura y la educación física.", "D) La educación sanitaria, la educación física y el deporte. Asimismo facilitarán la adecuada utilización del ocio."],
+                correctAnswer: "D"
+            },
+            {
+                id: 48,
+                question: "Dentro de los programas de actuación del I Plan de Igualdad de la Administración General de la Junta de Andalucía 2023-2027, se encuentra:",
+                options: ["A) Mentoría para el liderazgo de las mujeres.", "B) Sensibilización en diversidad sexual y de género.", "C) Regulación del teletrabajo.", "D) Las respuestas A), B) y C) son correctas."],
+                correctAnswer: "D"
+            },
+            {
+                id: 49,
+                question: "El derecho a la confidencialidad de toda la información relacionada con el proceso de un paciente y con su estancia en una institución sanitaria viene regulada:",
+                options: ["A) Para las instituciones públicas, en la Ley General de Sanidad; y para las instituciones privadas, en el Reglamento Europeo de Sanidad.", "B) Para las instituciones privadas, en la Ley General de Sanidad; y para las instituciones públicas, en el Reglamento Europeo de Sanidad.", "C) Para las instituciones públicas y para las privadas que colaboren con el sistema público, en la Ley General de Sanidad.", "D) Para las instituciones públicas en la Ley de Salud de Andalucía; y para las instituciones privadas en el Reglamento Europeo de Sanidad."],
+                correctAnswer: "C"
+            },
+            {
+                id: 50,
+                question: "Cuando se presenta una reclamación en el libro que a tal efecto existe en cualquier centro del Servicio Andaluz de Salud, y se necesite más de una hoja para redactar su contenido:",
+                options: ["A) Se hará en el libro como continuación de la hoja anterior.", "B) Se utilizará la primera hoja y los profesionales del centro proporcionarán tantos folios en blanco como sean necesarios, que graparán a la hoja del libro.", "C) Sólo se puede utilizar una hoja por reclamación, por lo que tendrá que resumirse para que quepa en la hoja del libro.", "D) En el caso de necesitar varias hojas para hacer una reclamación, siempre habrá de hacerse por internet."],
+                correctAnswer: "B"
+            },
+            {
+                id: 51,
+                question: "Señale la respuesta más adecuada. En Atención Primaria, un ciudadano puede obtener cita para:",
+                options: ["A) Sólo para consultas médicas.", "B) Sólo para consultas médicas y de enfermería.", "C) Para consultas médicas, de enfermería y para gestiones administrativas.", "D) Sólo para consultas de enfermería."],
+                correctAnswer: "C"
+            },
+            {
+                id: 52,
+                question: "¿Cuál de los siguientes requisitos es FALSO, con respecto a la segunda opinión médica en Andalucía?",
+                options: ["A) Que se requiera un tratamiento urgente o inmediato.", "B) No haber efectuado anteriormente, la persona solicitante o su representante, otra solicitud de segunda opinión médica para el mismo proceso asistencial.", "C) La enfermedad o el tratamiento propuesto para la persona solicitante le ha sido diagnosticado en cualquier centro dependiente del Servicio Andaluz de Salud.", "D) Que en la persona solicitante se dé alguna de las circunstancias clínicas correspondientes a los diagnósticos recogidos en la normativa."],
+                correctAnswer: "A"
+            },
+            {
+                id: 53,
+                question: "En el Sistema Sanitario Público de Andalucía (SSPA), el plazo de respuesta que se garantiza para la realización de las primeras consultas de asistencia especializada, derivadas de atención primaria, es de:",
+                options: ["A) 30 días.", "B) 60 días.", "C) 90 días.", "D) 120 días."],
+                correctAnswer: "B"
+            },
+            {
+                id: 54,
+                question: "En el SSPA, el plazo de respuesta que se garantiza para la realización de un procedimiento diagnóstico, es de:",
+                options: ["A) 30 días.", "B) 60 días.", "C) 90 días.", "D) 120 días."],
+                correctAnswer: "A"
+            },
+            {
+                id: 55,
+                question: "Según el Decreto 127/2003 (de la Consejería de Salud), de 13 mayo, por el que se establece el ejercicio de derecho a la segunda opinión médica en el Sistema Sanitario Público de Andalucía, ¿quién o quiénes podrá/n solicitar la segunda opinión médica?",
+                options: ["A) Por el propio paciente, por sus familiares, parejas de hecho, por personas allegadas, por sus representantes legales o por persona en quien expresamente delegue.", "B) Por el propio paciente y por sus representantes legales exclusivamente.", "C) Exclusivamente por el propio paciente, por familiares de primer grado de consanguinidad o por sus representantes legales.", "D) Principalmente por el propio paciente, por sus familiares hasta segundo grado de consanguinidad, por sus representantes legales o por persona en quien expresamente delegue."],
+                correctAnswer: "A"
+            },
+            {
+                id: 56,
+                question: "El Servicio Andaluz de Salud da la posibilidad al ciudadano de elegir:",
+                options: ["A) Al médico de familia, al especialista y al hospital público en el que desea ser intervenido quirúrgicamente.", "B) Al médico de familia y al pediatra exclusivamente.", "C) La especialidad que le atienda en el ámbito hospitalario tras derivación por su médico de familia, pero nunca se puede elegir al facultativo especialista.", "D) Tanto al médico de familia como al especialista hospitalario, pero nunca se puede elegir hospital público en el que se desea ser intervenido, ya que en estos casos siempre se le asignará el hospital de referencia que le corresponda por su domicilio."],
+                correctAnswer: "A"
+            },
+            {
+                id: 57,
+                question: "En informática, ¿qué es un bit?",
+                options: ["A) Es la unidad de capacidad de almacenamiento estándar.", "B) Es una parte del Hardware básico.", "C) Es una parte del Hardware complementario.", "D) Es la unidad mínima de información."],
+                correctAnswer: "D"
+            },
+            {
+                id: 58,
+                question: "El programa para la manipulación de datos dispuestos en forma de tablas, con la finalidad de efectuar operaciones complejas con fórmulas y funciones, es:",
+                options: ["A) Base de datos.", "B) Presentaciones informáticas.", "C) Procesador de texto.", "D) Hoja de cálculo."],
+                correctAnswer: "D"
+            },
+            {
+                id: 59,
+                question: "Las cookies:",
+                options: ["A) Son datos que los procesadores de texto guardan en la CPU del cliente que accede a ellos, para facilitar posteriores accesos.", "B) No pueden borrarse nunca.", "C) Son datos que las páginas Web guardan en el navegador del cliente que accede a ellas, para facilitar posteriores accesos a dicha página.", "D) No pueden ser bloqueadas por ningún antivirus."],
+                correctAnswer: "C"
+            },
+            {
+                id: 60,
+                question: "La \"barra de estado\" en el procesador de textos Microsoft Word:",
+                options: ["A) Permite ver la página en la que se encuentra, las que tiene el documento, pero no el número de palabras que completan el documento.", "B) Permite ver el número de palabras que completan el documento, la página en la que se encuentra, pero no lo las páginas que tiene el documento.", "C) Permite ver la página en la que se encuentra, las que tiene el documento y el número de palabras que completan el documento.", "D) Permite ver el número de palabras que completan el documento, las páginas que tiene el documento, pero no permite ver la página en la que se encuentra."],
+                correctAnswer: "C"
+            },
+            {
+                id: 61,
+                question: "En relación al vigente Plan de Prevención y Atención frente a Agresiones a Profesionales del Sistema Sanitario Público de Andalucía (SSPA), señale lo adecuado:",
+                options: ["A) Potencia las acciones de concienciación dirigidas a la ciudadanía.", "B) Homogeneiza la cartelería institucional en todos los centros del SSPA.", "C) Potencia la formación en materia de prevención de agresiones.", "D) Todas las respuestas anteriores son correctas. Página 14 de 15"],
+                correctAnswer: "D"
+            },
+            {
+                id: 62,
+                question: "En informática, una impresora sería:",
+                options: ["A) Hardware complementario.", "B) Hardware básico.", "C) Software complementario.", "D) Software básico."],
+                correctAnswer: "A"
+            },
+            {
+                id: 63,
+                question: "¿Cuáles son los valores superiores que propugna el Estatuto de Autonomía de Andalucía (Ley Orgánica 2/2007, de 19 de marzo, de reforma del Estatuto de Autonomía para Andalucía) en su artículo 1.2?",
+                options: ["A) La libertad, la justicia, la igualdad y el pluralismo político para todos los andaluces.", "B) La solidaridad, la igualdad entre mujeres y hombres, y la justa distribución de riquezas y oportunidades entre todos los andaluces.", "C) La paz y la justicia para todos los andaluces.", "D) La igualdad, la equidad, el bienestar y la paz social para todos los andaluces."],
+                correctAnswer: "A"
+            },
+            {
+                id: 64,
+                question: "Según el artículo 20 de la Ley General de Sanidad, dedicado a la atención a la salud mental, ¿cuál de las siguientes respuestas es correcta?",
+                options: ["A) Se considerarán de modo especial aquellos problemas referentes a la psiquiatría infantil y psicogeriatría.", "B) La atención a los problemas de salud mental de la población se realizará en el ámbito especializado, potenciando los recursos asistenciales a nivel hospitalario.", "C) La hospitalización de los pacientes por procesos que así lo requieran se realizará en las unidades psiquiátricas de los hospitales básicos o comarcales, o en centros psiquiátricos monográficos.", "D) Los aspectos de prevención primaria y la atención a los problemas psicosociales que acompañan a la pérdida de salud en general estarán a cubiertos por los servicios sociales, no por los servicios de salud mental y de atención psiquiátrica."],
+                correctAnswer: "A"
+            },
+            {
+                id: 65,
+                question: "La protección de las personas físicas en relación con el tratamiento de datos personales es un derecho fundamental que está reconocido y protegido en la vigente Constitución Española, concretamente en su artículo:",
+                options: ["A) 16.", "B) 18.", "C) 20.", "D) 26."],
+                correctAnswer: "B"
+            },
+            {
+                id: 66,
+                question: "Según la Ley para la igualdad efectiva de mujeres y hombres (Ley Orgánica 3/2007, de 22 de marzo), el órgano colegiado de consulta y asesoramiento, con el fin esencial de servir de cauce para la participación de las mujeres en la consecución efectiva del principio de igualdad de trato y de oportunidades entre mujeres y hombres, y la lucha contra la discriminación por razón de sexo, se denomina:",
+                options: ["A) La Comisión Interministerial de Igualdad entre Mujeres y Hombres.", "B) Las Unidades Ministeriales de Igualdad.", "C) El Consejo de Participación de la Mujer.", "D) El Instituto Nacional de la Mujer."],
+                correctAnswer: "C"
+            },
+            {
+                id: 67,
+                question: "El personal estatutario del Servicio Andaluz de Salud que se encuentre en situación de excedencia voluntaria por interés particular:",
+                options: ["A) No devengara retribuciones, ni les será computable el tiempo que permanezca en tal situación a efectos de ascensos, trienios y derechos en el régimen de seguridad social que les sea de aplicación.", "B) No devengara retribuciones, pero sí les será computable el tiempo que permanezca en tal situación a efectos solo de trienios.", "C) No devengara retribuciones, pero sí les será computable el tiempo que permanezca en tal situación a efectos de ascensos, trienios y derechos en el régimen de seguridad social que les sea de aplicación.", "D) Devengara sólo las retribuciones del nivel de carrera profesional alcanzado."],
+                correctAnswer: "A"
+            },
+            {
+                id: 68,
+                question: "¿Cuál de los siguientes identificaría con el objetivo principal de la Estrategia de Seguridad del Paciente del Sistema Nacional de Salud (SNS)?",
+                options: ["A) Reducir los costes sanitarios mediante la optimización de recursos.", "B) Prevenir y reducir los riesgos, errores y daños al paciente durante la atención sanitaria.", "C) Mejorar la satisfacción laboral del personal sanitario.", "D) Aumentar la cantidad de pacientes atendidos en menor tiempo."],
+                correctAnswer: "B"
+            },
+            {
+                id: 69,
+                question: "¿Cuál es el objetivo principal del Modelo de Acreditación de Competencias Profesionales del Sistema Sanitario Público de Andalucía?",
+                options: ["A) Aumentar la carga de trabajo del personal sanitario.", "B) Garantizar que el personal sanitario cumpla con los requisitos legales mínimos.", "C) Desarrollar y reconocer las competencias de los profesionales para mejorar la calidad del servicio.", "D) Reducir los costos de formación en el SAS."],
+                correctAnswer: "C"
+            },
+            {
+                id: 70,
+                question: "¿Cuál es el objetivo principal del derecho a la libre elección de profesional de medicina de familia y pediatra en el SSPA?",
+                options: ["A) Facilitar el acceso a tratamientos de medicina alternativa.", "B) Mejorar la satisfacción del paciente y personalizar la atención dentro de los recursos disponibles.", "C) Permitir a los pacientes cambiar su tratamiento según sus preferencias.", "D) Garantizar el acceso ilimitado a cualquier médico."],
+                correctAnswer: "B"
+            },
+            {
+                id: 71,
+                question: "¿Cuál es el plazo general para presentar una reclamación por responsabilidad patrimonial contra la Administración Pública?",
+                options: ["A) 1 año desde que ocurrió el hecho o se manifestó el daño.", "B) 6 meses desde que ocurrió el hecho.", "C) 2 años desde que se conoció el hecho.", "D) No hay límite de plazo para la reclamación."],
+                correctAnswer: "A"
+            },
+            {
+                id: 72,
+                question: "¿Cómo define la Organización Mundial de la Salud (OMS) la \"Calidad de Vida Relacionada con la Salud\" (CVRS)?",
+                options: ["A) Como la percepción individual de su salud mental exclusivamente.", "B) Como la percepción del individuo sobre su posición en la vida dentro del contexto cultural y el sistema de valores en el que vive y con respecto a sus metas, expectativas, normas y preocupaciones.", "C) Como la evaluación médica objetiva del estado de salud.", "D) Como el nivel de satisfacción en el trabajo y el entorno social."],
+                correctAnswer: "B"
+            },
+            {
+                id: 73,
+                question: "Según se establece en el Tratado de Funcionamiento de la Unión Europea, al definirse y ejecutarse todas las políticas y acciones de la Unión se garantizará un nivel de protección de la salud humana:",
+                options: ["A) Muy alto.", "B) Alto.", "C) Bajo.", "D) Muy bajo."],
+                correctAnswer: "B"
+            },
+            {
+                id: 74,
+                question: "Según el artículo 61 del vigente Estatuto de Autonomía de Andalucía, “la competencia exclusiva en materia de voluntariado, que incluye, en todo caso, la definición de la actividad y la regulación y la promoción de las actuaciones destinadas a la solidaridad y a la acción voluntaria que se ejecuten individualmente o a través de instituciones públicas o privadas”, ¿a quién corresponde?",
+                options: ["A) A la Comunidad Autónoma.", "B) Al Estado Español.", "C) A los Ayuntamientos y corporaciones locales.", "D) A las Diputaciones provinciales."],
+                correctAnswer: "A"
+            },
+            {
+                id: 75,
+                question: "¿Cuáles son los valores superiores que propugna el Estatuto de Autonomía de Andalucía (Ley Orgánica 2/2007, de 19 de marzo, de reforma del Estatuto de Autonomía para Andalucía) en su artículo 1.2?",
+                options: ["A) La libertad, la justicia, la igualdad y el pluralismo político para todos los andaluces.", "B) La solidaridad, la igualdad entre mujeres y hombres, y la justa distribución de riquezas y oportunidades entre todos los andaluces.", "C) La paz y la justicia para todos los andaluces.", "D) La igualdad, la equidad, el bienestar y la paz social para todos los andaluces."],
+                correctAnswer: "A"
+            },
+            {
+                id: 76,
+                question: "¿En qué año fue aprobada y publicada en el BOE la vigente Constitución Española?",
+                options: ["A) 1978.", "B) 1979.", "C) 1976.", "D) 1981."],
+                correctAnswer: "A"
+            },
+            {
+                id: 77,
+                question: "Según el artículo 20 de la Ley General de Sanidad, dedicado a la atención a la salud mental, ¿cuál de las siguientes respuestas es correcta?",
+                options: ["A) Se considerarán de modo especial aquellos problemas referentes a la psiquiatría infantil y psicogeriatría.", "B) La atención a los problemas de salud mental de la población se realizará en el ámbito especializado, potenciando los recursos asistenciales a nivel hospitalario.", "C) La hospitalización de los pacientes por procesos que así lo requieran se realizará en las unidades psiquiátricas de los hospitales básicos o comarcales, o en centros psiquiátricos monográficos.", "D) Los aspectos de prevención primaria y la atención a los problemas psicosociales que acompañan a la pérdida de salud en general estarán a cubiertos por los servicios sociales, no por los servicios de salud mental y de atención psiquiátrica."],
+                correctAnswer: "A"
+            },
+            {
+                id: 78,
+                question: "La Ley 1/2024, de 21 de junio, de creación del Instituto de Salud de Andalucía, establece que esta agencia administrativa asumirá las funciones, personal y medios de la Fundación Pública Andaluza Progreso y Salud, de la Escuela Andaluza de Salud Pública, y de una parte de la organización administrativa de la actual Consejería de Salud y Consumo. ¿De cuál?",
+                options: ["A) De la Secretaría General Técnica.", "B) De la Secretaría General de Salud Pública e I+D+i en Salud.", "C) De la Dirección General de Salud Pública y Ordenación Farmacéutica.", "D) Del Servicio Andaluz de Salud."],
+                correctAnswer: "B"
+            },
+            {
+                id: 79,
+                question: "¿Cómo se denomina la situación o estado del paciente, que faculta al médico para actuar profesionalmente sin informar antes al paciente, cuando por razones objetivas el conocimiento de su propia situación pueda perjudicar su salud de manera grave?",
+                options: ["A) Conspiración de silencio.", "B) Necesidad terapéutica.", "C) Terapia compasiva.", "D) Estado terminal."],
+                correctAnswer: "B"
+            },
+            {
+                id: 80,
+                question: "Según el artículo 68 de la Ley 55/2003, de 16 de diciembre, del Estatuto Marco del personal estatutario de los servicios de salud, el personal declarado en situación de suspensión firme de funciones:",
+                options: ["A) La suspensión firme determinará la pérdida del puesto de trabajo cuando exceda de seis meses.", "B) Podrá ejercer funciones limitadas dependiendo de ámbito de aplicación de la suspensión.", "C) La suspensión firme por sanción disciplinaria no podrá exceder de diez años.", "D) Ninguna de las opciones es correcta."],
+                correctAnswer: "A"
+            },
+            {
+                id: 81,
+                question: "¿Qué órgano desarrollará las actividades de planificación, diseño de los programas de formación y modernización de los recursos humanos del Sistema Nacional de Salud según la Ley 16/2003, de 28 de mayo, de cohesión y calidad del Sistema Nacional de Salud?",
+                options: ["A) El Instituto de Salud Carlos III.", "B) La Agencia Española de Medicamentos y Productos Sanitarios.", "C) La Comisión de Recursos Humanos.", "D) El Consejo Interterritorial del Sistema Nacional de Salud."],
+                correctAnswer: "C"
+            },
+            {
+                id: 82,
+                question: "¿Cuál es el objeto principal de la Ley 16/2003, de 28 de mayo, de cohesión y calidad del Sistema Nacional de Salud?",
+                options: ["A) Establecer el marco legal para la investigación biomédica.", "B) Garantizar la equidad, calidad y participación social en el Sistema Nacional de Salud.", "C) Regular la financiación de la sanidad privada.", "D) Proveer formación especializada en salud pública."],
+                correctAnswer: "B"
+            },
+            {
+                id: 83,
+                question: "¿Qué debe incluir la solicitud de reclamación de responsabilidad patrimonial que realicen los interesados en el Servicio Andaluz de Salud?",
+                options: ["A) Una declaración jurada de los hechos sin necesidad de pruebas.", "B) Las lesiones producidas, la presunta relación de causalidad entre éstas y el funcionamiento del servicio público y la evaluación económica de la responsabilidad patrimonial.", "C) Solo el informe médico y la descripción de los daños.", "D) No es preciso aportar documentación, salvo la identificación del interesado."],
+                correctAnswer: "B"
+            },
+            {
+                id: 84,
+                question: "¿Qué plazo tiene la Administración para resolver y notificar al interesado una reclamación de responsabilidad patrimonial?",
+                options: ["A) 3 meses.", "B) 6 meses.", "C) 9 meses.", "D) 12 meses."],
+                correctAnswer: "B"
+            },
+            {
+                id: 85,
+                question: "En relación a las Unidades de Gestión Clínica, señale la respuesta INCORRECTA:",
+                options: ["A) Son unidades orgánicas sin personalidad jurídica propia, con autonomía para la organización y gestión de los recursos humanos y materiales que se les asignen.", "B) Le corresponde prestar la asistencia sanitaria propia de su ámbito y nivel asistencial.", "C) Podrán constituirse por uno o varios Equipos de Atención Primaria, o por uno o varios Servicios o Secciones de un Hospital o Complejo Asistencial.", "D) Dependerán orgánicamente de la Delegación de Salud de la que dependa el Centro o Institución Sanitaria en el que se constituyan."],
+                correctAnswer: "D"
+            },
+            {
+                id: 86,
+                question: "Entre los indicadores de salud que hacen referencia a los hábitos y estilos de vida relacionados con la salud, NO se encuentra:",
+                options: ["A) La inactividad física en tiempo libre.", "B) La obesidad.", "C) La lactancia materna.", "D) El consumo insuficiente de frutas y verduras."],
+                correctAnswer: "C"
+            },
+            {
+                id: 87,
+                question: "¿Qué órgano desarrollará las actividades de planificación, diseño de los programas de formación y modernización de los recursos humanos del Sistema Nacional de Salud según la Ley 16/2003, de 28 de mayo, de cohesión y calidad del Sistema Nacional de Salud?",
+                options: ["A) El Instituto de Salud Carlos III.", "B) La Agencia Española de Medicamentos y Productos Sanitarios.", "C) La Comisión de Recursos Humanos.", "D) El Consejo Interterritorial del Sistema Nacional de Salud."],
+                correctAnswer: "C"
+            },
+            {
+                id: 88,
+                question: "Según el Artículo 1 de la Ley 16/2003, de cohesión y calidad del Sistema Nacional de Salud (SNS), ¿cuál es el objeto principal de esta ley?",
+                options: ["A) Establecer medidas para la privatización de los servicios sanitarios.", "B) Establecer el marco legal para las acciones de coordinación y cooperación de las Administraciones Públicas Sanitarias, en el ejercicio de sus respectivas competencias, de modo que se garantice la equidad, la calidad y la participación social en el SNS, así como la colaboración activa de éste en la reducción de las desigualdades en salud.", "C) Garantizar únicamente la financiación pública de todos los servicios sanitarios en España.", "D) Regular la gestión de hospitales privados en el territorio nacional."],
+                correctAnswer: "B"
+            },
+            {
+                id: 89,
+                question: "¿Cuál es uno de los principios que rigen las actuaciones en Salud Pública, según la Ley 16/2011 de Andalucía?",
+                options: ["A) La intervención sanitaria sin respetar el consentimiento informado de las personas.", "B) La equidad.", "C) La exclusión de los servicios de prevención para personas mayores de 65 años.", "D) La participación exclusiva de entidades privadas en programas de Salud Pública."],
+                correctAnswer: "B"
+            },
+            {
+                id: 90,
+                question: "¿En qué artículo de la vigente Constitución Española se reconoce el derecho a la responsabilidad patrimonial de las Administraciones Públicas?",
+                options: ["A) Artículo 104.", "B) Artículo 106.", "C) Artículo 120.", "D) Artículo 149."],
+                correctAnswer: "B"
+            },
+            {
+                id: 91,
+                question: "¿Cuál es la función principal de los Biobancos según la Ley 14/2007, de investigación biomédica?",
+                options: ["A) Supervisar la ética en la investigación.", "B) Proporcionar muestras biológicas para investigación.", "C) Almacenar resultados de proyectos científicos.", "D) Garantizar la financiación de estudios biomédicos."],
+                correctAnswer: "B"
+            },
+            {
+                id: 92,
+                question: "Según el artículo 3 punto 1 de la Ley 16/2003, de 28 de mayo, de cohesión y calidad del Sistema Nacional de Salud, son titulares del derecho a la protección de la salud y a la atención sanitaria todas las personas con nacionalidad española y las personas extranjeras que tengan establecida su residencia en el territorio español, derecho que la última modificación de la Ley ha ampliado a las personas extranjeras no registradas ni autorizadas como residentes en España, y en estos casos su asistencia será con cargo a los fondos públicos de las administraciones competentes siempre que dichas personas cumplan todos los siguientes requisitos, EXCEPTO:",
+                options: ["A) No existir un tercero obligado al pago.", "B) No tener la obligación de acreditar la cobertura obligatoria de la prestación sanitaria por otra vía, en virtud de lo dispuesto en el derecho de la Unión Europea, los convenios bilaterales y demás normativa aplicable.", "C) No poder exportar el derecho de cobertura sanitaria desde su país de origen o procedencia.", "D) No tener causas judiciales penales pendientes."],
+                correctAnswer: "D"
+            },
+            {
+                id: 93,
+                question: "Todas las siguientes son medidas en el ámbito de la salud recogidas en el articulado de la \"Ley Trans\" (Ley 4/2023, de 28 de febrero, para la igualdad real y efectiva de las personas trans y para la garantía de los derechos de las personas LGTBI), EXCEPTO uno de los que se relacionan:",
+                options: ["A) Se prohíben todas aquellas prácticas de modificación genital en personas menores de doce años, salvo en los casos en que las indicaciones médicas exijan lo contrario en aras de proteger la salud de la persona.", "B) Se prohíbe la práctica de métodos, programas y terapias de aversión, conversión o contracondicionamiento, en cualquier forma, destinados a modificar la orientación o identidad sexual o la expresión de género de las personas, salvo que cuenten con el consentimiento de la persona interesada o de su representante legal.", "C) En la atención a la salud de las personas intersexuales se asegurará en todo caso el respeto de su intimidad y la confidencialidad sobre sus características físicas, evitando las exploraciones innecesarias o su exposición sin un objetivo diagnóstico o terapéutico directamente relacionado.", "D) La atención a la salud de las personas intersexuales se realizará conforme a los principios de no patologización, autonomía, decisión y consentimiento informados, no discriminación, asistencia integral, calidad, especialización, proximidad y no segregación."],
+                correctAnswer: "B"
+            },
+            {
+                id: 94,
+                question: "Según la LRJSP (Ley 40/2015, de 1 de octubre, de Régimen Jurídico del Sector Público), en lo referente a la responsabilidad patrimonial de las Administraciones Públicas, los particulares tendrán derecho a ser indemnizados por las Administraciones Públicas correspondientes, de toda lesión que sufran en cualquiera de sus bienes y derechos, siempre que se cumpla que:",
+                options: ["A) El daño o lesión patrimonial sufrida por el reclamante sea consecuencia del funcionamiento anormal de los servicios públicos.", "B) El reclamante tenga el deber jurídico de soportar el daño causado.", "C) El daño alegado sea efectivo, evaluable económicamente e individualizado con relación a una persona o grupo de personas.", "D) Todas las respuestas anteriores son ciertas"],
+                correctAnswer: "C"
+            },
+            {
+                id: 95,
+                question: "El instrumento del que se dota la Dirección Gerencia del SAS para establecer las actividades a realizar por sus centros, los recursos de que éstos dispondrán, así como el marco y dinámica de sus relaciones, habitualmente para un periodo anual, se conoce por:",
+                options: ["A) Plan de Salud.", "B) Acuerdo de Gestión.", "C) Pacto Anual SAS.", "D) Contrato Programa."],
+                correctAnswer: "D"
+            },
+            {
+                id: 96,
+                question: "Diraya, definido como sistema integrado de gestión e información para la atención sanitaria, es el elemento que se utiliza en el SSPA como soporte de la historia clínica electrónica, y consta de un conjunto de módulos relacionados que comparten información. ¿Cómo se conoce el módulo disponible para Atención Primaria, donde los profesionales de los equipos básicos de salud registran los antecedentes personales, alergias y problemas de salud de sus usuarios, la inclusión en programas o procesos asistenciales, las prescripciones y recetas, el seguimiento en consulta y las incapacidades laborales?",
+                options: ["A) Historia de Salud de Atención Primaria (HSAP).", "B) Atención Clínica en Atención Primaria (ACAP).", "C) Estación Clínica de Atención Primaria (ECAP).", "D) Portal de Cuidados de Atención Primaria (PCAP)."],
+                correctAnswer: "A"
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container'); 
+function renderQuestion(q) {
+      const container = document.createElement('div');
+      container.className = "bg-white dark:bg-gray-800 p-6 rounded-xl shadow";
+      container.id = `question-${q.id}`;
+
+      const title = document.createElement('p');
+      title.className = "text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4";
+      title.textContent = `${q.id}. ${q.question}`;
+      container.appendChild(title);
+
+      const optionGroup = document.createElement('div');
+      optionGroup.className = "flex flex-col gap-2";
+      q.options.forEach(opt => {
+        const optionId = `q${q.id}-${opt.charAt(0)}`;
+
+        const label = document.createElement('label');
+        label.className = "flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 option-label";
+        label.htmlFor = optionId;
+
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = `question-${q.id}`;
+        radio.id = optionId;
+        radio.value = opt.charAt(0);
+        radio.className = "form-radio mr-3 text-blue-600";
+
+        const span = document.createElement('span');
+        span.textContent = opt;
+
+        label.appendChild(radio);
+        label.appendChild(span);
+        optionGroup.appendChild(label);
+      });
+      container.appendChild(optionGroup);
+
+      const button = document.createElement('button');
+      button.textContent = "Comprobar Respuesta";
+      button.className = "mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded";
+      button.onclick = () => checkAnswer(q.id, q.correctAnswer);
+      container.appendChild(button);
+
+      const feedback = document.createElement('div');
+      feedback.id = `feedback-${q.id}`;
+      feedback.className = "mt-4 p-3 rounded hidden feedback-message";
+      container.appendChild(feedback);
+
+      document.getElementById('quiz-container').appendChild(container);
+    }
+
+    function checkAnswer(id, correct, forceReveal = false) {
+      const selected = document.querySelector(`input[name='question-${id}']:checked`);
+      const feedback = document.getElementById(`feedback-${id}`);
+      const card = document.getElementById(`question-${id}`);
+      const labels = card.querySelectorAll('.option-label');
+
+      labels.forEach(l => l.classList.remove('correct-answer', 'incorrect-answer'));
+
+      if (selected) {
+        const isCorrect = selected.value === correct;
+        feedback.textContent = isCorrect ? "¡Correcto!" : `Incorrecto. La respuesta correcta es ${correct}.`;
+        feedback.classList.remove('feedback-correct', 'feedback-incorrect', 'hidden');
+        feedback.classList.add(isCorrect ? 'feedback-correct' : 'feedback-incorrect');
+        selected.closest('label').classList.add(isCorrect ? 'correct-answer' : 'incorrect-answer');
+
+        if (!isCorrect) {
+          const correctInput = card.querySelector(`input[value='${correct}']`);
+          correctInput.closest('label').classList.add('correct-answer');
+        }
+        feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (forceReveal) {
+        const correctInput = card.querySelector(`input[value='${correct}']`);
+        correctInput.closest('label').classList.add('correct-answer');
+        feedback.textContent = `La respuesta correcta es ${correct}.`;
+        feedback.classList.remove('feedback-correct', 'feedback-incorrect', 'hidden');
+        feedback.classList.add('feedback-correct');
+      } else {
+        feedback.textContent = "Por favor, selecciona una opción.";
+        feedback.classList.remove('feedback-correct', 'feedback-incorrect', 'hidden');
+        feedback.style.backgroundColor = '#fef3c7';
+        feedback.style.color = '#92400e';
+      }
+    }
+
+    function revealAllAnswers() {
+      questions.forEach(q => checkAnswer(q.id, q.correctAnswer, true));
+    }
+
+    function resetQuiz() {
+      document.querySelectorAll('input[type=radio]').forEach(el => el.checked = false);
+      document.querySelectorAll('.option-label').forEach(el => el.classList.remove('correct-answer', 'incorrect-answer'));
+      document.querySelectorAll('.feedback-message').forEach(el => {
+        el.textContent = '';
+        el.classList.add('hidden');
+      });
+    }
+
+    document.getElementById('toggle-dark').addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+    });
+
+    window.onload = () => {
+      questions.forEach(q => renderQuestion(q));
+    };
+  </script>
+</body>
+</html>
